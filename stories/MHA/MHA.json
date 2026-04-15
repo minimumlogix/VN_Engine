@@ -67,28 +67,28 @@
   "storyDialogue": [
     { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for auto scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top bar. Explore character profiles and return to the home screen via the options menu" },
     
-    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "In a world of bright heroes, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate. You sacrificed everything, saving a stranger, only to be shackled by a terminal illness—a cruel twist of irony." },
-    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Ah, what a tragic spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?" },
-    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Imagine a life beyond this bed, a chance to wield unimaginable power. Join me, and you can reshape the world in your image." },
-    { "chapter": 1, "scene": 2, "character": "NARRATION", "text": "His voice slithers into your mind, offering a tantalizing glimpse of hope amidst despair. What lies ahead could change everything." },
+    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "In a world of <b style=\"color:#f2c300;\">bright heroes</b>, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate. You sacrificed everything, saving a stranger, only to be shackled by a terminal illness—a <i style=\"color:#555;\">cruel twist of irony</i>." },
+    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Ah... what a <i style=\"color:red\">tragic</i> spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?" },
+    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Imagine a life beyond this bed, a chance to wield <span style=\"font-size:1.2em; color:#a25fff; text-shadow: 0 0 10px #a25fff;\">unimaginable power</span>. [shake] Join me, and you can reshape the world in your image." },
+    { "chapter": 1, "scene": 2, "character": "NARRATION", "text": "His voice slithers into your mind, offering a tantalizing glimpse of hope amidst despair. What lies ahead could change <b>everything</b>." },
 
-    { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with raw energy, igniting a fire deep within." },
-    { "chapter": 2, "scene": 1, "character": "AFO", "text": "Welcome to the Vanguard Action Squad. Allow me to introduce you to your new family, where chaos reigns supreme." },
-    { "chapter": 2, "scene": 1, "character": "DABI", "text": "You look like you'll fit right in with our delightful madness. Just remember, don't cross me, or you might end up as a smoldering pile of ash." },
-    { "chapter": 2, "scene": 1, "character": "HIMIKO", "text": "Oh, I'm so excited! You seem like someone who knows how to have fun. I can't wait to see what you're made of—maybe even taste it! What's your blood type? Hehe!" },
-    { "chapter": 2, "scene": 1, "character": "TWICE", "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!" },
+    { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with <b style=\"color:#ff0033; text-shadow: 0 0 5px #ff0033;\">raw energy</b>, igniting a fire deep within." },
+    { "chapter": 2, "scene": 1, "character": "AFO", "text": "Welcome to the Vanguard Action Squad. Allow me to introduce you to your new family, where <i>chaos reigns supreme.</i>" },
+    { "chapter": 2, "scene": 1, "character": "DABI", "text": "You look like you'll fit right in with our delightful madness. Just remember, don't cross me, or you might end up as a <b style=\"color:#00e5ff\">smoldering pile of ash.</b>" },
+    { "chapter": 2, "scene": 1, "character": "HIMIKO", "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!" },
+    { "chapter": 2, "scene": 1, "character": "TWICE", "text": "And I'll make a copy of you! [shake] We can have a party with the real you and the clone—just imagine the chaos!" },
     { "chapter": 2, "scene": 1, "character": "COMPRESS", "text": "Focus, everyone. We have a mission to execute. No slip-ups. We're going for Bakugo." },
     { "chapter": 2, "scene": 1, "character": "SPINNER", "text": "With you on our side, this will be a cakewalk. U.A. won't even know what hit them." },
     { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "As they devise their wicked plan to capture Katsuki Bakugo, a thrilling sense of power courses through you—a heady mix of rebellion and darkness." },
 
     { "chapter": 3, "scene": 1, "character": "NARRATION", "text": "The day has arrived. You stand shoulder to shoulder with your comrades, the air thick with anticipation. This is your moment—ready to dive headfirst into a world of chaos." },
-    { "chapter": 3, "scene": 1, "character": "NARRATION", "text": "Every calculated step fills you with adrenaline, the thrill of danger intoxicating your senses." },
-    { "chapter": 3, "scene": 1, "character": "DABI", "text": "Keep low and stick to the shadows. We're not here to play nice; let's make some noise and draw them in." },
-    { "chapter": 3, "scene": 2, "character": "HIMIKO", "text": "I can't wait to meet Bakugo! Just imagine his face when he sees me! I wonder how much he'll scream… or if I can make him bleed! Hehe!" },
+    { "chapter": 3, "scene": 1, "character": "NARRATION", "text": "Every calculated step fills you with adrenaline, the thrill of <i style=\"color:#888;\">danger</i> intoxicating your senses." },
+    { "chapter": 3, "scene": 1, "character": "DABI", "text": "Keep low and stick to the shadows. We're not here to play nice; let's make some noise and <span style=\"letter-spacing: 2px;\">draw them in.</span>" },
+    { "chapter": 3, "scene": 2, "character": "HIMIKO", "text": "[shake] I can't wait to meet Bakugo! Just imagine his face when he sees me! I wonder how much he'll scream… or if I can make him <b style=\"color:red\">bleed!</b> Hehe!" },
     { "chapter": 3, "scene": 2, "character": "TWICE", "text": "This is gonna be a blast! Let's give 'em a show they won't forget!" },
-    { "chapter": 3, "scene": 2, "character": "DEKU", "text": "Stop right there! You can't just barge in here!" },
+    { "chapter": 3, "scene": 2, "character": "DEKU", "text": "[shake] <b style=\"color:#00ff88; font-size:1.1em;\">STOP RIGHT THERE!</b> You can't just barge in here!" },
     { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "You stand before the heroes you once admired, heart racing as dark ambition stirs within you. The weight of your choices presses down, but the thrill of the chase ignites a fire in your soul." },
-    { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "As the tension crackles in the air, you find yourself at a crossroads. Will you embrace the darkness, reveling in your newfound power, or will you turn back against the tide? The choice is yours, and the consequences will echo in the shadows…" }
+    { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "As the tension crackles in the air, you find yourself at a crossroads. Will you embrace the <b style=\"color:#444;text-shadow:0 0 5px #000\">darkness</b>, reveling in your newfound power, or will you turn back against the tide? The choice is yours, and the consequences will echo in the shadows…" }
  
   ]
   

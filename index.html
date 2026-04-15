@@ -13,7 +13,7 @@
 <body>
     <!-- LOADING SCREEN -->
     <div id="loadingScreen" class="screen loading-screen">
-        <div class="loader-content">
+        <div class="loader-content" id="loaderContent">
             <div class="loader-title" data-text="INITIALIZING">INITIALIZING</div>
             <div class="loader-bar-track">
                 <div id="loaderBarFill" class="loader-bar-fill"></div>
@@ -22,6 +22,9 @@
                 <span id="loaderPercent" class="loader-percent">0%</span>
                 <span id="loaderStatus" class="loader-status">Connecting...</span>
             </div>
+        </div>
+        <div class="start-content" id="startContent" style="display:none; text-align:center;">
+            <button id="startGameBtn" class="option-btn" style="padding: 15px 40px; font-size: 1.5rem; cursor: pointer; border-radius: 8px; margin-top: 2rem;">CLICK TO START</button>
         </div>
     </div>
 

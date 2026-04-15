@@ -280,7 +280,8 @@ const state = {
     typingSpeed: TYPING_SPEED,
     autoSpeed: 50,
     currentDialogueIndex: 0,
-    typingTimeout: null,
+    skipRequested: false,   // Advanced Typewriter skip state
+    typingInstanceId: 0,    // Hard-cancel identifier for the async type engine
     autoProgressTimeout: null,
     dialogueHistory: [],
     currentChapter: 1,
@@ -550,13 +551,37 @@ function updateLoaderProgress(pct, label) {
 }
 
 function finishLoading() {
-    const loadingScreen = document.getElementById('loadingScreen');
-    loadingScreen.classList.add('fade-out');
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        screenManager.showScreen('story');
-        setTimeout(initializeStoryScreen, 100);
-    }, 800);
+    const loaderContent = document.getElementById('loaderContent');
+    const startContent = document.getElementById('startContent');
+    const startGameBtn = document.getElementById('startGameBtn');
+    
+    // Switch from loading text to CLICK TO START securely
+    if (loaderContent) loaderContent.style.display = 'none';
+    if (startContent) startContent.style.display = 'block';
+
+    if (startGameBtn) {
+        startGameBtn.addEventListener('click', () => {
+            // Force browser audio engine unlock inside immediate user gesture
+            if (typeof audioManager !== 'undefined') audioManager.forceUnlock();
+            
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                screenManager.showScreen('story');
+                setTimeout(initializeStoryScreen, 100);
+            }, 800);
+        });
+    } else {
+        // Fallback
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.classList.add('fade-out');
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            screenManager.showScreen('story');
+            setTimeout(initializeStoryScreen, 100);
+        }, 800);
+    }
 }
 
 // Fallback data if JSON loading fails
@@ -613,6 +638,25 @@ function setupEventListeners() {
     elements.closeOverlay.addEventListener('click', hideOverlay);
     if (elements.muteIcon) elements.muteIcon.addEventListener('click', toggleMute);
 
+    // Intelligent Mute UI Synchronization Observer
+    if (typeof audioManager !== 'undefined' && elements.muteIcon) {
+        audioManager.subscribe((enabled) => {
+            const soundWaves = document.getElementById('soundWaves');
+            const muteX = document.getElementById('muteX');
+            if (enabled) {
+                elements.muteIcon.classList.remove('muted');
+                elements.muteIcon.title = 'Pause Audio';
+                if (soundWaves) soundWaves.style.display = '';
+                if (muteX)      muteX.style.display = 'none';
+            } else {
+                elements.muteIcon.classList.add('muted');
+                elements.muteIcon.title = 'Play Audio';
+                if (soundWaves) soundWaves.style.display = 'none';
+                if (muteX)      muteX.style.display = '';
+            }
+        });
+    }
+
     // Wire screen lifecycle hooks
     screenManager.addCleanup('story', cleanupStoryScreen);
     screenManager.setHooks('story', {
@@ -666,8 +710,15 @@ function initializeStoryScreen() {
             elements.storyScreen.style.backgroundImage = `url('${bg}')`;
             appLogger.success(`Initial background loaded`);
         }
+        
+        // Explicitly unleash first chapter's music safely!
+        const initialMusic = state.chapterMusic && state.chapterMusic[state.currentChapter];
+        if (initialMusic && typeof audioManager !== 'undefined') {
+            audioManager.playBackgroundMusic(initialMusic);
+            appLogger.success(`Initial music queued for Chapter ${state.currentChapter}`);
+        }
     } catch (error) {
-        appLogger.error(`Failed to load initial background:`, error);
+        appLogger.error(`Failed to load initial background/music:`, error);
     }
 
     displayNextDialogue();
@@ -786,7 +837,7 @@ function updateEndScreenButtons() {
 // Display the next dialogue
 function displayNextDialogue() {
     clearTimeout(state.autoProgressTimeout);
-    clearTimeout(state.typingTimeout);
+    state.typingInstanceId++; // Ensure any orphaned async typing loop instances are brutally retired
 
     if (state.isPaused) {
         state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
@@ -954,10 +1005,11 @@ function updateCharacter(characterInput) {
         container.classList.remove('multi-sprite-mode');
     }
 
-    // Hide all character sprites first
+    // Hide character sprites that are NOT in the current scene
     Object.keys(state.characters || {}).forEach(key => {
         const char = state.characters[key];
-        if (char.imgElement) {
+        // Only hide if the character is not part of the active validChars
+        if (char.imgElement && !validChars.includes(char)) {
             char.imgElement.style.display = 'none';
             char.imgElement.classList.remove('active');
         }
@@ -966,15 +1018,18 @@ function updateCharacter(characterInput) {
     // Display specific character sprites
     validChars.forEach((char, index) => {
         if (char.imgElement) {
-            char.imgElement.style.display = 'block';
-            
             // For multi-sprite mode, ensure correct rendering order without collision
             char.imgElement.style.zIndex = index + 1;
 
-            // Trigger animation strictly using a clean render pipeline frame
-            requestAnimationFrame(() => {
-                char.imgElement.classList.add('active');
-            });
+            // Only trigger display and animation if the sprite wasn't already active
+            if (char.imgElement.style.display === 'none' || char.imgElement.style.display === '' || !char.imgElement.classList.contains('active')) {
+                char.imgElement.style.display = 'block';
+                
+                // Trigger animation strictly using a clean render pipeline frame
+                requestAnimationFrame(() => {
+                    char.imgElement.classList.add('active');
+                });
+            }
         }
     });
 }
@@ -1001,58 +1056,112 @@ function updateButtonStates() {
     }
 }
 
-// Type writer effect
-function typeWriter(text, speed) {
-    let i = 0;
-    elements.typedText.innerHTML = '';
-    clearTimeout(state.typingTimeout);
+// Type writer effect (Bleeding Edge Implementation)
+async function typeWriter(rawText, baseSpeed) {
+    const instanceId = ++state.typingInstanceId;
+    state.skipRequested = false;
+    state.isTyping = true;
+    
+    const container = elements.typedText;
+    
+    // Step 1: Layout Lock using a Ghost Container
+    // We render everything invisibly to calculate the container height
+    let ghost = document.getElementById('typewriter-ghost');
+    if (!ghost) {
+        ghost = document.createElement('div');
+        ghost.id = 'typewriter-ghost';
+        ghost.style.visibility = 'hidden';
+        ghost.style.position = 'absolute';
+        ghost.style.pointerEvents = 'none';
+        ghost.style.whiteSpace = 'pre-wrap';
+        if (container.parentNode) container.parentNode.appendChild(ghost);
+    }
+    
+    // Inherit precise width for perfect measurement
+    ghost.style.width = getComputedStyle(container).width;
+    ghost.innerHTML = rawText;
+    container.style.minHeight = `${ghost.offsetHeight}px`;
+    container.innerHTML = '';
+    
+    // Step 2: Tokenize HTML Tags & Logic Events
+    const tokens = rawText.split(/(<[^>]+>|\[[^\]]+\])/g);
+    let currentHTML = "";
+    
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, state.skipRequested ? 0 : ms));
 
-    function type() {
-        if (state.isPaused) {
-            state.typingTimeout = setTimeout(type, 100);
-            return;
+    for (const token of tokens) {
+        if (state.typingInstanceId !== instanceId) return; // Strict isolation bailout
+        
+        // Ignore Engine events for rendering
+        if (token.startsWith('[')) {
+            const eventName = token.slice(1, -1);
+            if (window.playEffect && EFFECTS && EFFECTS[eventName]) {
+                appLogger.info('Triggered Logic Event Token:', eventName);
+                if (eventName === 'shake') document.body.classList.add('shake-effect');
+                setTimeout(() => document.body.classList.remove('shake-effect'), 500); // rudimentary fallback hook
+            }
+            continue;
         }
-
-        if (i < text.length) {
-            if (text.charAt(i) === '<') {
-                const tagEnd = text.indexOf('>', i);
-                if (tagEnd !== -1) {
-                    i = tagEnd + 1;
-                } else {
-                    i++;
-                }
-            } else {
-                i++;
+        
+        // Push HTML tags immediately into buffer
+        if (token.startsWith('<')) {
+            currentHTML += token;
+            continue;
+        }
+        
+        // Type visible characters
+        for (const char of token) {
+            if (state.typingInstanceId !== instanceId) return;
+            
+            // Sync with game's global pause (Menu/Settings overlap)
+            while (state.isPaused && !state.skipRequested) {
+                await new Promise(r => setTimeout(r, 100));
             }
-            elements.typedText.innerHTML = text.slice(0, i);
-            audioManager.playTypingSound();
-            state.typingTimeout = setTimeout(type, speed);
-        } else {
-            state.isTyping = false;
-            audioManager.stopTypingSound();
-            updateButtonStates();
-            if (state.isAutoMode) {
-                state.autoProgressTimeout = setTimeout(displayNextDialogue, calculateAutoDelay());
-            }
+            
+            if (state.skipRequested) break; // Break char loop to compile the rest instantly
+            
+            currentHTML += char;
+            container.innerHTML = currentHTML;
+            
+            if (typeof audioManager !== 'undefined') audioManager.playTypingSound();
+            
+            // Step 3: Punctuation Pacing
+            let delay = baseSpeed;
+            if (/[.!?]/.test(char)) delay *= 15;
+            else if (/,/.test(char)) delay *= 8;
+            
+            await wait(delay);
         }
     }
-    type();
+    
+    if (state.typingInstanceId !== instanceId) return;
+
+    // Fast-Forward Cleanup
+    if (state.skipRequested) {
+        // Strip logic bracket events safely and render raw HTML fully parsed natively
+        container.innerHTML = rawText.replace(/\[[^\]]+\]/g, ''); 
+    }
+    
+    // Natural Teardown
+    state.isTyping = false;
+    if (typeof audioManager !== 'undefined') audioManager.stopTypingSound();
+    updateButtonStates();
+    
+    container.style.minHeight = 'auto'; // release layout lock gracefully
+    
+    if (state.isAutoMode && !state.skipRequested) {
+        state.autoProgressTimeout = setTimeout(displayNextDialogue, calculateAutoDelay());
+    }
 }
 
 // Handle skip/next button click
 function handleSkipNextClick() {
-    if (state.isEffectPlaying) {
-        return;
-    }
+    if (state.isEffectPlaying) return;
+    
     if (state.isTyping) {
-        clearTimeout(state.typingTimeout);
-        elements.typedText.innerHTML = state.currentDialogue;
-        state.isTyping = false;
-        audioManager.stopTypingSound();
-        updateButtonStates();
-        if (state.isAutoMode) {
-            state.autoProgressTimeout = setTimeout(displayNextDialogue, calculateAutoDelay());
-        }
+        // Bleeding-edge Fast Forward 
+        // This dynamically collapses the async loop latency to 0ms instantly and skips delays natively
+        state.skipRequested = true; 
     } else {
         displayNextDialogue();
     }
@@ -1065,7 +1174,7 @@ function handleBackClick() {
     }
     if (screenManager.is('story')) {
         if (state.dialogueHistory.length > 1) {
-            clearTimeout(state.typingTimeout);
+            state.typingInstanceId++; // Safely kill any mid-flight logic from bleeding edge writer
             clearTimeout(state.autoProgressTimeout);
             audioManager.stopTypingSound();
             state.dialogueHistory.pop();
@@ -1098,26 +1207,9 @@ function handleBackClick() {
 
 // Toggle global audio (Pause BGM & Mute SFX)
 function toggleMute() {
-    const isNowEnabled = audioManager.toggleGlobalAudio();
-    const muteIcon = elements.muteIcon;
-    if (!muteIcon) return;
-
-    const soundWaves = document.getElementById('soundWaves');
-    const muteX = document.getElementById('muteX');
-
-    if (isNowEnabled) {
-        // Unmuted / Playing
-        muteIcon.classList.remove('muted');
-        muteIcon.title = 'Pause Audio';
-        if (soundWaves) soundWaves.style.display = '';
-        if (muteX)      muteX.style.display = 'none';
-    } else {
-        // Muted / Paused
-        muteIcon.classList.add('muted');
-        muteIcon.title = 'Play Audio';
-        if (soundWaves) soundWaves.style.display = 'none';
-        if (muteX)      muteX.style.display = '';
-    }
+    // The visual UI icon update is completely delegated to the audioManager.subscribe callback 
+    // so it handles it flawlessly no matter where the toggle is invoked
+    audioManager.toggleGlobalAudio();
 }
 
 // Toggle auto mode

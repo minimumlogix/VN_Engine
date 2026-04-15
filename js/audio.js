@@ -1,4 +1,4 @@
-// audio.js — Professional Audio Manager (Zero Error Implementation)
+// audio.js — Professional Audio Manager (Next-Level Implementation)
 class AudioManager {
     constructor() {
         this.logger = typeof appLogger !== 'undefined' ? appLogger : console;
@@ -9,14 +9,17 @@ class AudioManager {
         this.sfxVolume = this._load('sfxVolume', 0.5);
         this.bgmVolume = this._load('bgmVolume', 0.4);
 
+        // ── Observers ──
+        this.stateObservers = [];
+
         // ── Interaction & Autoplay Locks ──
         this.userInteracted = false;
         this.pendingBgm = null;
         this._setupInteractionListeners();
 
         // ── Universal Media Engine ──
-        // Using <video> elements is a god-tier trick to universally support .mp4/.webm formats 
-        // natively without NotSupportedError, as it handles a strict superset of <audio> formats.
+        // Using <video> tag trick universally supports .mp4/.webm formats 
+        // natively without NotSupportedError, falling back to <audio> for seamless parsing
         
         this.bgmAudio1 = this._createUniversalNode(true);
         this.bgmAudio2 = this._createUniversalNode(true);
@@ -25,25 +28,27 @@ class AudioManager {
         this.activeBgmChannel = 1; // 1 or 2
         this.crossfadeInterval = null;
 
-        // ── SFX Pool ──
+        // ── SFX Pool (Round-Robin) ──
         this.sfxPool = [];
-        this.sfxPoolSize = 6;
+        this.sfxPoolSize = 8; // Expanded pool for high intensity
         for (let i = 0; i < this.sfxPoolSize; i++) {
             this.sfxPool.push(this._createUniversalNode(false));
         }
         this.sfxIndex = 0;
 
-        // ── Typing Sound ──
-        this.typingSoundEffect = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c4c2c5c14.mp3?filename=keyboard-typing-144829.mp3');
+        // ── Typing Sound Engine ──
+        this.typingSoundEffect = new Audio('core_assets/audio/typing_loop.mp3');
         this.typingSoundEffect.loop = true;
         this.typingSoundEffect.volume = this.sfxVolume;
         this.typingSoundEffect.muted = !this.globalAudioEnabled;
+        
+        // Add exceptional error handling for the typing sound
+        this.typingSoundEffect.onerror = (e) => {
+            if (this.logger.warn) this.logger.warn('Typing sound failed to load:', e);
+        };
     }
 
     _createUniversalNode(loop) {
-        // Reverting to Audio. If an .mp4 has an unsupported video codec (e.g. HEVC/H.265),
-        // Chrome's <video> tag throws FFmpegDemuxer exceptions. <audio> ignores the video
-        // track entirely and gracefully plays the internal audio stream.
         const media = new Audio();
         media.loop = loop;
         
@@ -54,18 +59,35 @@ class AudioManager {
         return media;
     }
 
+    // Subscribe to state changes (UI Sync)
+    subscribe(callback) {
+        this.stateObservers.push(callback);
+        // Fire immediately for initial sync
+        callback(this.globalAudioEnabled);
+    }
+
+    _notifyObservers() {
+        this.stateObservers.forEach(cb => cb(this.globalAudioEnabled));
+    }
+
     _setupInteractionListeners() {
         const unlock = () => {
-            if (this.userInteracted) return;
-            this.userInteracted = true;
-            if (this.logger.debug) this.logger.debug('User interacted, audio unlocked.');
-            if (this.pendingBgm && this.globalAudioEnabled) {
-                this._crossfadeTo(this.pendingBgm);
-                this.pendingBgm = null;
-            }
+            this.forceUnlock();
             ['click', 'touchstart', 'keydown'].forEach(evt => document.removeEventListener(evt, unlock));
         };
         ['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, unlock, { once: true }));
+    }
+
+    forceUnlock() {
+        if (this.userInteracted) return;
+        this.userInteracted = true;
+        if (this.logger.debug) this.logger.debug('User interacted, audio system unlocked globally.');
+        
+        // Unleash any pending background music
+        if (this.pendingBgm && this.globalAudioEnabled) {
+            this._crossfadeTo(this.pendingBgm);
+            this.pendingBgm = null;
+        }
     }
 
     async _safePlay(audioObj) {
@@ -73,6 +95,7 @@ class AudioManager {
         try {
             await audioObj.play();
         } catch (error) {
+            // AbortError is normal during fast skipping
             if (error.name !== "AbortError" && error.name !== "NotSupportedError") {
                 if (this.logger.warn) this.logger.warn('Audio playback prevented:', error.message);
             }
@@ -100,7 +123,7 @@ class AudioManager {
         clearInterval(this.crossfadeInterval);
         
         nextAudio.src = url;
-        nextAudio.load(); // enforce parser reload for video blobs
+        nextAudio.load(); // Enforce parser reload for blobs
         nextAudio.volume = 0;
         this._safePlay(nextAudio);
 
@@ -186,23 +209,32 @@ class AudioManager {
         }
 
         this._save('globalAudioEnabled', this.globalAudioEnabled);
+        this._notifyObservers(); // Notify UI to sync instantly perfectly
         return this.globalAudioEnabled;
     }
 
     // ── Typing Sound Engine ──
     playTypingSound() {
         if (!this.globalAudioEnabled) return;
-        if (this.typingSoundEffect.paused) {
-            this._safePlay(this.typingSoundEffect);
-        } else {
-            if (this.typingSoundEffect.currentTime > 0.5) {
-               this.typingSoundEffect.currentTime = 0;
+        
+        try {
+            if (this.typingSoundEffect.paused) {
+                this._safePlay(this.typingSoundEffect);
             }
+        } catch (error) {
+            if (this.logger.warn) this.logger.warn('Failed to play typing sound:', error);
         }
     }
 
     stopTypingSound() {
-        this.typingSoundEffect.pause();
+        try {
+            if (!this.typingSoundEffect.paused) {
+                this.typingSoundEffect.pause();
+                this.typingSoundEffect.currentTime = 0; // Restore exact timing loop for next play
+            }
+        } catch (error) {
+            if (this.logger.warn) this.logger.warn('Failed to stop typing sound:', error);
+        }
     }
 
     // ── Persistence ──

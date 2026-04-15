@@ -59,7 +59,7 @@
     },
     "NARRATION": {
       "name": "Narrator",
-      "sprite": "stories/MHA/assets/images/characters/narrator.gif",
+      "sprite": "stories/MHA/assets/images/characters/Narrator.gif",
       "position": "center",
       "sfx": ""
     }

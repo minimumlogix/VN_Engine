@@ -1,0 +1,71 @@
+{
+  "storyTitle": "THE LAST CONFESSION",
+  "theme": "gothic.css",
+  "loadScreenBackground": "https://images.unsplash.com/photo-1509557965875-b88c97052f0e?q=80&w=1920&auto=format&fit=crop",
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1920&auto=format&fit=crop",
+    "2": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1920&auto=format&fit=crop",
+    "3": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?q=80&w=1920&auto=format&fit=crop"
+  },
+  "chapterMusic": {},
+  "characters": {
+    "ELISE": {
+      "name": "Élise",
+      "sprite": "https://i.imgur.com/JRFNwGx.png",
+      "position": "left",
+      "sfx": ""
+    },
+    "ALDRIC": {
+      "name": "Lord Aldric",
+      "sprite": "https://i.imgur.com/dM7GS8y.png",
+      "position": "right",
+      "sfx": ""
+    },
+    "SHADOW": {
+      "name": "The Shadow",
+      "sprite": "",
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "storyDialogue": [
+    { "chapter": 1, "scene": 1, "character": "SHADOW", "text": "The manor had been dying for three generations. Its walls wept moisture that smelled of iron and regret. Its corridors remembered footsteps that had long since ceased." },
+    { "chapter": 1, "scene": 1, "character": "SHADOW", "text": "Élise Morvaine arrived at the gates of Blackhollow on the seventh night of October, carrying a letter penned in ink that had dried the color of old blood." },
+    { "chapter": 1, "scene": 1, "character": "ELISE", "text": "I have crossed four hundred miles of dying countryside to reach this place. Four hundred miles through villages emptied by a plague that leaves no marks on the body — only the mind." },
+    { "chapter": 1, "scene": 1, "character": "ELISE", "text": "The letter promised answers. It was signed by a man I watched die twelve years ago." },
+    { "chapter": 1, "scene": 2, "character": "SHADOW", "text": "The great doors opened without touch. Inside, candles burned in holders that had been empty for decades, their flames casting shadows that moved against the light." },
+    { "chapter": 1, "scene": 2, "character": "ALDRIC", "text": "You came. I wasn't certain you would. Though I suppose curiosity has always been stronger than fear in you, Élise." },
+    { "chapter": 1, "scene": 2, "character": "ELISE", "text": "You're dead. I attended your funeral. I watched them lower the coffin into the earth. I threw soil onto the lid." },
+    { "chapter": 1, "scene": 2, "character": "ALDRIC", "text": "You watched them lower a coffin. Whether I was inside it is a separate question entirely." },
+    { "chapter": 1, "scene": 2, "character": "ELISE", "text": "Then who did we bury?" },
+    { "chapter": 1, "scene": 2, "character": "ALDRIC", "text": "Someone who deserved the rest far more than I do. Please — sit. We have a great deal to discuss, and the night is not as long as it appears." },
+
+    { "chapter": 2, "scene": 1, "character": "SHADOW", "text": "The study was lined with books written in languages that had no living speakers. The fireplace held flames that gave light but no heat." },
+    { "chapter": 2, "scene": 1, "character": "ALDRIC", "text": "Do you know why the plague spreads, Élise? Why entire villages wake one morning with hollow eyes and empty memories?" },
+    { "chapter": 2, "scene": 1, "character": "ELISE", "text": "The physicians say it is a disease of the nervous system. A corruption of the brain's architecture." },
+    { "chapter": 2, "scene": 1, "character": "ALDRIC", "text": "The physicians are wrong. It is not a disease. It is a hunger." },
+    { "chapter": 2, "scene": 1, "character": "ALDRIC", "text": "Three centuries ago, my ancestor made a bargain with something that lives beneath this estate. Something older than the stone, older than the soil. It feeds on consciousness. On memory. On the substance of what makes a person themselves." },
+    { "chapter": 2, "scene": 1, "character": "ELISE", "text": "You expect me to believe in fairy tales? In monsters beneath the cellar?" },
+    { "chapter": 2, "scene": 1, "character": "ALDRIC", "text": "I expect you to believe your own eyes. You've seen the plague victims. Empty shells that breathe and blink but contain nothing. No memory. No personality. No soul, if you believe in such things." },
+    { "chapter": 2, "scene": 2, "character": "ALDRIC", "text": "The bargain was simple: my family feeds it, and in return, it grants us longevity. Not immortality — longevity. My grandfather lived to be three hundred and twelve years old." },
+    { "chapter": 2, "scene": 2, "character": "ELISE", "text": "And the feeding? What does that require?" },
+    { "chapter": 2, "scene": 2, "character": "ALDRIC", "text": "One person per decade. Their consciousness consumed, their body left behind as an empty vessel. For three centuries, my family chose the sacrifice. Criminals. Enemies. Eventually, strangers." },
+    { "chapter": 2, "scene": 2, "character": "ALDRIC", "text": "But twelve years ago, it grew hungry. One per decade became one per year. Then one per month. Now... it reaches beyond the manor. The plague is its hunger, spreading without control." },
+    { "chapter": 2, "scene": 2, "character": "ELISE", "text": "And you faked your death to escape responsibility for this?" },
+    { "chapter": 2, "scene": 2, "character": "ALDRIC", "text": "I faked my death to find a solution. And I found one. But I cannot implement it alone." },
+
+    { "chapter": 3, "scene": 1, "character": "SHADOW", "text": "He led her to the cellar steps. The stone was cold and slick. The darkness below was absolute — not an absence of light, but a presence of something that devoured it." },
+    { "chapter": 3, "scene": 1, "character": "ALDRIC", "text": "The entity can be severed from this place. But the ritual requires a confessor — someone who hears the full accounting of sins committed in its name and chooses, freely, to forgive them." },
+    { "chapter": 3, "scene": 1, "character": "ELISE", "text": "Forgive three centuries of murder? Of feeding innocent people to a thing in the dark? You're asking me to absolve the unforgivable." },
+    { "chapter": 3, "scene": 1, "character": "ALDRIC", "text": "I'm asking you to end it. Forgiveness is the mechanism. The seal that closes the wound. Without it, the hunger continues. More villages. More empty eyes." },
+    { "chapter": 3, "scene": 1, "character": "ELISE", "text": "And the cost? There is always a cost in your family's bargains." },
+    { "chapter": 3, "scene": 1, "character": "ALDRIC", "text": "The confessor carries the weight of every sin forgiven. Not as memory. As experience. You will know what it felt like — every moment of every feeding, from both sides. The predator and the prey." },
+    { "chapter": 3, "scene": 2, "character": "ELISE", "text": "...How many? How many were fed to it?" },
+    { "chapter": 3, "scene": 2, "character": "ALDRIC", "text": "Three hundred and forty-seven. I know every name." },
+    { "chapter": 3, "scene": 2, "character": "ELISE", "text": "Say them." },
+    { "chapter": 3, "scene": 2, "character": "ALDRIC", "text": "All of them?" },
+    { "chapter": 3, "scene": 2, "character": "ELISE", "text": "If I am to carry their weight, I will carry their names first. Begin." },
+    { "chapter": 3, "scene": 2, "character": "SHADOW", "text": "And so, in the cellar of a dying manor, beneath a sky thick with unshed rain, Lord Aldric began to speak the names of the dead. And Élise Morvaine listened to every one." },
+    { "chapter": 3, "scene": 2, "character": "SHADOW", "text": "The candles burned lower. The darkness pressed closer. And somewhere beneath the stone, something very old and very hungry began, for the first time in three centuries, to feel afraid." }
+  ]
+}

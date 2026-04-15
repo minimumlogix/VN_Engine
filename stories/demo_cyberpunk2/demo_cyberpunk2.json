@@ -1,0 +1,374 @@
+{
+    "storyTitle": "CYBER RUNNER: ECHOES",
+    "theme": "cyberpunk.css",
+    "loadScreenBackground": "assets/images/backgrounds/ancient_ruins.jpg",
+    "chapterBackgrounds": {
+        "1": "assets/images/backgrounds/ancient_ruins.jpg",
+        "2": "assets/images/backgrounds/observatory_night.jpg",
+        "3": "assets/images/backgrounds/starfield.jpg",
+        "4": "assets/images/backgrounds/ancient_ruins.jpg"
+    },
+    "characters": {
+        "TIA": {
+            "name": "TIA",
+            "sprite": "assets/images/characters/TIA.png",
+            "position": "left",
+            "sfx": "assets/audio/TIA.mp3",
+            "description": "The younger sister. Bright-eyed, dangerously curious, and hiding more under the surface than anyone suspects."
+        },
+        "EVA": {
+            "name": "EVA",
+            "sprite": "assets/images/characters/EVA.png",
+            "position": "right",
+            "sfx": "assets/audio/sfx_click.mp3",
+            "description": "The older sister. Sharp tongue, sharper instincts. She'd burn the city down to keep Tia safe."
+        },
+        "VEIL": {
+            "name": "VEIL [ENCRYPTED]",
+            "sprite": "assets/images/characters/VEIL.png",
+            "position": "left",
+            "sfx": "assets/audio/VEIL.mp3",
+            "description": "A corporate shadow. No face, no name, just orders. But even shadows have agendas."
+        },
+        "KANE": {
+            "name": "KANE [HOLO LINK]",
+            "sprite": "assets/images/characters/KANE.png",
+            "position": "right",
+            "sfx": "assets/audio/sfx_click.mp3",
+            "description": "Your handler. Calm voice, steady hands. The kind of man who tells you to run exactly two seconds before the explosion."
+        },
+        "ELARA": {
+            "name": "ELARA",
+            "sprite": "assets/images/characters/elara_smiling.png",
+            "position": "left",
+            "sfx": "assets/audio/sfx_click.mp3",
+            "description": "A ghost in the machine. Part human, part prototype. She shouldn't exist—but she remembers everything."
+        }
+    },
+    "storyDialogue": [
+        {
+            "chapter": 1,
+            "scene": 1,
+            "character": "KANE",
+            "text": "Runner, you online? I'm picking up some <b>weird signal echoes</b> in Sector 7. Not interference—something's broadcasting."
+        },
+        {
+            "chapter": 1,
+            "scene": 2,
+            "character": "KANE",
+            "text": "Corporate logs say the district's been dark for <b>three years</b>. No power, no people, no reason for a signal. So why is something pinging?"
+        },
+        {
+            "chapter": 1,
+            "scene": 3,
+            "character": "VEIL",
+            "text": "Disregard the signal. Your assignment hasn't changed, Runner. The sisters are your <b>only</b> priority."
+        },
+        {
+            "chapter": 1,
+            "scene": 4,
+            "character": "KANE",
+            "text": "Veil's been... twitchy about this sector. More than usual. Just keep your eyes open, yeah?"
+        },
+        {
+            "chapter": 1,
+            "scene": 5,
+            "character": "EVA",
+            "text": "[From a rooftop above] You're making a lot of noise for someone sneaking through a dead zone, Corp.",
+            "persistentEffect": "assets/images/effects/rain.gif"
+        },
+        {
+            "chapter": 1,
+            "scene": 6,
+            "character": "EVA",
+            "text": "Don't bother reaching for it. I <b>already</b> disabled your sidearm. Remotely. Three blocks back."
+        },
+        {
+            "chapter": 1,
+            "scene": 7,
+            "character": "TIA",
+            "text": "Eva, wait! He's... different from the last ones they sent. I can feel it."
+        },
+        {
+            "chapter": 1,
+            "scene": 8,
+            "character": "EVA",
+            "text": "You 'feel it' about every stray we find, Tia. That's how we almost got flatlined in <b>New Shibuya</b>."
+        },
+        {
+            "chapter": 1,
+            "scene": 9,
+            "character": "TIA",
+            "text": "This is different! He's not even fighting back. Look at him—he's listening for the signal too."
+        },
+        {
+            "chapter": 1,
+            "scene": 10,
+            "character": "KANE",
+            "text": "[Static] ...nner, I'm losing y—the signal is overriding our encryp— ...<b>it knows you're there</b>.",
+            "persistentEffect": ""
+        },
+        {
+            "chapter": 1,
+            "scene": 11,
+            "character": "EVA",
+            "text": "...What was <i>that</i>? Your handler just got scrambled. That doesn't happen to Corp-grade comms."
+        },
+        {
+            "chapter": 1,
+            "scene": 12,
+            "character": "TIA",
+            "text": "The signal—it's coming from below us. Beneath the old rail line. Something's <b>alive</b> down there."
+        },
+        {
+            "chapter": 2,
+            "scene": 1,
+            "character": "EVA",
+            "text": "Alright, Corp. You want answers? So do we. But if you try <b>anything</b>, I will end you. Non-negotiable.",
+            "persistentEffect": "assets/images/effects/rain.gif"
+        },
+        {
+            "chapter": 2,
+            "scene": 2,
+            "character": "TIA",
+            "text": "This tunnel... it wasn't on any city map. Someone built this and <b>erased</b> it."
+        },
+        {
+            "chapter": 2,
+            "scene": 3,
+            "character": "EVA",
+            "text": "Erased it from public records, sure. But I bet Veil knows <i>exactly</i> what's down here. That's why he sent you."
+        },
+        {
+            "chapter": 2,
+            "scene": 4,
+            "character": "TIA",
+            "text": "Wait— do you hear that? It sounds like... breathing? No... it's <b>data</b>. Compressed, looping, <i>alive</i>."
+        },
+        {
+            "chapter": 2,
+            "scene": 5,
+            "character": "RUNNER",
+            "effect": "GLITCH"
+        },
+        {
+            "chapter": 2,
+            "scene": 6,
+            "character": "ELARA",
+            "text": "...Hello.",
+            "persistentEffect": "assets/images/effects/stardust.gif"
+        },
+        {
+            "chapter": 2,
+            "scene": 7,
+            "character": "ELARA",
+            "text": "I've been waiting. Not for you specifically—for <b>anyone</b>. I've been alone down here for 1,094 days."
+        },
+        {
+            "chapter": 2,
+            "scene": 8,
+            "character": "EVA",
+            "text": "[Drawing weapon] What the <i>hell</i>— She's... half machine. Tia, get behind me."
+        },
+        {
+            "chapter": 2,
+            "scene": 9,
+            "character": "TIA",
+            "text": "No, Eva. Look at her eyes. She's scared. She's <b>more</b> scared than we are."
+        },
+        {
+            "chapter": 2,
+            "scene": 10,
+            "character": "ELARA",
+            "text": "I am <b>Project Elara</b>. Prototype neural-organic hybrid. Serial number redacted. Status... <i>discontinued</i>."
+        },
+        {
+            "chapter": 2,
+            "scene": 11,
+            "character": "ELARA",
+            "text": "They built me to process the city's neural grid. But when I started <b>dreaming</b>, they decided I was a malfunction."
+        },
+        {
+            "chapter": 2,
+            "scene": 12,
+            "character": "ELARA",
+            "text": "The signal you followed? That was me. Calling out. Over and over. Hoping someone would <b>hear</b>.",
+            "persistentEffect": ""
+        },
+        {
+            "chapter": 3,
+            "scene": 1,
+            "character": "VEIL",
+            "text": "Runner. I see your vitals have spiked. Tell me—what did you find in the tunnels?"
+        },
+        {
+            "chapter": 3,
+            "scene": 2,
+            "character": "VEIL",
+            "text": "Silence? Interesting. You've been in contact with the sisters, haven't you? And... <b>something else</b>?"
+        },
+        {
+            "chapter": 3,
+            "scene": 3,
+            "character": "KANE",
+            "text": "[Whispered] Runner, listen carefully. Veil knows about Elara. He <b>always</b> knew. She's the real target. The sisters were bait."
+        },
+        {
+            "chapter": 3,
+            "scene": 4,
+            "character": "KANE",
+            "text": "Project Elara was worth <b>billions</b> before they buried her. A self-evolving AI in a human shell? Corps would go to war for that."
+        },
+        {
+            "chapter": 3,
+            "scene": 5,
+            "character": "EVA",
+            "text": "[Intercepting comms] We heard ALL of that, Corp. Your boss wants to strip-mine a girl for parts. Sound familiar?",
+            "persistentEffect": "assets/images/effects/rain.gif"
+        },
+        {
+            "chapter": 3,
+            "scene": 6,
+            "character": "TIA",
+            "text": "She's not a <i>project</i>. She's a person! She dreams, she's scared, she—she asked us our <b>names</b>!"
+        },
+        {
+            "chapter": 3,
+            "scene": 7,
+            "character": "EVA",
+            "text": "Tia's right. For once, I agree. Runner—you've got a choice to make. <b>Right now.</b>"
+        },
+        {
+            "chapter": 3,
+            "scene": 8,
+            "character": "EVA",
+            "text": "You either help us protect her... or we treat you like every other Corp dog that's come for us."
+        },
+        {
+            "chapter": 3,
+            "scene": 9,
+            "character": "ELARA",
+            "text": "You don't have to choose me. I understand what I am—a <b>liability</b>. I always have been.",
+            "persistentEffect": "assets/images/effects/stardust.gif"
+        },
+        {
+            "chapter": 3,
+            "scene": 10,
+            "character": "ELARA",
+            "text": "But if you do choose... I can help. I can see <b>every camera</b>, every lock, every patrol route in this city. All of it. At once."
+        },
+        {
+            "chapter": 3,
+            "scene": 11,
+            "character": "KANE",
+            "text": "Runner... whatever you decide, I'm with you. I didn't sign up to dismantle a kid. Even a synthetic one."
+        },
+        {
+            "chapter": 3,
+            "scene": 12,
+            "character": "VEIL",
+            "text": "Runner. Your silence has been noted. Extraction team deployed. You have <b>four minutes</b>.",
+            "persistentEffect": ""
+        },
+        {
+            "chapter": 4,
+            "scene": 1,
+            "character": "EVA",
+            "text": "Four minutes. Cute. They don't know this district like we do. <b>Move.</b>",
+            "persistentEffect": "assets/images/effects/rain.gif"
+        },
+        {
+            "chapter": 4,
+            "scene": 2,
+            "character": "TIA",
+            "text": "Elara, can you kill the lights in blocks 4 through 7? And loop the surveillance on the north corridor?"
+        },
+        {
+            "chapter": 4,
+            "scene": 3,
+            "character": "ELARA",
+            "text": "Already done. I also rerouted three patrol drones into each other. You're welcome."
+        },
+        {
+            "chapter": 4,
+            "scene": 4,
+            "character": "EVA",
+            "text": "...Okay, I'm starting to like this one."
+        },
+        {
+            "chapter": 4,
+            "scene": 5,
+            "character": "KANE",
+            "text": "Runner, I've opened an exit route through the old monorail. It leads out past the corp perimeter. Go <b>now</b>."
+        },
+        {
+            "chapter": 4,
+            "scene": 6,
+            "character": "VEIL",
+            "text": "[Fading signal] You're making a mistake, Runner. There is no world where this ends well for you.",
+            "persistentEffect": ""
+        },
+        {
+            "chapter": 4,
+            "scene": 7,
+            "character": "TIA",
+            "text": "We made it... We actually made it. [Laughing] Eva, we made it!"
+        },
+        {
+            "chapter": 4,
+            "scene": 8,
+            "character": "EVA",
+            "text": "Don't celebrate yet. Veil doesn't forget. And Corps don't forgive. But... yeah. We made it."
+        },
+        {
+            "chapter": 4,
+            "scene": 9,
+            "character": "ELARA",
+            "text": "The sky. I've seen it in data, in satellite imagery, in a million photographs. But I've never <b>felt</b> it before.",
+            "persistentEffect": "assets/images/effects/stardust.gif"
+        },
+        {
+            "chapter": 4,
+            "scene": 10,
+            "character": "ELARA",
+            "text": "Is it always this... vast?"
+        },
+        {
+            "chapter": 4,
+            "scene": 11,
+            "character": "TIA",
+            "text": "Yeah. It is. And it's yours now too."
+        },
+        {
+            "chapter": 4,
+            "scene": 12,
+            "character": "EVA",
+            "text": "So, Runner. You're burned with the Corps. Hunted. No name, no backup, no way back."
+        },
+        {
+            "chapter": 4,
+            "scene": 13,
+            "character": "EVA",
+            "text": "Welcome to our side. Try not to die on the <b>first</b> day."
+        },
+        {
+            "chapter": 4,
+            "scene": 14,
+            "character": "KANE",
+            "text": "[Encrypted] Runner... I wiped your file from the Corp database. You're a ghost now. Stay alive out there."
+        },
+        {
+            "chapter": 4,
+            "scene": 15,
+            "character": "ELARA",
+            "text": "Thank you. All of you. For <b>hearing</b> me.",
+            "persistentEffect": ""
+        }
+    ],
+    "chapterMusic": {
+        "1": "assets/audio/bgm_main_theme.mp3",
+        "2": "assets/audio/bgm_mystery.mp3",
+        "3": "assets/audio/bgm_main_theme.mp3",
+        "4": "assets/audio/bgm_mystery.mp3"
+    }
+}

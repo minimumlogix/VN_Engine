@@ -1,0 +1,72 @@
+{
+  "storyTitle": "SIGNAL LOSS",
+  "theme": "nasapunk.css",
+  "loadScreenBackground": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1920&auto=format&fit=crop",
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop",
+    "2": "https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=1920&auto=format&fit=crop",
+    "3": "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1920&auto=format&fit=crop"
+  },
+  "chapterMusic": {},
+  "characters": {
+    "WELLS": {
+      "name": "CDR. WELLS",
+      "sprite": "https://i.imgur.com/JRFNwGx.png",
+      "position": "left",
+      "sfx": ""
+    },
+    "ORIN": {
+      "name": "ORIN",
+      "sprite": "https://i.imgur.com/dM7GS8y.png",
+      "position": "right",
+      "sfx": ""
+    },
+    "TELEMETRY": {
+      "name": "[ TELEMETRY ]",
+      "sprite": "",
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "storyDialogue": [
+    { "chapter": 1, "scene": 1, "character": "TELEMETRY", "text": "ARES STATION — MARS ORBIT. SOL 1,847. CREW COMPLEMENT: 2 OF 6. LIFE SUPPORT: 31% NOMINAL." },
+    { "chapter": 1, "scene": 1, "character": "TELEMETRY", "text": "LAST EARTH CONTACT: 142 DAYS AGO. SIGNAL STATUS: LOST." },
+    { "chapter": 1, "scene": 1, "character": "WELLS", "text": "Mission log, Sol 1847. Commander Elara Wells recording. We've completed another orbit of Mars with no response from Houston, ESA, or any ground station." },
+    { "chapter": 1, "scene": 1, "character": "WELLS", "text": "Engineer Orin Vasquez and I are the only crew remaining after the decompression event on Sol 1705. The others... I've logged their names. I won't say them again." },
+    { "chapter": 1, "scene": 1, "character": "WELLS", "text": "Oxygen recycler efficiency is dropping. We have approximately ninety days of breathable air. After that, the math gets very simple." },
+    { "chapter": 1, "scene": 2, "character": "ORIN", "text": "Commander. I've been running diagnostics on the long-range antenna array. I found something." },
+    { "chapter": 1, "scene": 2, "character": "WELLS", "text": "Good news or bad news?" },
+    { "chapter": 1, "scene": 2, "character": "ORIN", "text": "Depends on your definition. The antenna isn't damaged. The hardware is fully functional. We're not receiving Earth's signal because Earth isn't transmitting." },
+    { "chapter": 1, "scene": 2, "character": "WELLS", "text": "That's impossible. Even if mission control went dark, there are civilian broadcasts, military channels, amateur radio operators. Earth is loud. Earth is always loud." },
+    { "chapter": 1, "scene": 2, "character": "ORIN", "text": "I swept every frequency from 3 kilohertz to 300 gigahertz. Every band is silent. Complete electromagnetic silence from the direction of Earth." },
+    { "chapter": 1, "scene": 2, "character": "WELLS", "text": "...How long have you known?" },
+    { "chapter": 1, "scene": 2, "character": "ORIN", "text": "I confirmed it six hours ago. I spent the first four hoping I was wrong." },
+
+    { "chapter": 2, "scene": 1, "character": "TELEMETRY", "text": "OPTICAL TELESCOPE — EARTH OBSERVATION WINDOW. ATMOSPHERIC ANALYSIS IN PROGRESS." },
+    { "chapter": 2, "scene": 1, "character": "WELLS", "text": "The telescope shows Earth's atmosphere has changed. The spectral analysis indicates massive particulate density in the upper atmosphere. Something obscured the surface." },
+    { "chapter": 2, "scene": 1, "character": "ORIN", "text": "Impact winter. Volcanic event. Nuclear exchange. Take your pick. Any of them could produce that kind of atmospheric signature." },
+    { "chapter": 2, "scene": 1, "character": "WELLS", "text": "Or all of them at once." },
+    { "chapter": 2, "scene": 1, "character": "ORIN", "text": "Commander, we need to talk about what this means for us. Practically." },
+    { "chapter": 2, "scene": 1, "character": "WELLS", "text": "I know what it means." },
+    { "chapter": 2, "scene": 1, "character": "ORIN", "text": "There is no rescue mission. There is no resupply. We are the last two human beings who are definitively alive, orbiting a planet we can't land on, breathing air that's slowly running out." },
+    { "chapter": 2, "scene": 2, "character": "WELLS", "text": "We can land on Mars." },
+    { "chapter": 2, "scene": 2, "character": "ORIN", "text": "The descent module was designed for four crew with full ground support. We have two crew and no support. The survival probability is—" },
+    { "chapter": 2, "scene": 2, "character": "WELLS", "text": "Higher than zero. Which is what we have if we stay up here." },
+    { "chapter": 2, "scene": 2, "character": "ORIN", "text": "You want to land on Mars. With no habitat prepared. No supply cache. No way home." },
+    { "chapter": 2, "scene": 2, "character": "WELLS", "text": "I want to live, Orin. Even if it's only for a few more months. I want to stand on solid ground and look at the sky and know that I didn't give up." },
+    { "chapter": 2, "scene": 2, "character": "ORIN", "text": "...That's not rational." },
+    { "chapter": 2, "scene": 2, "character": "WELLS", "text": "No. It's human." },
+
+    { "chapter": 3, "scene": 1, "character": "TELEMETRY", "text": "DESCENT MODULE PRE-FLIGHT CHECK. ALL SYSTEMS GREEN. ESTIMATED LANDING WINDOW: 7 HOURS." },
+    { "chapter": 3, "scene": 1, "character": "ORIN", "text": "I've packed everything we can carry. Water recycler, medical kit, seed bank from the botany experiments. If we land near the ice deposits at Korolev Crater, we might have water." },
+    { "chapter": 3, "scene": 1, "character": "WELLS", "text": "Might." },
+    { "chapter": 3, "scene": 1, "character": "ORIN", "text": "It's the best word I have." },
+    { "chapter": 3, "scene": 1, "character": "WELLS", "text": "Before we go... I want to send one last transmission. Even if no one hears it." },
+    { "chapter": 3, "scene": 2, "character": "WELLS", "text": "This is Commander Elara Wells, Ares Station, Sol 1847. To anyone receiving this message — on Earth, in orbit, anywhere in the solar system." },
+    { "chapter": 3, "scene": 2, "character": "WELLS", "text": "We don't know what happened to you. We saw the silence, and we chose not to accept it as an ending." },
+    { "chapter": 3, "scene": 2, "character": "WELLS", "text": "Engineer Vasquez and I are descending to the surface of Mars. We carry seeds, water, and the complete digital archive of human civilization." },
+    { "chapter": 3, "scene": 2, "character": "WELLS", "text": "If you find this transmission, know that we tried. That's all anyone can do." },
+    { "chapter": 3, "scene": 2, "character": "TELEMETRY", "text": "TRANSMISSION SENT. NO ACKNOWLEDGMENT RECEIVED. DESCENT SEQUENCE INITIATED." },
+    { "chapter": 3, "scene": 2, "character": "TELEMETRY", "text": "SIGNAL LOSS IN 3... 2... 1..." }
+  ]
+}

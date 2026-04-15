@@ -1,0 +1,83 @@
+{
+  "storyTitle": "AFTER THE BELL",
+  "theme": "anime1.css",
+  "loadScreenBackground": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1920&auto=format&fit=crop",
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?q=80&w=1920&auto=format&fit=crop",
+    "2": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1920&auto=format&fit=crop",
+    "3": "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop"
+  },
+  "chapterMusic": {},
+  "characters": {
+    "SHION": {
+      "name": "Shion",
+      "sprite": "/stories/demo_anime/assets/images/characters/EVA.png",
+      "position": "left",
+      "sfx": ""
+    },
+    "REN": {
+      "name": "Ren",
+      "sprite": "/stories/demo_anime/assets/images/characters/EVA.png",
+      "position": "right",
+      "sfx": ""
+    },
+    "NARRATION": {
+      "name": "Narrator",
+      "sprite": "/stories/demo_anime/assets/images/characters/narrator.gif",
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "storyDialogue": [
+    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "Kitagawa Academy. Third floor, east wing. The student council room smelled like printer ink and forgotten lunches." },
+    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "The final bell had rung twenty minutes ago. Most students were already at the station, earbuds in, scrolling through their phones. But two people remained." },
+    { "chapter": 1, "scene": 1, "character": "SHION", "text": "You're still here? The budget reports aren't due until Friday." },
+    { "chapter": 1, "scene": 1, "character": "REN", "text": "I know when they're due. I also know you'll rewrite everything I submit, so I figured I'd save us both the trouble and do it your way from the start." },
+    { "chapter": 1, "scene": 1, "character": "SHION", "text": "I don't rewrite everything." },
+    { "chapter": 1, "scene": 1, "character": "REN", "text": "The spring festival proposal. The club allocation sheet. The cafeteria renovation petition. Should I keep going?" },
+    { "chapter": 1, "scene": 1, "character": "SHION", "text": "Those had formatting errors." },
+    { "chapter": 1, "scene": 1, "character": "REN", "text": "One of them was a single misplaced comma." },
+    { "chapter": 1, "scene": 2, "character": "SHION", "text": "...Commas matter." },
+    { "chapter": 1, "scene": 2, "character": "REN", "text": "You know what else matters? Going home before the sun sets. Eating dinner at a table instead of a desk. Having a life outside this room." },
+    { "chapter": 1, "scene": 2, "character": "SHION", "text": "The student council presidency is a responsibility. I was elected because people trusted me to take it seriously." },
+    { "chapter": 1, "scene": 2, "character": "REN", "text": "You were elected because no one else ran. You intimidated every other candidate into dropping out." },
+    { "chapter": 1, "scene": 2, "character": "SHION", "text": "That's... not entirely accurate." },
+    { "chapter": 1, "scene": 2, "character": "REN", "text": "Takahashi literally transferred schools." },
+    { "chapter": 1, "scene": 2, "character": "SHION", "text": "His family moved!" },
+    { "chapter": 1, "scene": 2, "character": "REN", "text": "His family lives three blocks from here, Shion." },
+
+    { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "The vending machine in the hallway hummed. Outside, the track team ran their final laps, their footsteps rhythmic against the cooling asphalt." },
+    { "chapter": 2, "scene": 1, "character": "REN", "text": "Here. I got you the gross one you like. Unsweetened green tea, no ice." },
+    { "chapter": 2, "scene": 1, "character": "SHION", "text": "It's not gross. It's traditional." },
+    { "chapter": 2, "scene": 1, "character": "REN", "text": "It tastes like someone boiled a lawn." },
+    { "chapter": 2, "scene": 1, "character": "SHION", "text": "Thank you, Ren." },
+    { "chapter": 2, "scene": 1, "character": "REN", "text": "...You're welcome." },
+    { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "They sat in silence for a moment. The kind of silence that exists between two people who have spent too many afternoons in the same room to need words for every gap." },
+    { "chapter": 2, "scene": 2, "character": "SHION", "text": "Can I ask you something? Why did you join the student council? You clearly hate paperwork. You argue with every decision I make. You have the organizational skills of a tornado." },
+    { "chapter": 2, "scene": 2, "character": "REN", "text": "Wow. Is this your idea of a compliment?" },
+    { "chapter": 2, "scene": 2, "character": "SHION", "text": "I'm being serious." },
+    { "chapter": 2, "scene": 2, "character": "REN", "text": "...Because you were going to do this alone. And I've known you since middle school. I know what happens when you do things alone." },
+    { "chapter": 2, "scene": 2, "character": "SHION", "text": "What happens?" },
+    { "chapter": 2, "scene": 2, "character": "REN", "text": "You stop eating. You stop sleeping. You get so focused on being perfect that you forget to be a person. Somebody had to be here to remind you that you're seventeen, not forty." },
+    { "chapter": 2, "scene": 2, "character": "SHION", "text": "...I eat." },
+    { "chapter": 2, "scene": 2, "character": "REN", "text": "Shion, you had a calculator and two pencils in your lunch bag today. I watched you open it, stare at it for three seconds, and close it without questioning anything." },
+
+    { "chapter": 3, "scene": 1, "character": "NARRATION", "text": "The sky outside had turned the color of tangerines and old photographs. The hallway lights flickered on automatically, their fluorescent buzz filling the quiet building." },
+    { "chapter": 3, "scene": 1, "character": "SHION", "text": "The cultural festival is in three weeks. We still need to finalize the stage schedule, the vendor permits, and the cleanup rotation. I've drafted a preliminary—" },
+    { "chapter": 3, "scene": 1, "character": "REN", "text": "Shion." },
+    { "chapter": 3, "scene": 1, "character": "SHION", "text": "—timeline that accounts for weather contingencies and—" },
+    { "chapter": 3, "scene": 1, "character": "REN", "text": "Shion. Stop." },
+    { "chapter": 3, "scene": 1, "character": "SHION", "text": "What?" },
+    { "chapter": 3, "scene": 1, "character": "REN", "text": "Look outside." },
+    { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "Through the window, the sunset had painted the entire courtyard in shades of amber and rose. The cherry trees — bare now but still beautiful — cast long shadows across the walkway where students had laughed and argued and lived just hours before." },
+    { "chapter": 3, "scene": 2, "character": "SHION", "text": "...It's just a sunset." },
+    { "chapter": 3, "scene": 2, "character": "REN", "text": "It's never just a sunset. That's your problem. You look at everything and see what it is, but you never see what it means." },
+    { "chapter": 3, "scene": 2, "character": "SHION", "text": "What does a sunset mean?" },
+    { "chapter": 3, "scene": 2, "character": "REN", "text": "It means the day is ending. And we're still here. And tomorrow we'll be here again. And the day after that. And the day after that. Until graduation takes all of this away from us." },
+    { "chapter": 3, "scene": 2, "character": "REN", "text": "So maybe — just for five minutes — put down the spreadsheet and watch the sky with me. Before we run out of skies to watch." },
+    { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "Shion looked at the spreadsheet. Then at the window. Then at Ren, whose expression held something that couldn't be filed or formatted or corrected with a single comma." },
+    { "chapter": 3, "scene": 2, "character": "SHION", "text": "...Five minutes." },
+    { "chapter": 3, "scene": 2, "character": "REN", "text": "Five minutes." },
+    { "chapter": 3, "scene": 2, "character": "NARRATION", "text": "They watched the sunset in silence. It lasted considerably longer than five minutes. Neither of them mentioned it." }
+  ]
+}

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VN Story Engine</title>
+    <link rel="stylesheet" href="css/basestyle.css">
+    <link rel="stylesheet" href="css/chapter-transitions.css">
+    <link rel="stylesheet" href="css/anime1.css" id="themeStylesheet">
+</head>
+
+<body>
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen" class="screen loading-screen">
+        <div class="loader-content">
+            <div class="loader-title" data-text="INITIALIZING">INITIALIZING</div>
+            <div class="loader-bar-track">
+                <div id="loaderBarFill" class="loader-bar-fill"></div>
+            </div>
+            <div class="loader-info">
+                <span id="loaderPercent" class="loader-percent">0%</span>
+                <span id="loaderStatus" class="loader-status">Connecting...</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MENU ICON -->
+    <div id="menuIcon" class="menu-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+            <rect x="3" y="5"  width="18" height="2" />
+            <rect x="3" y="11" width="14" height="2" />
+            <rect x="3" y="17" width="10" height="2" />
+        </svg>
+    </div>
+
+    <!-- MUTE ICON -->
+    <div id="muteIcon" class="mute-icon" title="Toggle Pause/Play Audio">
+        <svg id="muteIconSvg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Speaker body -->
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <!-- Sound waves (shown when unmuted) -->
+            <g id="soundWaves">
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </g>
+            <!-- Mute X (hidden by default) -->
+            <g id="muteX" style="display:none">
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- MENU OVERLAY -->
+    <div class="overlay" id="menuOverlay">
+        <div class="overlay-content menu-panel">
+            <div class="overlay-header">
+                <span data-text="MENU">MENU</span>
+                <button class="close-btn" data-close="menuOverlay">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+                        <line x1="5" y1="5" x2="19" y2="19" />
+                        <line x1="19" y1="5" x2="5" y2="19" />
+                    </svg>
+                </button>
+            </div>
+            <div class="menu-buttons">
+                <button id="settingsBtn" class="menu-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+                        <polygon points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" />
+                        <circle cx="12" cy="12" r="2" />
+                    </svg>
+                    <span>Settings</span>
+                </button>
+
+                <button id="fullscreenBtn" class="menu-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+                        <polyline points="8 4 4 4 4 8" />
+                        <polyline points="16 4 20 4 20 8" />
+                        <polyline points="8 20 4 20 4 16" />
+                        <polyline points="16 20 20 20 20 16" />
+                    </svg>
+                    <span>Fullscreen</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS OVERLAY -->
+    <div class="overlay" id="settingsOverlay">
+        <div class="overlay-content">
+            <div class="overlay-header">
+                <span data-text="SETTINGS">SETTINGS</span>
+                <button class="close-btn" data-close="settingsOverlay">×</button>
+            </div>
+            <div class="settings-option">
+                <label for="textSpeed">Text Speed:</label>
+                <input type="range" id="textSpeed" min="1" max="100" value="50">
+            </div>
+            <div class="settings-option">
+                <label for="autoSpeed">Auto Speed:</label>
+                <input type="range" id="autoSpeed" min="1" max="100" value="50">
+            </div>
+            <div class="settings-option">
+                <label for="sfxVolume">SFX Volume:</label>
+                <input type="range" id="sfxVolume" min="0" max="100" value="50">
+            </div>
+            <div class="settings-option">
+                <label for="bgmVolume">Music Volume:</label>
+                <input type="range" id="bgmVolume" min="0" max="100" value="40">
+            </div>        </div>
+    </div>
+
+    <!-- STORY SCREEN -->
+    <div class="screen story-container" id="storyScreen" style="display:none;">
+        <div id="characterSpriteContainer"></div>
+
+        <!-- CHAPTER TRANSITION OVERLAY -->
+        <div id="chapterTransition" class="chapter-transition" style="display:none;"></div>
+
+        <!-- PERSISTENT EFFECT LAYER (Between characters and dialogue) -->
+        <div id="persistentEffectLayer" class="persistent-effect-layer"></div>
+
+        <div id="effectOverlay" class="effect-overlay"></div>
+
+        <!-- DIALOGUE CONTAINER -->
+        <div class="dialogue-container">
+            <div class="dialogue-header">
+                <span id="characterName" data-text="NETRUNNER">NETRUNNER</span>
+            </div>
+            <div class="dialogue-content">
+                <p id="typedText"></p>
+            </div>
+            <div class="dialogue-options" id="dialogueOptions"></div>
+        </div>
+    </div>
+
+    <!-- OVERLAY CONTAINER -->
+    <div id="overlayContainer" class="overlay-container">
+        <div class="overlay-content">
+            <div class="overlay-header">
+                <span id="overlayTitle">Overlay Title</span>
+                <button id="closeOverlay" class="close-btn">&times;</button>
+            </div>
+            <iframe id="overlayFrame"></iframe>
+        </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div class="screen end-container" id="endScreen" style="display:none;">
+        <div class="glass-panel end-glass-panel">
+            <h1 class="end-message">The End</h1>
+            <p class="end-subtext">What will you do next?</p>
+            <div class="end-options" id="endOptions"></div>
+        </div>
+    </div>
+
+
+
+    <!-- SCRIPTS -->
+    <script src="js/audio.js"></script>
+    <script src="js/screen.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+{
+  "storyTitle": "THE HOLLOW CROWN",
+  "theme": "fantasy.css",
+  "loadScreenBackground": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop",
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1440964829947-ca3277bd37f8?q=80&w=1920&auto=format&fit=crop",
+    "2": "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?q=80&w=1920&auto=format&fit=crop",
+    "3": "https://images.unsplash.com/photo-1507400492013-162706c8c05e?q=80&w=1920&auto=format&fit=crop"
+  },
+  "chapterMusic": {},
+  "characters": {
+    "MAREN": {
+      "name": "Maren",
+      "sprite": "https://i.imgur.com/JRFNwGx.png",
+      "position": "left",
+      "sfx": ""
+    },
+    "THERON": {
+      "name": "Theron",
+      "sprite": "https://i.imgur.com/dM7GS8y.png",
+      "position": "right",
+      "sfx": ""
+    },
+    "NARRATOR": {
+      "name": "Narrator",
+      "sprite": "",
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "storyDialogue": [
+    { "chapter": 1, "scene": 1, "character": "NARRATOR", "text": "The Kingdom of Ashenmere had not seen rain in seven hundred days. The rivers were dust. The forests were bone." },
+    { "chapter": 1, "scene": 1, "character": "NARRATOR", "text": "And in the great hall of the crumbling palace, the last heir to a dying throne knelt before a mirror that showed her nothing." },
+    { "chapter": 1, "scene": 1, "character": "MAREN", "text": "The mirror used to show the future. My grandmother could see empires rise and fall in its surface. My mother saw the plague that would take her." },
+    { "chapter": 1, "scene": 1, "character": "MAREN", "text": "I see nothing. Only glass. Whatever magic ran through this bloodline, it chose to end with me." },
+    { "chapter": 1, "scene": 1, "character": "NARRATOR", "text": "The doors groaned open. A figure in tattered armor stepped through, trailing dried blood and the smell of smoke." },
+    { "chapter": 1, "scene": 2, "character": "THERON", "text": "Your Majesty. The eastern garrison has fallen. Lord Vael's forces hold the Ashen Bridge." },
+    { "chapter": 1, "scene": 2, "character": "MAREN", "text": "How many did we lose?" },
+    { "chapter": 1, "scene": 2, "character": "THERON", "text": "Two hundred and thirty-one souls. I know because I buried them myself, one by one, in soil too dry to accept the dead." },
+    { "chapter": 1, "scene": 2, "character": "MAREN", "text": "And the survivors?" },
+    { "chapter": 1, "scene": 2, "character": "THERON", "text": "Seventeen. They're in the courtyard now, drinking the last of the well water. By tomorrow, there won't be enough for anyone." },
+    { "chapter": 1, "scene": 2, "character": "MAREN", "text": "Then we have until tomorrow to find a way to save what's left of this kingdom." },
+
+    { "chapter": 2, "scene": 1, "character": "NARRATOR", "text": "The vault beneath the palace held secrets older than the kingdom itself. Maren descended alone, carrying a torch that guttered in the stale air." },
+    { "chapter": 2, "scene": 1, "character": "MAREN", "text": "My ancestors sealed this place after the Sundering. They said the things down here were too dangerous to use, and too important to destroy." },
+    { "chapter": 2, "scene": 1, "character": "MAREN", "text": "I always thought it was superstition. Stories to frighten children into obedience." },
+    { "chapter": 2, "scene": 1, "character": "NARRATOR", "text": "The torch illuminated a chamber lined with crystallized tears — each one containing a frozen scream from the age before memory." },
+    { "chapter": 2, "scene": 1, "character": "MAREN", "text": "Gods above and below." },
+    { "chapter": 2, "scene": 2, "character": "THERON", "text": "You shouldn't have come down here alone. There are wards on these walls that haven't been maintained in centuries." },
+    { "chapter": 2, "scene": 2, "character": "MAREN", "text": "I ordered you to stay above." },
+    { "chapter": 2, "scene": 2, "character": "THERON", "text": "And I disobeyed. Court-martial me when we're not facing extinction. Look — there, on the pedestal." },
+    { "chapter": 2, "scene": 2, "character": "NARRATOR", "text": "A crown. Not gold, not silver — but carved from a single piece of midnight stone, veined with something that pulsed like a dying heartbeat." },
+    { "chapter": 2, "scene": 2, "character": "MAREN", "text": "The Hollow Crown. I thought it was a myth." },
+    { "chapter": 2, "scene": 2, "character": "THERON", "text": "Every myth in this vault seems uncomfortably real." },
+    { "chapter": 2, "scene": 2, "character": "MAREN", "text": "The old texts say it grants dominion over drought and storm. But the price... the wearer surrenders their mortality. Not death. Something worse. An eternity of conscious silence." },
+    { "chapter": 2, "scene": 2, "character": "THERON", "text": "Then we leave it. We'll find another way." },
+    { "chapter": 2, "scene": 2, "character": "MAREN", "text": "There is no other way, Theron. You know that as well as I do." },
+
+    { "chapter": 3, "scene": 1, "character": "NARRATOR", "text": "They stood in the throne room as the last light of the dying sun bled through cracked stained glass. The crown sat between them like a wound." },
+    { "chapter": 3, "scene": 1, "character": "THERON", "text": "I've served three rulers of Ashenmere. Your grandfather was cruel. Your mother was kind. You are neither — you are necessary." },
+    { "chapter": 3, "scene": 1, "character": "THERON", "text": "And I am telling you, as the last soldier who still draws breath for this kingdom: do not put on that crown." },
+    { "chapter": 3, "scene": 1, "character": "MAREN", "text": "If I don't, seventeen people die of thirst by morning. The kingdom dies with them. Everything my family built across three hundred years becomes dust." },
+    { "chapter": 3, "scene": 1, "character": "THERON", "text": "Better dust than what that thing will make of you." },
+    { "chapter": 3, "scene": 1, "character": "MAREN", "text": "You buried two hundred and thirty-one people today, Theron. Look me in the eye and tell me their deaths were acceptable." },
+    { "chapter": 3, "scene": 1, "character": "THERON", "text": "..." },
+    { "chapter": 3, "scene": 2, "character": "MAREN", "text": "I'm not asking your permission. I'm not asking for your blessing. I'm asking you to remember me as I am now. Before the crown takes what's left." },
+    { "chapter": 3, "scene": 2, "character": "THERON", "text": "Maren—" },
+    { "chapter": 3, "scene": 2, "character": "MAREN", "text": "Promise me." },
+    { "chapter": 3, "scene": 2, "character": "THERON", "text": "I promise." },
+    { "chapter": 3, "scene": 2, "character": "NARRATOR", "text": "She lifted the Hollow Crown with both hands. It was lighter than air and heavier than grief. The stone pulsed once — twice — and went still." },
+    { "chapter": 3, "scene": 2, "character": "NARRATOR", "text": "Maren placed it upon her head. The drought broke. The sky wept. And the queen of Ashenmere never spoke again." }
+  ]
+}

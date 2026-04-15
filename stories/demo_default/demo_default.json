@@ -1,0 +1,53 @@
+{
+  "storyTitle": "THE ENCHANTED REALM",
+  "theme": "basestyle.css",
+  "loadScreenBackground": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1920",
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1440964829947-ca3277bd37f8?w=1920"
+  },
+  "characters": {
+    "NARRATOR": {
+      "name": "NARRATOR",
+      "sprite": "https://joylandimages.neocities.org/JOYLAND/GREETING/Char_Imgs/VN_System.png",
+      "position": "left",
+      "sfx": "/path/to/narrator.mp3",
+      "description": "The ethereal voice that guides travelers through the Enchanted Realm."
+    },
+    "SAGE": {
+      "name": "ELDER SAGE",
+      "sprite": "https://joylandimages.neocities.org/JOYLAND/GREETING/Char_Imgs/Tech.png",
+      "position": "right",
+      "sfx": "/path/to/sage.mp3",
+      "description": "An ancient sage who holds the secrets of the realm."
+    }
+  },
+  "storyDialogue": [
+    {
+      "chapter": 1,
+      "scene": 1,
+      "character": "NARRATOR",
+      "text": "The mists part before you, revealing a land forgotten by time itself..."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "SAGE",
+      "text": "Ah, a traveler. It has been long since one crossed the Veil. Tell me, what brings you to the <b>Enchanted Realm</b>?"
+    },
+    {
+      "chapter": 1,
+      "scene": 3,
+      "character": "NARRATOR",
+      "text": "The sage's eyes glow with ancient wisdom. The forest around you hums with arcane energy."
+    },
+    {
+      "chapter": 1,
+      "scene": 4,
+      "character": "SAGE",
+      "text": "This realm is not what it once was. Shadows creep at the edges of our world. You must choose wisely, traveler."
+    }
+  ],
+  "chapterMusic": {
+    "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3"
+  }
+}

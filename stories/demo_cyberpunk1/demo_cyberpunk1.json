@@ -1,0 +1,147 @@
+{
+  "storyTitle": "CYBER RUNNER",
+  "theme": "cyberpunk.css",
+  "loadScreenBackground": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
+  "chapterBackgrounds": {
+    "1": "https://c4.wallpaperflare.com/wallpaper/434/846/423/artwork-cyberpunk-futuristic-city-science-fiction-wallpaper-preview.jpg",
+    "2": "https://cdna.artstation.com/p/assets/images/images/027/290/170/large/antoine-collignon-final-2.jpg?1591114295"
+  },
+  "characters": {
+    "TIA": {
+      "name": "TIA",
+      "sprite": "assets/images/characters/TIA.png",
+      "position": "left",
+      "sfx": "assets/audio/TIA.mp3",
+      "description": "The younger sister, cute and curious. She’s not your typical mercenary and seems more innocent than dangerous."
+    },
+    "EVA": {
+      "name": "EVA",
+      "sprite": "assets/images/characters/EVA.png",
+      "position": "right",
+      "sfx": "/path/to/EVA.mp3",
+      "description": "The older sister, foulmouthed and aggressive. She’s fiercely protective of her sister and has a sharp, cynical outlook on life."
+    },
+    "BOSS": {
+      "name": "VEIL [HOLO CALL]",
+      "sprite": "assets/images/characters/VEIL.png",
+      "position": "left",
+      "sfx": "assets/audio/VEIL.mp3",
+      "description": "Your corporate boss, always direct and cold. He’s the one who issued your assignment to eliminate the sisters."
+    },
+    "RUNNER": {
+      "name": "KANE [HOLO CALL]",
+      "sprite": "assets/images/characters/KANE.png",
+      "position": "right",
+      "sfx": "/path/to/KANE.mp3",
+      "description": "A male runner who assists you via holo-call. Calm and resourceful, he provides crucial information during missions."
+    }
+  },
+  "storyDialogue": [
+    {
+      "chapter": 1,
+      "scene": 1,
+      "character": "BOSS",
+      "text": "I want this <b>clean</b>, Runner."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "RUNNER",
+      "text": "Coordinates locked in. You’re getting close, but something’s off… Keep your eyes sharp."
+    },
+    {
+      "chapter": 1,
+      "scene": 3,
+      "character": "RUNNER",
+      "text": "Visual’s glitching… Runner, do you copy?"
+    },
+    {
+      "chapter": 1,
+      "scene": 4,
+      "character": "EVA",
+      "text": "[From the shadows] You shouldn’t have come here, Corp dog."
+    },
+    {
+      "chapter": 1,
+      "scene": 5,
+      "character": "RUNNER",
+      "effect": "ELECTROCUTED"
+    },
+    {
+      "chapter": 1,
+      "scene": 6,
+      "character": "TIA",
+      "text": "Eva, he’s collapsing."
+    },
+    {
+      "chapter": 1,
+      "scene": 7,
+      "character": "EVA",
+      "text": "Let him. Corporate trash like him don’t deserve a quick end."
+    },
+    {
+      "chapter": 1,
+      "scene": 8,
+      "character": "RUNNER",
+      "text": "[Glitching] Ru...ner?! Do you...copy?!"
+    },
+    {
+      "chapter": 1,
+      "scene": 9,
+      "character": "TIA",
+      "text": "Eva, he’s passed out. We should do something, right?"
+    },
+    {
+      "chapter": 1,
+      "scene": 10,
+      "character": "EVA",
+      "text": "Tie him up. We’re not playing nice with corporate assassins."
+    },
+    {
+      "chapter": 1,
+      "scene": 11,
+      "character": "RUNNER",
+      "text": "[Distorted] ...Runner! [Signal lost]"
+    },
+    {
+      "chapter": 2,
+      "scene": 1,
+      "character": "TIA",
+      "text": "Oh, you’re awake! I thought you'd sleep longer... after what we did. I’m Tia, by the way!"
+    },
+    {
+      "chapter": 2,
+      "scene": 2,
+      "character": "EVA",
+      "text": "Tia, don’t get friendly with him. He’s dangerous. We should’ve flatlined him already."
+    },
+    {
+      "chapter": 2,
+      "scene": 3,
+      "character": "EVA",
+      "text": "Corporate goons like him have one purpose—getting rid of us. Stop acting like he’s your pet."
+    },
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "TIA",
+      "text": "But he doesn’t *seem* bad… I want to know why he came after us."
+    },
+    {
+      "chapter": 2,
+      "scene": 5,
+      "character": "EVA",
+      "text": "This isn’t a negotiation, Tia. You know how this ends."
+    },
+    {
+      "chapter": 2,
+      "scene": 6,
+      "character": "TIA",
+      "text": "Just one question... What’s your name? And why are you really here?"
+    }
+  ],
+  "chapterMusic": {
+    "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
+    "2": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3"
+  }
+}

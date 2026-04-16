@@ -10,14 +10,14 @@
   "chapterMusic": {
     "0": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
     "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
-    "2": "stories/demo_cyberpunk1/assets/audio/bgm_mystery.mp3"
+    "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
   },
   "characters": {
     "TIA": {
       "name": "TIA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/TIA.png",
       "position": "left",
-      "sfx": "assets/audio/TIA.mp3"
+      "sfx": "assets/audio/tia_sfx.mp3"
     },
     "EVA": {
       "name": "EVA",

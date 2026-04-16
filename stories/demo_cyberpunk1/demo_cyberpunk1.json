@@ -3,145 +3,67 @@
   "theme": "cyberpunk.css",
   "loadScreenBackground": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
   "chapterBackgrounds": {
+    "0": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
     "1": "https://c4.wallpaperflare.com/wallpaper/434/846/423/artwork-cyberpunk-futuristic-city-science-fiction-wallpaper-preview.jpg",
     "2": "https://cdna.artstation.com/p/assets/images/images/027/290/170/large/antoine-collignon-final-2.jpg?1591114295"
   },
+  "chapterMusic": {
+    "0": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
+    "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
+    "2": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3"
+  },
   "characters": {
     "TIA": {
-      "name": "TIA",
+      "name": "Tia",
       "sprite": "assets/images/characters/TIA.png",
       "position": "left",
-      "sfx": "assets/audio/TIA.mp3",
-      "description": "The younger sister, cute and curious. She’s not your typical mercenary and seems more innocent than dangerous."
+      "sfx": "assets/audio/TIA.mp3"
     },
     "EVA": {
-      "name": "EVA",
+      "name": "Eva",
       "sprite": "assets/images/characters/EVA.png",
       "position": "right",
-      "sfx": "/path/to/EVA.mp3",
-      "description": "The older sister, foulmouthed and aggressive. She’s fiercely protective of her sister and has a sharp, cynical outlook on life."
+      "sfx": "assets/audio/EVA.mp3"
     },
     "BOSS": {
-      "name": "VEIL [HOLO CALL]",
+      "name": "Veil [Holo Call]",
       "sprite": "assets/images/characters/VEIL.png",
       "position": "left",
-      "sfx": "assets/audio/VEIL.mp3",
-      "description": "Your corporate boss, always direct and cold. He’s the one who issued your assignment to eliminate the sisters."
+      "sfx": "assets/audio/VEIL.mp3"
     },
     "RUNNER": {
-      "name": "KANE [HOLO CALL]",
+      "name": "Kane [Holo Call]",
       "sprite": "assets/images/characters/KANE.png",
       "position": "right",
-      "sfx": "/path/to/KANE.mp3",
-      "description": "A male runner who assists you via holo-call. Calm and resourceful, he provides crucial information during missions."
+      "sfx": "assets/audio/KANE.mp3"
+    },
+    "NARRATION": {
+      "name": "System",
+      "sprite": "stories/MHA/assets/images/characters/Narrator.gif",
+      "position": "center",
+      "sfx": ""
     }
   },
   "storyDialogue": [
-    {
-      "chapter": 1,
-      "scene": 1,
-      "character": "BOSS",
-      "text": "I want this <b>clean</b>, Runner."
-    },
-    {
-      "chapter": 1,
-      "scene": 2,
-      "character": "RUNNER",
-      "text": "Coordinates locked in. You’re getting close, but something’s off… Keep your eyes sharp."
-    },
-    {
-      "chapter": 1,
-      "scene": 3,
-      "character": "RUNNER",
-      "text": "Visual’s glitching… Runner, do you copy?"
-    },
-    {
-      "chapter": 1,
-      "scene": 4,
-      "character": "EVA",
-      "text": "[From the shadows] You shouldn’t have come here, Corp dog."
-    },
-    {
-      "chapter": 1,
-      "scene": 5,
-      "character": "RUNNER",
-      "effect": "ELECTROCUTED"
-    },
-    {
-      "chapter": 1,
-      "scene": 6,
-      "character": "TIA",
-      "text": "Eva, he’s collapsing."
-    },
-    {
-      "chapter": 1,
-      "scene": 7,
-      "character": "EVA",
-      "text": "Let him. Corporate trash like him don’t deserve a quick end."
-    },
-    {
-      "chapter": 1,
-      "scene": 8,
-      "character": "RUNNER",
-      "text": "[Glitching] Ru...ner?! Do you...copy?!"
-    },
-    {
-      "chapter": 1,
-      "scene": 9,
-      "character": "TIA",
-      "text": "Eva, he’s passed out. We should do something, right?"
-    },
-    {
-      "chapter": 1,
-      "scene": 10,
-      "character": "EVA",
-      "text": "Tie him up. We’re not playing nice with corporate assassins."
-    },
-    {
-      "chapter": 1,
-      "scene": 11,
-      "character": "RUNNER",
-      "text": "[Distorted] ...Runner! [Signal lost]"
-    },
-    {
-      "chapter": 2,
-      "scene": 1,
-      "character": "TIA",
-      "text": "Oh, you’re awake! I thought you'd sleep longer... after what we did. I’m Tia, by the way!"
-    },
-    {
-      "chapter": 2,
-      "scene": 2,
-      "character": "EVA",
-      "text": "Tia, don’t get friendly with him. He’s dangerous. We should’ve flatlined him already."
-    },
-    {
-      "chapter": 2,
-      "scene": 3,
-      "character": "EVA",
-      "text": "Corporate goons like him have one purpose—getting rid of us. Stop acting like he’s your pet."
-    },
-    {
-      "chapter": 2,
-      "scene": 4,
-      "character": "TIA",
-      "text": "But he doesn’t *seem* bad… I want to know why he came after us."
-    },
-    {
-      "chapter": 2,
-      "scene": 5,
-      "character": "EVA",
-      "text": "This isn’t a negotiation, Tia. You know how this ends."
-    },
-    {
-      "chapter": 2,
-      "scene": 6,
-      "character": "TIA",
-      "text": "Just one question... What’s your name? And why are you really here?"
-    }
-  ],
-  "chapterMusic": {
-    "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
-    "2": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3"
-  }
+    { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for auto scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top bar. Explore character profiles via the menu." },
+
+    { "chapter": 1, "scene": 1, "character": "BOSS", "text": "I want this <b style=\"color:#00ffcc;\">clean</b>, Runner. No traces, no witnesses, and definitely no mercy." },
+    { "chapter": 1, "scene": 2, "character": "RUNNER", "text": "Coordinates locked in. You’re getting close, but something’s off… Keep your eyes sharp. The <i style=\"color:#f2c300;\">static</i> in this sector is heavy." },
+    { "chapter": 1, "scene": 3, "character": "RUNNER", "text": "Visual’s glitching… [shake] Runner, do you copy? I'm losing your bio-sign!" },
+    { "chapter": 1, "scene": 4, "character": "EVA", "text": "[From the shadows] You shouldn’t have come here, <b style=\"color:#ff3366\">Corp dog</b>. This alley belongs to the forgotten." },
+    { "chapter": 1, "scene": 5, "character": "NARRATION", "text": "[shake] A sudden <b style=\"color:#00e5ff; text-shadow: 0 0 10px #00e5ff;\">electrical surge</b> rips through your implants. Pain white-outs your vision as you collapse to the cold pavement." },
+    { "chapter": 1, "scene": 6, "character": "TIA", "text": "Eva, look! He’s collapsing. Did we... did we hit him too hard?" },
+    { "chapter": 1, "scene": 7, "character": "EVA", "text": "Let him rot. Corporate trash like him don’t deserve a <i style=\"color:#888;\">quick end</i>. They didn't give one to our parents." },
+    { "chapter": 1, "scene": 8, "character": "RUNNER", "text": "[shake] [Glitching] Ru...ner?! Do you...copy?! <span style=\"color:red;\">CRITICAL ERROR...</span>" },
+    { "chapter": 1, "scene": 9, "character": "TIA", "text": "Eva, he’s totally passed out. We should do something, right? We can't just leave a body in front of the hideout." },
+    { "chapter": 1, "scene": 10, "character": "EVA", "text": "Fine. Tie him up. We’re not playing nice with <b style=\"color:#ff0033\">assassins</b>. If he wakes up, I'll deal with him personally." },
+    { "chapter": 1, "scene": 11, "character": "NARRATION", "text": "The signal fades into a hum of static as the world goes black. [Signal lost]" },
+
+    { "chapter": 2, "scene": 1, "character": "TIA", "text": "Oh, you’re awake! I thought you'd sleep longer... after what we did. I’m <b style=\"color:#ffcc00;\">Tia</b>, by the way! Don't try to move, the zip-ties are military grade." },
+    { "chapter": 2, "scene": 2, "character": "EVA", "text": "[shake] Tia, don’t get friendly with him! He’s dangerous. We should’ve <i style=\"color:red\">flatlined</i> him the moment he hit the floor." },
+    { "chapter": 2, "scene": 3, "character": "EVA", "text": "Corporate goons like him have one purpose—getting rid of us. Stop acting like he’s your <span style=\"text-decoration: underline;\">new pet</span>." },
+    { "chapter": 2, "scene": 4, "character": "TIA", "text": "But he doesn’t *seem* bad… I mean, look at his eyes. I want to know why he came after us. Who sent you?" },
+    { "chapter": 2, "scene": 5, "character": "EVA", "text": "This isn’t a negotiation, Tia. You know how this ends. Once we get what we need, he's <b style=\"color:#444;\">obsolete</b>." },
+    { "chapter": 2, "scene": 6, "character": "NARRATION", "text": "You stare at the two sisters—one full of <i style=\"color:#00ffcc;\">innocent curiosity</i>, the other radiating <i style=\"color:#ff3366;\">lethal intent</i>. Why did the Boss want them dead? The choice you make next determines if you're a hunter or a human." }
+  ]
 }

@@ -388,6 +388,8 @@ function loadStoryData(storyName) {
 
             appLogger.success(`Story metadata loaded successfully`);
 
+            state.storyTitle = data.storyTitle || "STORY TITLE";
+            state.storySubtitle = data.storySubtitle || "";
             state.storyData = data.storyDialogue;
             state.characters = data.characters;
             state.chapterMusic = data.chapterMusic || {};
@@ -599,9 +601,15 @@ function finishLoading() {
     const startContent = document.getElementById('startContent');
     const startGameBtn = document.getElementById('startGameBtn');
     
-    // Switch from loading text to CLICK TO START securely
+    // Inject Dynamic Titles Professionally
+    const mainTitleEl = document.getElementById('startMainTitle');
+    const subTitleEl = document.getElementById('startSubTitle');
+    if (mainTitleEl) mainTitleEl.textContent = state.storyTitle;
+    if (subTitleEl) subTitleEl.textContent = state.storySubtitle;
+    
+    // Switch from loading text to start screen securely
     if (loaderContent) loaderContent.style.display = 'none';
-    if (startContent) startContent.style.display = 'block';
+    if (startContent) startContent.style.display = 'flex';
 
     if (startGameBtn) {
         startGameBtn.addEventListener('click', () => {

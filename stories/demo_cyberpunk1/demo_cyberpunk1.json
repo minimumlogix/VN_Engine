@@ -3,35 +3,37 @@
   "theme": "cyberpunk.css",
   "loadScreenBackground": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
   "chapterBackgrounds": {
-    "1": "https://c4.wallpaperflare.com/wallpaper/434/846/423/artwork-cyberpunk-futuristic-city-science-fiction-wallpaper-preview.jpg",
-    "2": "https://cdna.artstation.com/p/assets/images/images/027/290/170/large/antoine-collignon-final-2.jpg?1591114295"
+    "0": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
+    "1": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
+    "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg"
   },
   "chapterMusic": {
     "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
-    "2": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3"
+    "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
+    "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
   },
   "characters": {
     "TIA": {
       "name": "TIA",
-      "sprite": "assets/images/characters/TIA.png",
+      "sprite": "stories/demo_cyberpunk1/assets/images/characters/TIA.png",
       "position": "left",
       "sfx": "assets/audio/TIA.mp3"
     },
     "EVA": {
       "name": "EVA",
-      "sprite": "assets/images/characters/EVA.png",
+      "sprite": "stories/demo_cyberpunk1/assets/images/characters/EVA.png",
       "position": "right",
       "sfx": "/path/to/EVA.mp3"
     },
     "BOSS": {
       "name": "VEIL [HOLO CALL]",
-      "sprite": "assets/images/characters/VEIL.png",
+      "sprite": "stories/demo_cyberpunk1/assets/images/characters/VEIL.png",
       "position": "left",
       "sfx": "assets/audio/VEIL.mp3"
     },
     "RUNNER": {
       "name": "KANE [HOLO CALL]",
-      "sprite": "assets/images/characters/KANE.png",
+      "sprite": "stories/demo_cyberpunk1/assets/images/characters/KANE.png",
       "position": "right",
       "sfx": "/path/to/KANE.mp3"
     },
@@ -43,6 +45,7 @@
     }
   },
   "storyDialogue": [
+    { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for auto scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top bar. Explore character profiles via the menu." },
     { "chapter": 1, "scene": 1, "character": "BOSS", "text": "I want this <b style=\"color:#00ffcc;\">clean</b>, Runner." },
     { "chapter": 1, "scene": 2, "character": "RUNNER", "text": "Coordinates locked in. You’re getting close, but something’s off… Keep your eyes sharp." },
     { "chapter": 1, "scene": 3, "character": "RUNNER", "text": "Visual’s glitching… [shake] Runner, do you copy?" },

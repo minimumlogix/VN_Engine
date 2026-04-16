@@ -37,12 +37,14 @@ class ChapterManager {
             this.previousChapter = this.currentChapter;
             this.currentChapter = newChapter;
 
-            // Parallel operations for performance
+            // Sequential rendering: Background & Music first
             await Promise.all([
                 this._updateBackground(newChapter, chapterData),
-                this._updateMusic(newChapter, chapterData),
-                this._showTransitionAnimation(newChapter, chapterData)
+                this._updateMusic(newChapter, chapterData)
             ]);
+
+            // Followed by the chapter transition animation
+            await this._showTransitionAnimation(newChapter, chapterData);
 
             this.logger.success(`Chapter ${newChapter} transition complete`);
 
@@ -123,6 +125,10 @@ class ChapterManager {
      * Advanced theme-aware transition animation
      */
     async _showTransitionAnimation(chapter, chapterData) {
+        if (parseInt(chapter) === 0) {
+            this.logger.debug(`Skipping transition animation for chapter 0`);
+            return Promise.resolve();
+        }
         try {
             const el = document.getElementById('chapterTransition');
             if (!el) throw new Error('Transition element not found in DOM');
@@ -157,7 +163,7 @@ class ChapterManager {
                         el.classList.remove('active', 'fade-out', `theme-${theme}`);
                         resolve();
                     }, this.cache.transitionTiming);
-                }, 1800); // Display duration
+                }, state.chapterTitleDuration); // Display duration
             });
         } catch (error) {
             this.logger.error(`Transition animation failed:`, error);
@@ -180,7 +186,9 @@ class ChapterManager {
      * Generate chapter title dynamically
      */
     _getChapterTitle(chapter, chapterData) {
-        // Could be extended to read from story metadata
+        if (chapterData?.chapterNames && chapterData.chapterNames[chapter]) {
+            return chapterData.chapterNames[chapter];
+        }
         return `CHAPTER ${chapter}`;
     }
 
@@ -262,6 +270,7 @@ const elements = {
     textSpeedInput: document.getElementById('textSpeed'),
     autoSpeedInput: document.getElementById('autoSpeed'),
     sfxVolumeInput: document.getElementById('sfxVolume'),
+    typingSfxVolumeInput: document.getElementById('typingSfxVolume'),
     bgmVolumeInput: document.getElementById('bgmVolume'),
     effectOverlay: document.getElementById('effectOverlay'),
     overlayContainer: document.getElementById('overlayContainer'),
@@ -279,6 +288,7 @@ const state = {
     currentCharacter: null,
     typingSpeed: TYPING_SPEED,
     autoSpeed: 50,
+    chapterTitleDuration: 1800,
     currentDialogueIndex: 0,
     skipRequested: false,   // Advanced Typewriter skip state
     typingInstanceId: 0,    // Hard-cancel identifier for the async type engine
@@ -293,6 +303,7 @@ const state = {
     characters: null,
     chapterMusic: null,
     chapterBackgrounds: null,
+    chapterNames: null,
     storyBasePath: ''   // e.g. "stories/demo_anime/" — prefix for local assets
 };
 
@@ -321,7 +332,29 @@ const EFFECTS = {
 };
 
 // Initialize the application
-function initializeApp() {
+async function initializeApp() {
+    try {
+        const configResponse = await fetch('config.json');
+        if (configResponse.ok) {
+            const config = await configResponse.json();
+            
+            if (localStorage.getItem('lvne_typingSpeed') === null) state.typingSpeed = config.typingSpeed ?? 50;
+            else state.typingSpeed = parseInt(localStorage.getItem('lvne_typingSpeed'));
+            
+            if (localStorage.getItem('lvne_autoSpeed') === null) state.autoSpeed = config.autoSpeed ?? 50;
+            else state.autoSpeed = parseInt(localStorage.getItem('lvne_autoSpeed'));
+
+            if (localStorage.getItem('lvne_sfxVolume') === null) audioManager.setSfxVolume(config.sfxVolume ?? 0.5);
+            if (localStorage.getItem('lvne_bgmVolume') === null) audioManager.setBgmVolume(config.bgmVolume ?? 0.4);
+            if (localStorage.getItem('lvne_typingSfxVolume') === null) audioManager.setTypingSfxVolume(config.typingSfxVolume ?? 0.2);
+            
+            chapterManager.cache.transitionTiming = config.transitionTiming ?? 300;
+            state.chapterTitleDuration = config.chapterTitleDuration ?? 1800;
+        }
+    } catch (e) {
+        appLogger.warn('No config.json found or failed to load. Using hardcoded defaults.', e);
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     // Support both ?story= (new) and legacy ?storytitle=
     const storyName = urlParams.get('story') || urlParams.get('storytitle') || 'demo_anime';
@@ -359,6 +392,7 @@ function loadStoryData(storyName) {
             state.characters = data.characters;
             state.chapterMusic = data.chapterMusic || {};
             state.chapterBackgrounds = data.chapterBackgrounds || {};
+            state.chapterNames = data.chapterNames || {};
             state.loadScreenBackground = data.loadScreenBackground;
 
             // ─ Normalize chapter keys to integers for reliable access ─
@@ -381,6 +415,16 @@ function loadStoryData(storyName) {
             }
             state.chapterMusic = normalizedMusic;
             appLogger.info(`Registered ${Object.keys(normalizedMusic).length} chapter music tracks`);
+
+            const normalizedNames = {};
+            for (const k in state.chapterNames) {
+                const numKey = parseInt(k);
+                if (!isNaN(numKey)) {
+                    normalizedNames[numKey] = state.chapterNames[k];
+                }
+            }
+            state.chapterNames = normalizedNames;
+            appLogger.info(`Registered ${Object.keys(normalizedNames).length} chapter names`);
 
             // ─ Apply theme ─
             if (data.theme) {
@@ -687,6 +731,7 @@ function setupEventListeners() {
     elements.autoSpeedInput.addEventListener('input', handleAutoSpeedChange);
     elements.sfxVolumeInput.addEventListener('input', handleSfxVolumeChange);
     if (elements.bgmVolumeInput) elements.bgmVolumeInput.addEventListener('input', handleBgmVolumeChange);
+    if (elements.typingSfxVolumeInput) elements.typingSfxVolumeInput.addEventListener('input', handleTypingSfxVolumeChange);
 }
 
 // Initialize the story screen
@@ -699,27 +744,9 @@ function initializeStoryScreen() {
         state.currentChapter = state.storyData[0].chapter;
     }
 
-    // Sync ChapterManager with initial state
-    chapterManager.currentChapter = state.currentChapter;
-    appLogger.info(`Story initialized: Starting at Chapter ${state.currentChapter}`);
-
-    // Load initial background directly (no transition on first load)
-    try {
-        const bg = state.chapterBackgrounds[state.currentChapter];
-        if (bg) {
-            elements.storyScreen.style.backgroundImage = `url('${bg}')`;
-            appLogger.success(`Initial background loaded`);
-        }
-        
-        // Explicitly unleash first chapter's music safely!
-        const initialMusic = state.chapterMusic && state.chapterMusic[state.currentChapter];
-        if (initialMusic && typeof audioManager !== 'undefined') {
-            audioManager.playBackgroundMusic(initialMusic);
-            appLogger.success(`Initial music queued for Chapter ${state.currentChapter}`);
-        }
-    } catch (error) {
-        appLogger.error(`Failed to load initial background/music:`, error);
-    }
+    // Sync ChapterManager with an invalid initial state to trigger a full transition on start
+    chapterManager.currentChapter = null;
+    appLogger.info(`Story initialized: Starting transition into Chapter ${state.currentChapter}`);
 
     displayNextDialogue();
 }
@@ -835,7 +862,7 @@ function updateEndScreenButtons() {
 }
 
 // Display the next dialogue
-function displayNextDialogue() {
+async function displayNextDialogue() {
     clearTimeout(state.autoProgressTimeout);
     state.typingInstanceId++; // Ensure any orphaned async typing loop instances are brutally retired
 
@@ -850,6 +877,30 @@ function displayNextDialogue() {
     }
 
     const dialogue = state.storyData[state.currentDialogueIndex];
+
+    // Handle Chapter and Scene Transitions securely, blocking the pipeline until finished
+    if (dialogue.chapter !== chapterManager.currentChapter) {
+        state.isTyping = true; // Lock UI during transition
+        updateButtonStates();
+        
+        // Hide characters and dialogue container so transition is clean
+        elements.dialogueContainer.style.visibility = 'hidden';
+        Object.keys(state.characters || {}).forEach(key => {
+            const char = state.characters[key];
+            if (char.imgElement) {
+                char.imgElement.style.display = 'none';
+                char.imgElement.classList.remove('active');
+            }
+        });
+
+        await updateChapterAndScene(dialogue.chapter, dialogue.scene);
+        
+        // Reveal UI after transition
+        elements.dialogueContainer.style.visibility = 'visible';
+    } else if (dialogue.scene !== state.currentScene) {
+        // Just update scene safely
+        await updateChapterAndScene(dialogue.chapter, dialogue.scene);
+    }
 
     if (dialogue.effect) {
         state.isEffectPlaying = true;
@@ -874,7 +925,6 @@ function displayNextDialogue() {
 
         state.currentDialogue = dialogue.text;
         state.isTyping = true;
-        updateChapterAndScene(dialogue.chapter, dialogue.scene);
         typeWriter(dialogue.text, state.typingSpeed);
         state.dialogueHistory.push(state.currentDialogueIndex);
         state.currentDialogueIndex++;
@@ -1246,7 +1296,8 @@ async function updateChapterAndScene(chapter, scene) {
             // Use ChapterManager for coordinated update
             await chapterManager.changeChapter(chapter, {
                 chapterBackgrounds: state.chapterBackgrounds,
-                chapterMusic: state.chapterMusic
+                chapterMusic: state.chapterMusic,
+                chapterNames: state.chapterNames
             });
 
             // Update state reference to match manager
@@ -1436,10 +1487,21 @@ function handleSfxVolumeChange(e) {
     audioManager.setSfxVolume(volume);
 }
 
+// Handle Typing SFX volume change
+function handleTypingSfxVolumeChange(e) {
+    const volume = e.target.value / 100;
+    audioManager.setTypingSfxVolume(volume);
+}
+
 // Sync volumes with UI
 function syncVolumes() {
     elements.sfxVolumeInput.value = audioManager.sfxVolume * 100;
     if (elements.bgmVolumeInput) elements.bgmVolumeInput.value = audioManager.bgmVolume * 100;
+    if (elements.typingSfxVolumeInput) elements.typingSfxVolumeInput.value = audioManager.typingSfxVolume * 100;
+    
+    // Also sync standard script.js UI sliders
+    if (elements.textSpeedInput) elements.textSpeedInput.value = 101 - state.typingSpeed;
+    if (elements.autoSpeedInput) elements.autoSpeedInput.value = state.autoSpeed;
 }
 
 // Toggle fullscreen

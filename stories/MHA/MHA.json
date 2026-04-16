@@ -8,6 +8,11 @@
     "2": "stories/MHA/assets/images/backgrounds/SC2.jpg",
     "3": "stories/MHA/assets/images/backgrounds/SC3.jpg"
   },
+  "chapterNames": {
+    "1": "THE UNFAIR FATE",
+    "2": "THE NEW VANGUARD",
+    "3": "CLASH AT U.A."
+  },
   "chapterMusic": {
     "0": "stories/MHA/assets/audio/bgm/heartrate.wav",
     "1": "stories/MHA/assets/audio/bgm/heartrate.wav",

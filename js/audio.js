@@ -7,6 +7,7 @@ class AudioManager {
         this.globalAudioEnabled = this._load('globalAudioEnabled', true); 
         this.sfxEnabled = this.globalAudioEnabled; // For backward compatibility checks
         this.sfxVolume = this._load('sfxVolume', 0.5);
+        this.typingSfxVolume = this._load('typingSfxVolume', 0.2);
         this.bgmVolume = this._load('bgmVolume', 0.4);
 
         // ── Observers ──
@@ -39,7 +40,7 @@ class AudioManager {
         // ── Typing Sound Engine ──
         this.typingSoundEffect = new Audio('core_assets/audio/typing_loop.mp3');
         this.typingSoundEffect.loop = true;
-        this.typingSoundEffect.volume = this.sfxVolume;
+        this.typingSoundEffect.volume = this.typingSfxVolume;
         this.typingSoundEffect.muted = !this.globalAudioEnabled;
         
         // Add exceptional error handling for the typing sound
@@ -178,9 +179,13 @@ class AudioManager {
 
     setSfxVolume(volume) {
         this.sfxVolume = Math.max(0, Math.min(volume, 1));
-        // Keep typing sound locked to SFX volume scale
-        this.typingSoundEffect.volume = this.sfxVolume;
         this._save('sfxVolume', this.sfxVolume);
+    }
+
+    setTypingSfxVolume(volume) {
+        this.typingSfxVolume = Math.max(0, Math.min(volume, 1));
+        this.typingSoundEffect.volume = this.typingSfxVolume;
+        this._save('typingSfxVolume', this.typingSfxVolume);
     }
 
     // ── Global Pause/Play Engine ──

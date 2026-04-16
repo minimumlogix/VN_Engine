@@ -1,0 +1,9 @@
+{
+  "typingSpeed": 60,
+  "autoSpeed": 5,
+  "sfxVolume": 0.5,
+  "bgmVolume": 0.4,
+  "typingSfxVolume": 0.1,
+  "chapterTitleDuration": 1700,
+  "transitionTiming": 1000
+}

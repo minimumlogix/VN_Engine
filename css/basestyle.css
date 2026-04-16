@@ -1068,3 +1068,76 @@ input[type="range"] {
     50% { background-color: rgba(255, 255, 255, 0.9); }
     100% { background-color: rgba(255, 255, 255, 0); }
 }
+
+/* ── Blink Effect ── */
+.blink-effect::after,
+.blink-effect::before {
+    content: "";
+    position: fixed;
+    left: 0;
+    width: 100vw;
+    height: 50vh;
+    background-color: black;
+    z-index: 9999;
+    pointer-events: none;
+}
+.blink-effect::before { top: 0; transform-origin: top; animation: blinkTop 1.2s ease-in-out both; }
+.blink-effect::after { bottom: 0; transform-origin: bottom; animation: blinkBottom 1.2s ease-in-out both; }
+
+@keyframes blinkTop {
+    0% { transform: scaleY(0); }
+    30% { transform: scaleY(1); }
+    40% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+}
+@keyframes blinkBottom {
+    0% { transform: scaleY(0); }
+    30% { transform: scaleY(1); }
+    40% { transform: scaleY(1); }
+    100% { transform: scaleY(0); }
+}
+
+/* ── Electrocuted Effect ── */
+.electricuted-effect::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(0, 200, 255, 0.4);
+    z-index: 9998;
+    pointer-events: none;
+    animation: electricFlash 0.15s infinite alternate;
+}
+@keyframes electricFlash {
+    0% { opacity: 0; }
+    100% { opacity: 1; backdrop-filter: invert(1) hue-rotate(180deg); -webkit-backdrop-filter: invert(1) hue-rotate(180deg); }
+}
+.electricuted-effect {
+    animation: effectElectroJitter 0.1s infinite;
+}
+@keyframes effectElectroJitter {
+    0% { transform: translate(3px, 1px) rotate(0deg); }
+    25% { transform: translate(-3px, -2px) rotate(1deg); }
+    50% { transform: translate(1px, 3px) rotate(-1deg); }
+    75% { transform: translate(-1px, -1px) rotate(1deg); }
+    100% { transform: translate(3px, 1px) rotate(0deg); }
+}
+
+/* ── Shadows Effect ── */
+.shadows-effect .character-sprite.active {
+    animation: shadowReveal 2s ease-out forwards !important;
+}
+
+@keyframes shadowReveal {
+    0% {
+        filter: brightness(0) blur(4px);
+        opacity: 0;
+    }
+    30% {
+        filter: brightness(0) blur(2px);
+        opacity: 1;
+    }
+    100% {
+        filter: brightness(1) blur(0px);
+        opacity: 1;
+    }
+}

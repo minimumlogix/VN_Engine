@@ -7,6 +7,11 @@
     "1": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
     "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg"
   },
+  "chapterNames": {
+    "1": "THE UNFAIR FATE",
+    "2": "THE NEW VANGUARD",
+    "3": "AWAKEN TO THE TRUTH"
+  },
   "chapterMusic": {
     "0": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
     "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
@@ -67,13 +72,13 @@
       "chapter": 1,
       "scene": 3,
       "character": "RUNNER",
-      "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there!"
+      "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there! [electricuted]"
     },
     {
       "chapter": 1,
       "scene": 4,
       "character": "EVA",
-      "text": "[From the shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums."
+      "text": "[shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums."
     },
     {
       "chapter": 1,
@@ -85,7 +90,7 @@
       "chapter": 1,
       "scene": 6,
       "character": "TIA",
-      "text": "Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin."
+      "text": "[shadows] Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin."
     },
     {
       "chapter": 1,
@@ -97,7 +102,7 @@
       "chapter": 1,
       "scene": 8,
       "character": "RUNNER",
-      "text": "[shake] <span style='font-family: monospace; color:red;'>[ERROR: SYNAPTIC COLLAPSE]</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
+      "text": "[shake] <span style='font-family: monospace; color:red;'>ERROR: SYNAPTIC COLLAPSE</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
     },
     {
       "chapter": 1,
@@ -121,13 +126,13 @@
       "chapter": 2,
       "scene": 1,
       "character": "TIA",
-      "text": "Reboot successful! You're lucky. Most people don't survive a <b style='color:#00ffcc;'>neural spike</b> like that. I'm Tia."
+      "text": "[blink] Reboot successful! You're lucky. Most people don't survive a <b style='color:#00ffcc;'>neural spike</b> like that. I'm Tia."
     },
     {
       "chapter": 2,
       "scene": 2,
       "character": "EVA",
-      "text": "[shake] Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning."
+      "text": "Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning."
     },
     {
       "chapter": 2,

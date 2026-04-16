@@ -7,7 +7,10 @@ class EffectsEngine {
         this.macros = {
             'shake': { class: 'shake-effect', duration: 500 },
             'glitch': { class: 'glitch-effect', duration: 1500 },
-            'flash': { class: 'flash-effect', duration: 150 }
+            'flash': { class: 'flash-effect', duration: 150 },
+            'blink': { class: 'blink-effect', duration: 1200 },
+            'electricuted': { class: 'electricuted-effect', duration: 1000 },
+            'shadows': { class: 'shadows-effect', duration: 2000 }
         };
 
         // Legacy full-screen effects dictionary (for blocking scene progression)

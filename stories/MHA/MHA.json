@@ -68,10 +68,11 @@
     { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon." },
     { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "via the options menu" },
     
-    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "In a world of <b style=\"color:#f2c300;\">bright heroes</b>, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate. You sacrificed everything, saving a stranger, only to be shackled by a terminal illness" },
-    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "a <i style=\"color:#555;\">cruel twist of irony</i>." },
+    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "In a world of <b style=\"color:#f2c300;\">bright heroes</b>, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate." },
+    { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "You sacrificed everything, saving a stranger, only to be shackled by a terminal illness... a <i style=\"color:#555;\">cruel twist of irony</i>." },
     { "chapter": 1, "scene": 2, "character": "AFO", "text": "Ah... what a <i style=\"color:red\">tragic</i> spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?" },
-    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Imagine a life beyond this bed, a chance to wield <span style=\"font-size:1.2em; color:#a25fff; text-shadow: 0 0 10px #a25fff;\">unimaginable power</span>. [shake] Join me, and you can reshape the world in your image." },
+    { "chapter": 1, "scene": 2, "character": "AFO", "text": "Imagine a life beyond this bed, a chance to wield <span style=\"font-size:1.2em; color:#a25fff; text-shadow: 0 0 10px #a25fff;\">unimaginable power</span>." },
+    { "chapter": 1, "scene": 2, "character": "AFO", "text": "[shake] Join me, and you can reshape the world in your image." },
     { "chapter": 1, "scene": 2, "character": "NARRATION", "text": "His voice slithers into your mind, offering a tantalizing glimpse of hope amidst despair. What lies ahead could change <b>everything</b>." },
 
     { "chapter": 2, "scene": 1, "character": "NARRATION", "text": "Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with <b style=\"color:#ff0033; text-shadow: 0 0 5px #ff0033;\">raw energy</b>, igniting a fire deep within." },

@@ -66,7 +66,7 @@
   },
   "storyDialogue": [
     { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon." },
-    { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "via the options menu" },
+    { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "via the options menu, You can change Typing speed and other settings." },
     
     { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "In a world of <b style=\"color:#f2c300;\">bright heroes</b>, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate." },
     { "chapter": 1, "scene": 1, "character": "NARRATION", "text": "You sacrificed everything, saving a stranger, only to be shackled by a terminal illness... a <i style=\"color:#555;\">cruel twist of irony</i>." },

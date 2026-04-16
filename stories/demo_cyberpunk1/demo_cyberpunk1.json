@@ -1,5 +1,5 @@
 {
-  "storyTitle": "CYBER RUNNER",
+  "storyTitle": "CYBER RUNNER: BLACK BOX",
   "theme": "cyberpunk.css",
   "loadScreenBackground": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
   "chapterBackgrounds": {
@@ -8,9 +8,9 @@
     "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg"
   },
   "chapterMusic": {
-    "1": "https://cdn.pixabay.com/download/audio/2022/01/20/audio_5be6f9fa34.mp3?filename=cyberpunk-synthwave-123271.mp3",
+    "0": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
     "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
-    "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
+    "2": "stories/demo_cyberpunk1/assets/audio/bgm_mystery.mp3"
   },
   "characters": {
     "TIA": {
@@ -45,25 +45,80 @@
     }
   },
   "storyDialogue": [
-    { "chapter": 0, "scene": 1, "character": "NARRATION", "text": "Get started! Use ‣ AUTO for auto scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top bar. Explore character profiles via the menu." },
-    { "chapter": 1, "scene": 1, "character": "BOSS", "text": "I want this <b style=\"color:#00ffcc;\">clean</b>, Runner." },
-    { "chapter": 1, "scene": 2, "character": "RUNNER", "text": "Coordinates locked in. You’re getting close, but something’s off… Keep your eyes sharp." },
-    { "chapter": 1, "scene": 3, "character": "RUNNER", "text": "Visual’s glitching… [shake] Runner, do you copy?" },
-    { "chapter": 1, "scene": 4, "character": "EVA", "text": "[From the shadows] You shouldn’t have come here, <b style=\"color:#ff3366\">Corp dog</b>." },
-    { "chapter": 1, "scene": 5, "character": "RUNNER", "effect": "ELECTROCUTED" },
-    { "chapter": 1, "scene": 6, "character": "TIA", "text": "Eva, he’s collapsing." },
-    { "chapter": 1, "scene": 7, "character": "EVA", "text": "Let him. Corporate trash like him don’t deserve a <i style=\"color:#888;\">quick end</i>." },
-    { "chapter": 1, "scene": 8, "character": "RUNNER", "text": "[shake] [Glitching] Ru...ner?! Do you...copy?!" },
-    { "chapter": 1, "scene": 9, "character": "TIA", "text": "Eva, he’s passed out. We should do something, right?" },
-    { "chapter": 1, "scene": 10, "character": "EVA", "text": "Tie him up. We’re not playing nice with corporate assassins." },
-    { "chapter": 1, "scene": 11, "character": "NARRATION", "text": "The signal fades into a hum of static as your consciousness slips away. <i style=\"color:red;\">[Signal lost]</i>" },
-
-    { "chapter": 2, "scene": 1, "character": "TIA", "text": "Oh, you’re awake! I thought you'd sleep longer... after what we did. I’m Tia, by the way!" },
-    { "chapter": 2, "scene": 2, "character": "EVA", "text": "[shake] Tia, don’t get friendly with him. He’s dangerous. We should’ve flatlined him already." },
-    { "chapter": 2, "scene": 3, "character": "EVA", "text": "Corporate goons like him have one purpose—getting rid of us. Stop acting like he’s your pet." },
-    { "chapter": 2, "scene": 4, "character": "TIA", "text": "But he doesn’t *seem* bad… I want to know why he came after us." },
-    { "chapter": 2, "scene": 5, "character": "EVA", "text": "This isn’t a negotiation, Tia. You know how this ends." },
-    { "chapter": 2, "scene": 6, "character": "TIA", "text": "Just one question... What’s your name? And why are you really here?" },
-    { "chapter": 2, "scene": 7, "character": "NARRATION", "text": "The weight of your choices presses down. Will you embrace the <b style=\"color:#444;text-shadow:0 0 5px #000\">darkness</b>, or find another way?" }
+    { 
+      "chapter": 0, "scene": 1, "character": "NARRATION", 
+      "text": "<span style='color:#00ffff; text-shadow: 0 0 5px #00ffff;'>INITIALIZING LINK...</span> Use AUTO for flow. Neural interface stable. Welcome to the gutter." 
+    },
+    { 
+      "chapter": 1, "scene": 1, "character": "BOSS", 
+      "text": "Scrape the girls. Harvest the <b style='color:#00ffcc; text-shadow: 0 0 8px #00ffcc;'>Neural-Drive</b> and incinerate the meat. Leave no witnesses." 
+    },
+    { 
+      "chapter": 1, "scene": 2, "character": "RUNNER", 
+      "text": "Locked in. But something is <i style='color:#f2c300;'>bleeding</i> into the comms. Ghost data is crawling through the net. Watch your six." 
+    },
+    { 
+      "chapter": 1, "scene": 3, "character": "RUNNER", 
+      "text": "[shake] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there!" 
+    },
+    { 
+      "chapter": 1, "scene": 4, "character": "EVA", 
+      "text": "[From the shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums." 
+    },
+    { 
+      "chapter": 1, "scene": 5, "character": "RUNNER", "effect": "ELECTROCUTED" 
+    },
+    { 
+      "chapter": 1, "scene": 6, "character": "TIA", 
+      "text": "Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin." 
+    },
+    { 
+      "chapter": 1, "scene": 7, "character": "EVA", 
+      "text": "Let him rot. They butchered our block for profit. It's time for some <b style='color:#888;'>reciprocal violence</b>." 
+    },
+    { 
+      "chapter": 1, "scene": 8, "character": "RUNNER", 
+      "text": "[shake] <span style='font-family: monospace; color:red;'>[ERROR: SYNAPTIC COLLAPSE]</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>" 
+    },
+    { 
+      "chapter": 1, "scene": 9, "character": "TIA", 
+      "text": "Eva, his cortex is wide open. We can use him to unlock the <b style='color:#f2c300;'>Arasaka Vault</b>. Don't kill him yet." 
+    },
+    { 
+      "chapter": 1, "scene": 10, "character": "EVA", 
+      "text": "Fine. Neural-shackle him. If he twitches, I'll carve the <i style='color:#ff0033;'>truth</i> out of his throat." 
+    },
+    { 
+      "chapter": 1, "scene": 11, "character": "NARRATION", 
+      "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>[SHUTDOWN IMMINENT: DARKNESS]</b>" 
+    },
+    { 
+      "chapter": 2, "scene": 1, "character": "TIA", 
+      "text": "Reboot successful! You're lucky. Most people don't survive a <b style='color:#00ffcc;'>neural spike</b> like that. I'm Tia." 
+    },
+    { 
+      "chapter": 2, "scene": 2, "character": "EVA", 
+      "text": "[shake] Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning." 
+    },
+    { 
+      "chapter": 2, "scene": 3, "character": "EVA", 
+      "text": "Corporate filth like him have one purpose: erasing us. Stop treating a <b style='color:#888;'>corpse-in-waiting</b> like a pet project." 
+    },
+    { 
+      "chapter": 2, "scene": 4, "character": "TIA", 
+      "text": "But look at his <i style='color:#00e5ff;'>memory logs</i>... they're being deleted in real-time. Someone's burning his past." 
+    },
+    { 
+      "chapter": 2, "scene": 5, "character": "EVA", 
+      "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand." 
+    },
+    { 
+      "chapter": 2, "scene": 6, "character": "TIA", 
+      "text": "Who are you really? And why is your Boss trying to <i style='color:#f2c300;'>incinerate</i> your consciousness from the inside out?" 
+    },
+    { 
+      "chapter": 2, "scene": 7, "character": "NARRATION", 
+      "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>." 
+    }
   ]
 }

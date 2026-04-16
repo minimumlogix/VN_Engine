@@ -954,3 +954,117 @@ input[type="range"] {
         align-items: center;
     }
 }
+
+/* ============================================================ */
+/* EFFECTS ENGINE STYLES (Macros and Layers)                      */
+/* ============================================================ */
+
+/* ── Persistent Effect Layer (GIF Method) ── */
+.persistent-effect-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Above background, below sprites and dialogue */
+    pointer-events: none;
+    display: none; /* Managed by JS */
+}
+
+.persistent-effect-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6; /* Subtle transparency default */
+    mix-blend-mode: screen; /* Usually good for effects, can be overridden */
+}
+
+/* ── Macro Effects (Short-Term) ── */
+.shake-effect {
+    animation: effectShake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+@keyframes effectShake {
+    10%, 90% { transform: translate3d(-5px, 0, 0) rotate(-1deg); }
+    20%, 80% { transform: translate3d(10px, 0, 0) rotate(1deg); }
+    30%, 50%, 70% { transform: translate3d(-15px, 5px, 0) rotate(-2deg); }
+    40%, 60% { transform: translate3d(15px, -5px, 0) rotate(2deg); }
+}
+
+.glitch-effect {
+    animation: effectGlitch 1.5s linear infinite;
+    position: relative;
+}
+
+@keyframes effectGlitch {
+    2%, 64% { transform: translate(2px,0) skew(0deg); }
+    4%, 60% { transform: translate(-2px,0) skew(0deg); }
+    62% { transform: translate(0,0) skew(5deg); }
+}
+
+.glitch-effect::before,
+.glitch-effect::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.glitch-effect::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: effectGlitchAnim 5s infinite linear alternate-reverse;
+}
+
+.glitch-effect::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: effectGlitchAnim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes effectGlitchAnim {
+    0% { clip: rect(70px, 9999px, 78px, 0); }
+    20% { clip: rect(10px, 9999px, 12px, 0); }
+    40% { clip: rect(42px, 9999px, 45px, 0); }
+    60% { clip: rect(80px, 9999px, 83px, 0); }
+    80% { clip: rect(15px, 9999px, 18px, 0); }
+    100% { clip: rect(90px, 9999px, 92px, 0); }
+}
+@keyframes effectGlitchAnim2 {
+    0% { clip: rect(20px, 9999px, 22px, 0); }
+    20% { clip: rect(50px, 9999px, 53px, 0); }
+    40% { clip: rect(12px, 9999px, 15px, 0); }
+    60% { clip: rect(70px, 9999px, 72px, 0); }
+    80% { clip: rect(8px, 9999px, 10px, 0); }
+    100% { clip: rect(60px, 9999px, 62px, 0); }
+}
+
+.flash-effect::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+    z-index: 9999;
+    pointer-events: none;
+    animation: effectFlash 0.15s ease-out both;
+}
+
+@keyframes effectFlash {
+    0% { background-color: rgba(255, 255, 255, 0); }
+    50% { background-color: rgba(255, 255, 255, 0.9); }
+    100% { background-color: rgba(255, 255, 255, 0); }
+}

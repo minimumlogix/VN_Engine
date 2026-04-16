@@ -96,9 +96,9 @@ class AudioManager {
         try {
             await audioObj.play();
         } catch (error) {
-            // AbortError is normal during fast skipping
-            if (error.name !== "AbortError" && error.name !== "NotSupportedError") {
-                if (this.logger.warn) this.logger.warn('Audio playback prevented:', error.message);
+            // AbortError is normal during fast skipping, NotSupportedError during init without interaction
+            if (error.name !== "AbortError" && error.name !== "NotSupportedError" && error.name !== "NotAllowedError") {
+                if (this.logger && this.logger.warn) this.logger.warn(`Audio playback prevented (${audioObj.src}):`, error.message || error);
             }
         }
     }
@@ -244,14 +244,25 @@ class AudioManager {
 
     // ── Persistence ──
     _save(key, value) {
-        try { localStorage.setItem('lvne_' + key, JSON.stringify(value)); } catch (e) { /* silent */ }
+        try { 
+            localStorage.setItem('lvne_' + key, JSON.stringify(value)); 
+        } catch (e) {
+            if (this.logger && this.logger.warn) {
+                this.logger.warn(`Failed to save ${key} to localStorage:`, e);
+            }
+        }
     }
 
     _load(key, fallback) {
         try {
             const val = localStorage.getItem('lvne_' + key);
             return val !== null ? JSON.parse(val) : fallback;
-        } catch (e) { return fallback; }
+        } catch (e) { 
+            if (this.logger && this.logger.warn) {
+                this.logger.warn(`Failed to load ${key} from localStorage, using fallback:`, e);
+            }
+            return fallback; 
+        }
     }
 }
 

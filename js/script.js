@@ -78,7 +78,7 @@ class ChapterManager {
                 ? `${backgroundUrl}?cache=${Date.now()}` 
                 : backgroundUrl;
 
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = () => {
                     elements.storyScreen.style.backgroundImage = `url('${finalUrl}')`;
@@ -87,14 +87,14 @@ class ChapterManager {
                     resolve();
                 };
                 img.onerror = () => {
-                    reject(new Error(`Failed to load background: ${backgroundUrl}`));
+                    this.logger.error(`Failed to load background: ${backgroundUrl}, keeping previous background.`);
+                    resolve(); // Safely resolve immediately to not break transition pipeline
                 };
                 img.src = finalUrl;
             });
         } catch (error) {
             this.logger.error(`Background update failed:`, error);
-            // Fallback: keep current background
-            throw error;
+            // Fallback: silently continue with current background instead of crashing
         }
     }
 
@@ -307,29 +307,7 @@ const state = {
     storyBasePath: ''   // e.g. "stories/demo_anime/" — prefix for local assets
 };
 
-// Effects definitions
-const EFFECTS = {
-    GLITCH: {
-        duration: 2000,
-        cssClass: 'glitch-effect',
-        animate: (element) => {
-            element.classList.add('glitch-effect');
-            element.innerHTML = `
-                <div class="glitch-1">GLITCH</div>
-                <div class="glitch-2">GLITCH</div>
-                <div class="glitch-3">GLITCH</div>
-            `;
-        }
-    },
-    ELECTROCUTED: {
-        duration: 1500,
-        cssClass: 'electrocuted-effect',
-        animate: (element) => {
-            element.classList.add('electrocuted-effect');
-            element.innerHTML = `<div class="lightning"></div>`;
-        }
-    }
-};
+// Effects definition moved to effects.js
 
 // Initialize the application
 async function initializeApp() {
@@ -913,7 +891,7 @@ async function displayNextDialogue() {
     if (dialogue.effect) {
         state.isEffectPlaying = true;
         updateButtonStates();
-        playEffect(dialogue.effect, () => {
+        effectsEngine.playOverlayEffect(dialogue.effect, () => {
             state.isEffectPlaying = false;
             state.dialogueHistory.push(state.currentDialogueIndex);
             state.currentDialogueIndex++;
@@ -922,7 +900,7 @@ async function displayNextDialogue() {
         });
     } else {
         updateCharacter(dialogue.character);
-        updatePersistentEffect(dialogue.persistentEffect);
+        effectsEngine.setPersistentEffect(dialogue.persistentEffect);
 
         // Play character SFX via the pooled audio manager
         let primaryCharKey = typeof dialogue.character === 'string' ? dialogue.character.split(',')[0].trim() : (Array.isArray(dialogue.character) ? dialogue.character[0] : dialogue.character);
@@ -940,51 +918,15 @@ async function displayNextDialogue() {
     }
 }
 
-// Update Persistent Effect Layer
-function updatePersistentEffect(effectUrl) {
-    if (effectUrl === undefined) {
-        return; // Retain current effect if none specified
-    }
-
-    if (effectUrl === "") {
-        elements.persistentEffectLayer.style.display = 'none';
-        elements.persistentEffectLayer.innerHTML = '';
-        return;
-    }
-
-    elements.persistentEffectLayer.style.display = 'block';
-    elements.persistentEffectLayer.innerHTML = `<img src="${effectUrl}" class="persistent-effect-img" alt="effect">`;
-}
-
-/**
- * Resolve what the persistent effect SHOULD be at a given dialogue index.
- * Scans backwards from the index to find the most recent persistentEffect change.
- * Returns the effect URL string, or "" if no effect should be active.
- */
-function resolveEffectForIndex(index) {
-    if (!state.storyData) return "";
-    for (let i = index; i >= 0; i--) {
-        const d = state.storyData[i];
-        if (d.persistentEffect !== undefined) {
-            return d.persistentEffect; // could be "" (clear) or a URL
-        }
-    }
-    return ""; // no effect found in history — clear
-}
+// Legacy persistent effect functions moved to effects.js
 
 /**
  * Cleanup function called when leaving the story screen.
  * Clears all visual layers so they don't bleed into other screens.
  */
 function cleanupStoryScreen() {
-    // Clear persistent effect layer
-    elements.persistentEffectLayer.style.display = 'none';
-    elements.persistentEffectLayer.innerHTML = '';
-
-    // Clear one-shot effect overlay
-    elements.effectOverlay.style.display = 'none';
-    elements.effectOverlay.className = 'effect-overlay';
-    elements.effectOverlay.innerHTML = '';
+    // Clear all effects
+    effectsEngine.cleanup();
 
     // Hide character sprites dynamically
     Object.keys(state.characters || {}).forEach(key => {
@@ -1000,24 +942,7 @@ function cleanupStoryScreen() {
     state.isEffectPlaying = false;
 }
 
-// Play a visual effect
-function playEffect(effect, callback) {
-    if (EFFECTS[effect]) {
-        elements.effectOverlay.className = `effect-overlay ${EFFECTS[effect].cssClass}`;
-        elements.effectOverlay.style.display = 'block';
-        EFFECTS[effect].animate(elements.effectOverlay);
-
-        setTimeout(() => {
-            elements.effectOverlay.style.display = 'none';
-            elements.effectOverlay.className = 'effect-overlay';
-            elements.effectOverlay.innerHTML = '';
-            if (callback) callback();
-        }, EFFECTS[effect].duration);
-    } else {
-        console.error(`Effect ${effect} not found`);
-        if (callback) callback();
-    }
-}
+// Play effect logic moved to effects.js
 
 // Update character display
 function updateCharacter(characterInput) {
@@ -1153,10 +1078,8 @@ async function typeWriter(rawText, baseSpeed) {
         // Ignore Engine events for rendering
         if (token.startsWith('[')) {
             const eventName = token.slice(1, -1);
-            if (window.playEffect && EFFECTS && EFFECTS[eventName]) {
-                appLogger.info('Triggered Logic Event Token:', eventName);
-                if (eventName === 'shake') document.body.classList.add('shake-effect');
-                setTimeout(() => document.body.classList.remove('shake-effect'), 500); // rudimentary fallback hook
+            if (typeof effectsEngine !== 'undefined') {
+                effectsEngine.triggerMacro(eventName);
             }
             continue;
         }
@@ -1240,8 +1163,8 @@ function handleBackClick() {
             state.currentDialogueIndex = lastIndex;
 
             // Resolve the correct persistent effect for this point in the story
-            const correctEffect = resolveEffectForIndex(lastIndex);
-            updatePersistentEffect(correctEffect);
+            const correctEffect = effectsEngine.resolveEffectForIndex(lastIndex, state.storyData);
+            effectsEngine.setPersistentEffect(correctEffect);
 
             // Also restore the correct chapter/background for this index
             const targetDialogue = state.storyData[lastIndex];
@@ -1256,8 +1179,8 @@ function handleBackClick() {
         state.currentDialogueIndex = state.storyData.length - 1;
 
         // Resolve effect for the last dialogue
-        const correctEffect = resolveEffectForIndex(state.currentDialogueIndex);
-        updatePersistentEffect(correctEffect);
+        const correctEffect = effectsEngine.resolveEffectForIndex(state.currentDialogueIndex, state.storyData);
+        effectsEngine.setPersistentEffect(correctEffect);
 
         displayNextDialogue();
     }
@@ -1437,14 +1360,7 @@ function generateCharacterInfoHTML() {
     `).join('');
 }
 
-// Toggle fullscreen
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else if (document.exitFullscreen) {
-        document.exitFullscreen();
-    }
-}
+
 
 // Handle key press
 function handleKeyPress(event) {

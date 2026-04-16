@@ -45,80 +45,119 @@
     }
   },
   "storyDialogue": [
-    { 
-      "chapter": 0, "scene": 1, "character": "NARRATION", 
-      "text": "<span style='color:#00ffff; text-shadow: 0 0 5px #00ffff;'>INITIALIZING LINK...</span> Use AUTO for flow. Neural interface stable. Welcome to the gutter." 
+    {
+      "chapter": 0,
+      "scene": 1,
+      "character": "NARRATION",
+      "text": "<span style='color:#00ffff; text-shadow: 0 0 5px #00ffff;'>INITIALIZING LINK...</span> Use AUTO for flow. Neural interface stable. Welcome to the gutter."
     },
-    { 
-      "chapter": 1, "scene": 1, "character": "BOSS", 
-      "text": "Scrape the girls. Harvest the <b style='color:#00ffcc; text-shadow: 0 0 8px #00ffcc;'>Neural-Drive</b> and incinerate the meat. Leave no witnesses." 
+    {
+      "chapter": 1,
+      "scene": 1,
+      "character": "BOSS",
+      "text": "Scrape the girls. Harvest the <b style='color:#00ffcc; text-shadow: 0 0 8px #00ffcc;'>Neural-Drive</b> and incinerate the meat. Leave no witnesses."
     },
-    { 
-      "chapter": 1, "scene": 2, "character": "RUNNER", 
-      "text": "Locked in. But something is <i style='color:#f2c300;'>bleeding</i> into the comms. Ghost data is crawling through the net. Watch your six." 
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "RUNNER",
+      "text": "Locked in. But something is <i style='color:#f2c300;'>bleeding</i> into the comms. Ghost data is crawling through the net. Watch your six."
     },
-    { 
-      "chapter": 1, "scene": 3, "character": "RUNNER", 
-      "text": "[shake] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there!" 
+    {
+      "chapter": 1,
+      "scene": 3,
+      "character": "RUNNER",
+      "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there!"
     },
-    { 
-      "chapter": 1, "scene": 4, "character": "EVA", 
-      "text": "[From the shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums." 
+    {
+      "chapter": 1,
+      "scene": 4,
+      "character": "EVA",
+      "text": "[From the shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums."
     },
-    { 
-      "chapter": 1, "scene": 5, "character": "RUNNER", "effect": "ELECTROCUTED" 
+    {
+      "chapter": 1,
+      "scene": 5,
+      "character": "RUNNER",
+      "effect": "ELECTROCUTED"
     },
-    { 
-      "chapter": 1, "scene": 6, "character": "TIA", 
-      "text": "Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin." 
+    {
+      "chapter": 1,
+      "scene": 6,
+      "character": "TIA",
+      "text": "Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin."
     },
-    { 
-      "chapter": 1, "scene": 7, "character": "EVA", 
-      "text": "Let him rot. They butchered our block for profit. It's time for some <b style='color:#888;'>reciprocal violence</b>." 
+    {
+      "chapter": 1,
+      "scene": 7,
+      "character": "EVA",
+      "text": "Let him rot. They butchered our block for profit. It's time for some <b style='color:#888;'>reciprocal violence</b>."
     },
-    { 
-      "chapter": 1, "scene": 8, "character": "RUNNER", 
-      "text": "[shake] <span style='font-family: monospace; color:red;'>[ERROR: SYNAPTIC COLLAPSE]</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>" 
+    {
+      "chapter": 1,
+      "scene": 8,
+      "character": "RUNNER",
+      "text": "[shake] <span style='font-family: monospace; color:red;'>[ERROR: SYNAPTIC COLLAPSE]</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
     },
-    { 
-      "chapter": 1, "scene": 9, "character": "TIA", 
-      "text": "Eva, his cortex is wide open. We can use him to unlock the <b style='color:#f2c300;'>Arasaka Vault</b>. Don't kill him yet." 
+    {
+      "chapter": 1,
+      "scene": 9,
+      "character": "TIA",
+      "text": "Eva, his cortex is wide open. We can use him to unlock the <b style='color:#f2c300;'>Arasaka Vault</b>. Don't kill him yet."
     },
-    { 
-      "chapter": 1, "scene": 10, "character": "EVA", 
-      "text": "Fine. Neural-shackle him. If he twitches, I'll carve the <i style='color:#ff0033;'>truth</i> out of his throat." 
+    {
+      "chapter": 1,
+      "scene": 10,
+      "character": "EVA",
+      "text": "Fine. Neural-shackle him. If he twitches, I'll carve the <i style='color:#ff0033;'>truth</i> out of his throat."
     },
-    { 
-      "chapter": 1, "scene": 11, "character": "NARRATION", 
-      "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>[SHUTDOWN IMMINENT: DARKNESS]</b>" 
+    {
+      "chapter": 1,
+      "scene": 11,
+      "character": "NARRATION",
+      "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>[SHUTDOWN IMMINENT: DARKNESS]</b>"
     },
-    { 
-      "chapter": 2, "scene": 1, "character": "TIA", 
-      "text": "Reboot successful! You're lucky. Most people don't survive a <b style='color:#00ffcc;'>neural spike</b> like that. I'm Tia." 
+    {
+      "chapter": 2,
+      "scene": 1,
+      "character": "TIA",
+      "text": "Reboot successful! You're lucky. Most people don't survive a <b style='color:#00ffcc;'>neural spike</b> like that. I'm Tia."
     },
-    { 
-      "chapter": 2, "scene": 2, "character": "EVA", 
-      "text": "[shake] Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning." 
+    {
+      "chapter": 2,
+      "scene": 2,
+      "character": "EVA",
+      "text": "[shake] Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning."
     },
-    { 
-      "chapter": 2, "scene": 3, "character": "EVA", 
-      "text": "Corporate filth like him have one purpose: erasing us. Stop treating a <b style='color:#888;'>corpse-in-waiting</b> like a pet project." 
+    {
+      "chapter": 2,
+      "scene": 3,
+      "character": "EVA",
+      "text": "Corporate filth like him have one purpose: erasing us. Stop treating a <b style='color:#888;'>corpse-in-waiting</b> like a pet project."
     },
-    { 
-      "chapter": 2, "scene": 4, "character": "TIA", 
-      "text": "But look at his <i style='color:#00e5ff;'>memory logs</i>... they're being deleted in real-time. Someone's burning his past." 
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "TIA",
+      "text": "But look at his <i style='color:#00e5ff;'>memory logs</i>... they're being deleted in real-time. Someone's burning his past."
     },
-    { 
-      "chapter": 2, "scene": 5, "character": "EVA", 
-      "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand." 
+    {
+      "chapter": 2,
+      "scene": 5,
+      "character": "EVA",
+      "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand."
     },
-    { 
-      "chapter": 2, "scene": 6, "character": "TIA", 
-      "text": "Who are you really? And why is your Boss trying to <i style='color:#f2c300;'>incinerate</i> your consciousness from the inside out?" 
+    {
+      "chapter": 2,
+      "scene": 6,
+      "character": "TIA",
+      "text": "Who are you really? And why is your Boss trying to <i style='color:#f2c300;'>incinerate</i> your consciousness from the inside out?"
     },
-    { 
-      "chapter": 2, "scene": 7, "character": "NARRATION", 
-      "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>." 
+    {
+      "chapter": 2,
+      "scene": 7,
+      "character": "NARRATION",
+      "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>."
     }
   ]
 }

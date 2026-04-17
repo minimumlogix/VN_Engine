@@ -590,7 +590,7 @@ function finishLoading() {
     if (startContent) startContent.style.display = 'flex';
 
     if (startGameBtn) {
-        startGameBtn.addEventListener('click', () => {
+        const doStart = () => {
             // Force browser audio engine unlock inside immediate user gesture
             if (typeof audioManager !== 'undefined') audioManager.forceUnlock();
             
@@ -601,7 +601,24 @@ function finishLoading() {
                 screenManager.showScreen('story');
                 setTimeout(initializeStoryScreen, 100);
             }, 800);
-        });
+        };
+
+        startGameBtn.addEventListener('click', doStart);
+
+        // Also wire keyboard Enter to start the game from the start screen
+        const _startKeyHandler = (e) => {
+            const startContent = document.getElementById('startContent');
+            if (startContent && startContent.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                document.removeEventListener('keydown', _startKeyHandler);
+                doStart();
+            }
+        };
+        document.addEventListener('keydown', _startKeyHandler);
+
+        // Title scramble reveal after a short delay
+        _scrambleTitle(document.getElementById('startMainTitle'));
+
     } else {
         // Fallback
         const loadingScreen = document.getElementById('loadingScreen');
@@ -614,8 +631,33 @@ function finishLoading() {
     }
 }
 
+/**
+ * Scrambles an element's text content with random glyphs then resolves to the real text.
+ * @param {HTMLElement} el
+ */
+function _scrambleTitle(el) {
+    if (!el) return;
+    const target = el.textContent;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!&%$';
+    let frame = 0;
+    const totalFrames = 28;
+    const interval = setInterval(() => {
+        el.textContent = target.split('').map((ch, i) => {
+            if (ch === ' ') return ' ';
+            if (frame / totalFrames > i / target.length) return ch;
+            return chars[Math.floor(Math.random() * chars.length)];
+        }).join('');
+        if (++frame >= totalFrames) {
+            clearInterval(interval);
+            el.textContent = target;
+        }
+    }, 40);
+}
+
 // Fallback data if JSON loading fails
 function loadFallbackData() {
+    state.storyTitle = 'FALLBACK MODE';
+    state.storySubtitle = 'Story data failed to load';
     state.storyData = [
         // Chapter 0: Fallback Mode
         { chapter: 0, scene: 1, character: 'SYSTEM', text: "⚠ Story data missing. Entering <b>Fallback Mode</b>." },
@@ -1377,10 +1419,12 @@ function handleKeyPress(event) {
             toggleAutoMode();
             break;
         case 'Escape':
-            document.querySelectorAll('.overlay').forEach(overlay => {
-                overlay.style.display = 'none';
+            // Properly close any open overlays via toggleOverlay so isPaused is correctly cleared
+            ['menuOverlay', 'settingsOverlay'].forEach(id => {
+                const ov = document.getElementById(id);
+                if (ov && ov.classList.contains('show')) toggleOverlay(id);
             });
-            hideOverlay();
+            if (elements.overlayContainer && elements.overlayContainer.classList.contains('show')) hideOverlay();
             break;
     }
 }

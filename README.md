@@ -31,10 +31,21 @@
 
 ---
 
+### 🛠 DIALOGUE EFFECTS MACROS
+
+| Macro | Effect | Example |
+| :--- | :--- | :--- |
+| **[shake]** | Shake text | "I'm so [shake] excited!" |
+| **[glitch]** | Glitch text | "I'm so [glitch] excited!" |
+| **[shake]** | Shake text | "I'm so [shake] excited!" 
+
+---
+
 ### 🛠 MAINTENANCE CHECKLIST
 - [ ] **Styles:** Confirm "Warm UI" color palette consistency.
 - [ ] **Assets:** Check gothic-style sprite lighting.
 - [ ] **Logic:** Verify nasapunk oxygen-gauge variable implementation.
+
 
 ---
 *Index Updated: April 17, 2026*

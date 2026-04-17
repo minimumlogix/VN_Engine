@@ -5,15 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VN Story Engine</title>
+    <meta name="description" content="A premium visual novel engine with cinematic storytelling.">
     <link rel="stylesheet" href="css/basestyle.css">
-    <link rel="stylesheet" href="css/chapter-transitions.css">
     <link rel="stylesheet" href="css/anime1.css" id="themeStylesheet">
 </head>
 
 <body>
     <!-- LOADING SCREEN -->
     <div id="loadingScreen" class="screen loading-screen">
+        <!-- Ambient canvas for particles -->
+        <canvas id="startParticleCanvas" class="start-particle-canvas"></canvas>
+
+        <!-- Corner brackets decoration -->
+        <div class="screen-corner screen-corner--tl"></div>
+        <div class="screen-corner screen-corner--tr"></div>
+        <div class="screen-corner screen-corner--bl"></div>
+        <div class="screen-corner screen-corner--br"></div>
+
+        <!-- Engine version badge -->
+        <div class="engine-badge">MINIMUMLOGIX ENGINE &nbsp;·&nbsp; v3.1</div>
+
+        <!-- LOADING STATE -->
         <div class="loader-content" id="loaderContent">
+            <div class="loader-logo">
+                <svg class="loader-logo-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="30,4 56,18 56,42 30,56 4,42 4,18" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <polygon points="30,14 46,23 46,37 30,46 14,37 14,23" stroke="currentColor" stroke-width="1" fill="none" opacity="0.4"/>
+                    <circle cx="30" cy="30" r="6" fill="currentColor" opacity="0.7"/>
+                </svg>
+            </div>
             <div class="loader-title" data-text="INITIALIZING">INITIALIZING</div>
             <div class="loader-bar-track">
                 <div id="loaderBarFill" class="loader-bar-fill"></div>
@@ -23,17 +43,22 @@
                 <span id="loaderStatus" class="loader-status">Connecting...</span>
             </div>
         </div>
+
+        <!-- START STATE -->
         <div class="start-content" id="startContent" style="display:none;">
+            <div class="start-eyebrow" id="startEyebrow">— VISUAL NOVEL —</div>
             <div class="start-titles">
                 <h1 class="start-main-title" id="startMainTitle">STORY TITLE</h1>
+                <div class="start-title-deco"></div>
                 <h2 class="start-sub-title" id="startSubTitle">STORY SUBTITLE</h2>
             </div>
-            <button id="startGameBtn" class="start-btn">
-                <span>START SYSTEM</span>
+            <button id="startGameBtn" class="start-btn" aria-label="Start the story">
+                <span class="start-btn-text">BEGIN</span>
+                <span class="start-btn-arrow">›</span>
             </button>
+            <p class="start-hint">CLICK OR PRESS <kbd>ENTER</kbd> TO CONTINUE</p>
             <div class="start-footer">
-                <span>copyright @ 2025 🅷🆄🅼🅰🅽</span>
-                <span>Minimumlogix Engine</span>
+                <span>© 2025 HUMAN &nbsp;·&nbsp; Minimumlogix Engine</span>
             </div>
         </div>
     </div>
@@ -182,6 +207,7 @@
 
 
     <!-- SCRIPTS -->
+    <script src="js/particles.js"></script>
     <script src="js/effects.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/screen.js"></script>

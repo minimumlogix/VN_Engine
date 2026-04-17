@@ -307,29 +307,100 @@ h1 {
 /* ===== START BUTTON ===== */
 .start-btn {
     font-family: var(--font-display);
-    font-size: 1.1rem;
-    letter-spacing: 4px;
-    padding: 1.2rem 3.5rem;
-    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
     border: none;
-    border-top: 2px solid var(--neon-cyan);
-    border-bottom: 2px solid var(--neon-cyan);
-    animation: start-pulse 2.5s ease-in-out infinite;
-    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border-top: 1px solid var(--neon-cyan);
+    border-bottom: 1px solid var(--neon-cyan);
+    background: rgba(0,0,0,0.5);
+    color: var(--neon-cyan);
+    /* Override base animations with the cyberpunk-pulse version */
+    animation: cp-start-appear 0.6s ease-out 1.2s forwards, cp-start-pulse 2.5s ease-in-out 2s infinite !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, letter-spacing 0.3s ease, background 0.3s ease;
 }
 
-@keyframes start-pulse {
-    0%, 100% { box-shadow: inset 0 0 15px rgba(0,255,255,0.1), 0 0 20px rgba(0,255,255,0.25); }
-    50%       { box-shadow: inset 0 0 25px rgba(0,255,255,0.2), 0 0 40px rgba(0,255,255,0.45), 0 0 80px rgba(0,255,255,0.15); }
+@keyframes cp-start-appear {
+    from { opacity: 0; transform: translateY(14px) skewX(-2deg); }
+    to   { opacity: 1; transform: translateY(0) skewX(0deg); }
+}
+
+@keyframes cp-start-pulse {
+    0%, 100% {
+        box-shadow: inset 0 0 15px rgba(0,255,255,0.05), 0 0 18px rgba(0,255,255,0.2);
+    }
+    50% {
+        box-shadow: inset 0 0 25px rgba(0,255,255,0.15), 0 0 40px rgba(0,255,255,0.5), 0 0 80px rgba(0,255,255,0.1);
+    }
+}
+
+.start-btn .start-btn-text {
+    color: var(--neon-cyan);
+}
+
+.start-btn .start-btn-arrow {
+    color: var(--neon-cyan);
+    font-size: 1.6rem;
 }
 
 .start-btn:hover {
-    animation: none;
-    box-shadow: inset 0 0 30px rgba(0,255,255,0.3), 0 0 60px rgba(0,255,255,0.8), 0 0 120px rgba(0,255,255,0.3);
-    transform: scale(1.07) translateY(-4px);
-    letter-spacing: 6px;
+    animation-play-state: paused !important;
+    opacity: 1;
+    box-shadow: inset 0 0 30px rgba(0,255,255,0.2), 0 0 60px rgba(0,255,255,0.7), 0 0 120px rgba(0,255,255,0.25);
+    transform: translateY(-5px) scale(1.02);
+    letter-spacing: 4px;
     color: #fff;
+    background: rgba(0,255,255,0.06);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
 }
+
+/* ===== START SCREEN EXTRA ELEMENTS ===== */
+.start-eyebrow {
+    font-family: var(--font-display);
+    color: var(--neon-magenta);
+    letter-spacing: 8px;
+    font-size: 0.65rem;
+    text-shadow: 0 0 8px var(--neon-magenta);
+    opacity: 0.8;
+}
+
+.start-title-deco {
+    box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px rgba(0,255,255,0.3);
+}
+
+.start-hint {
+    color: rgba(0,255,255,0.25);
+}
+
+.start-hint kbd {
+    border-color: rgba(0,255,255,0.3);
+    color: rgba(0,255,255,0.4);
+}
+
+.screen-corner--tl,
+.screen-corner--tr,
+.screen-corner--bl,
+.screen-corner--br {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+
+.engine-badge {
+    color: rgba(0,255,255,0.2);
+    font-family: var(--font-display);
+    letter-spacing: 4px;
+}
+
+.start-particle-canvas {
+    opacity: 0.5;
+}
+
+.start-footer {
+    color: rgba(0,255,255,0.15);
+    font-family: var(--font-primary);
+}
+
 
 /* ===== ICON BUTTONS ===== */
 .icon-btn {

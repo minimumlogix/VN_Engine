@@ -35,9 +35,12 @@
 
 | Macro | Effect | Example |
 | :--- | :--- | :--- |
-| **[shake]** | Shake text | "I'm so [shake] excited!" |
-| **[glitch]** | Glitch text | "I'm so [glitch] excited!" |
-| **[shake]** | Shake text | "I'm so [shake] excited!" 
+| **[shake]** | Shake screen | "I'm so [shake] excited!" |
+| **[glitch]** | Glitch screen | "I'm so [glitch] excited!" |
+| **[shake]** | Shake effect | "I'm so [shake] excited!" |
+| **[blink]** | Blink animation | "I'm so [blink] excited!" |
+| **[shadow]** | Shadow Sprite | "I'm so [shadow] excited!" |
+
 
 ---
 

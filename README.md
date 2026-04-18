@@ -1,33 +1,33 @@
 # 🎭 VN ENGINE: READ ME
 
-> **Status:** `EXPANDED` | **Engine:** `v3.1` | **Effects Engine:** `v4.0 — GODMODE`
+> **Status:** `Under Development` | **Engine:** `v1.4` | **Effects Engine:** `v1.0` | **Audio Engine:** `v1.0` | **Screen  Manager:** `v1.0`|
 > **Root URL:** `https://minimumlogix.github.io/VN_Engine/`
 
 ---
 
-### 🌸 ANIME & CLASSIC STYLES
+### 🌸 ANIME STYLES
 | Identifier | Category | Status | Interface Link |
 | :--- | :--- | :--- | :--- |
-| **My Hero Academia** | Shonen Action | `LIVE` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=MHA) |
+| **My Hero Academia** | Shonen Action | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=MHA) |
 | **Anime Story Demo 1** | Slice of Life | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_anime1) |
 | **Warm UI Demo** | Cozy/Aesthetic | `TESTING` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_warmui) |
 
 ---
 
-### ⚡ CYBER & SPACE STYLES
+### ⚡ FUTURISTIC STYLES
 | Identifier | Category | Status | Interface Link |
 | :--- | :--- | :--- | :--- |
-| **Cyberpunk Demo 1** | Neon Noir | `STABLE` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk1) |
-| **Cyberpunk Demo 2** | Dystopian | `STABLE` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk2) |
-| **Nasapunk Demo** | Hard Sci-Fi | `ALPHA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_nasapunk) |
+| **Cyberpunk Demo 1** | Neon Noir | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk1) |
+| **Cyberpunk Demo 2** | Dystopian | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk2) |
+| **Nasapunk Demo** | Hard Sci-Fi | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_nasapunk) |
 
 ---
 
-### 🏰 FANTASY & DARK STYLES
+### 🏰 DARK FANTASY STYLES
 | Identifier | Category | Status | Interface Link |
 | :--- | :--- | :--- | :--- |
-| **Fantasy Demo** | High Fantasy | `STABLE` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_fantasy) |
-| **Gothic Demo** | Dark/Horror | `STABLE` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_gothic) |
+| **Fantasy Demo** | High Fantasy | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_fantasy) |
+| **Gothic Demo** | Dark/Horror | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_gothic) |
 
 ---
 

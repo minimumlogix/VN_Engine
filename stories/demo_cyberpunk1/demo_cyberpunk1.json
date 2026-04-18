@@ -22,31 +22,31 @@
       "name": "TIA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/TIA.png",
       "position": "left",
-      "sfx": "assets/audio/tia_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/tia_sfx.mp3"
     },
     "EVA": {
       "name": "EVA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/EVA.png",
       "position": "right",
-      "sfx": "assets/audio/eva_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/eva_sfx.mp3"
     },
     "BOSS": {
       "name": "VEIL [HOLO CALL]",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/VEIL.png",
       "position": "left",
-      "sfx": "assets/audio/veil_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/veil_sfx.mp3"
     },
     "RUNNER": {
       "name": "KANE [HOLO CALL]",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/KANE.png",
       "position": "right",
-      "sfx": "assets/audio/kane_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/kane_sfx.mp3"
     },
     "NARRATION": {
       "name": "SYSTEM",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/narrator.png",
       "position": "center",
-      "sfx": "assets/audio/narrator_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/narrator_sfx.mp3"
     }
   },
   "storyDialogue": [

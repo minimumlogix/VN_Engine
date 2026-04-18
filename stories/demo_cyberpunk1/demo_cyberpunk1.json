@@ -114,7 +114,7 @@
       "chapter": 1,
       "scene": 10,
       "character": "NARRATION",
-      "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>[SHUTDOWN IMMINENT: DARKNESS]</b>"
+      "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>SHUTDOWN IMMINENT [electricuted]</b>"
     },
     {
       "chapter": 2,

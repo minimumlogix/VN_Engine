@@ -13,7 +13,7 @@
     "3": "AWAKEN TO THE TRUTH"
   },
   "chapterMusic": {
-    "0": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
+    "0": "",
     "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
     "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
   },
@@ -28,25 +28,25 @@
       "name": "EVA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/EVA.png",
       "position": "right",
-      "sfx": "/path/to/EVA.mp3"
+      "sfx": "assets/audio/eva_sfx.mp3"
     },
     "BOSS": {
       "name": "VEIL [HOLO CALL]",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/VEIL.png",
       "position": "left",
-      "sfx": "assets/audio/VEIL.mp3"
+      "sfx": "assets/audio/veil_sfx.mp3"
     },
     "RUNNER": {
       "name": "KANE [HOLO CALL]",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/KANE.png",
       "position": "right",
-      "sfx": "/path/to/KANE.mp3"
+      "sfx": "assets/audio/kane_sfx.mp3"
     },
     "NARRATION": {
       "name": "SYSTEM",
-      "sprite": "",
+      "sprite": "stories/demo_cyberpunk1/assets/images/characters/narrator.png",
       "position": "center",
-      "sfx": ""
+      "sfx": "assets/audio/narrator_sfx.mp3"
     }
   },
   "storyDialogue": [
@@ -83,42 +83,36 @@
     {
       "chapter": 1,
       "scene": 5,
-      "character": "RUNNER",
-      "text": "[shadows]"
-    },
-    {
-      "chapter": 1,
-      "scene": 6,
       "character": "TIA",
       "text": "[shadows] Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin."
     },
     {
       "chapter": 1,
-      "scene": 7,
+      "scene": 6,
       "character": "EVA",
       "text": "Let him rot. They butchered our block for profit. It's time for some <b style='color:#888;'>reciprocal violence</b>."
     },
     {
       "chapter": 1,
-      "scene": 8,
+      "scene": 7,
       "character": "RUNNER",
-      "text": "[shake] <span style='font-family: monospace; color:red;'>ERROR: SYNAPTIC COLLAPSE</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
+      "text": "[glitch] <span style='font-family: monospace; color:red;'>ERROR: SYNAPTIC COLLAPSE</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
     },
     {
       "chapter": 1,
-      "scene": 9,
+      "scene": 8,
       "character": "TIA",
       "text": "Eva, his cortex is wide open. We can use him to unlock the <b style='color:#f2c300;'>Arasaka Vault</b>. Don't kill him yet."
     },
     {
       "chapter": 1,
-      "scene": 10,
+      "scene": 9,
       "character": "EVA",
       "text": "Fine. Neural-shackle him. If he twitches, I'll carve the <i style='color:#ff0033;'>truth</i> out of his throat."
     },
     {
       "chapter": 1,
-      "scene": 11,
+      "scene": 10,
       "character": "NARRATION",
       "text": "The signal dies in a scream of white noise. <b style='color:red; text-shadow: 0 0 12px red;'>[SHUTDOWN IMMINENT: DARKNESS]</b>"
     },

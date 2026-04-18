@@ -1,4 +1,4 @@
-# 🎭 VN ENGINE: COMPLETE STORY ARCHIVE
+# 🎭 VN ENGINE: READ ME
 
 > **Status:** `EXPANDED` | **Engine:** `v3.1` | **Effects Engine:** `v4.0 — GODMODE`
 > **Root URL:** `https://minimumlogix.github.io/VN_Engine/`
@@ -163,4 +163,4 @@ effectsEngine.playSequence([
 
 
 ---
-*Index Updated: April 18, 2026 — Effects Engine v4.0 GODMODE*
+*Index Updated: April 18, 2026 — MinimumLogix Engine v1.4*

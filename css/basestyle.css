@@ -247,7 +247,9 @@ input[type="range"] {
     cursor: pointer;
 }
 
-/* ── Character Sprites ── */
+/* ═══════════════════════════════════════════════════════════
+   CHARACTER SPRITE CONTAINER
+   ═══════════════════════════════════════════════════════════ */
 #characterSpriteContainer {
     position: absolute;
     top: 0;
@@ -257,69 +259,30 @@ input[type="range"] {
     clip-path: inset(0 0 calc(37% - 10px) 0);
     z-index: 1;
     pointer-events: none;
+
+    /* Slot-grid CSS custom properties — driven by JS via style attribute.
+       Defaults to 1 sprite so single-sprite mode is unchanged. */
+    --sprite-count: 1;
+    --sprite-slot-pct: calc(100% / var(--sprite-count));
+    --sprite-max-h: 65%;
 }
 
-/* ── Multi-Sprite Mode Group ── */
-#characterSpriteContainer.multi-sprite-mode {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 30vh; /* Mimics absolute bottom 30% */
-    gap: 3vw;
-    box-sizing: border-box;
-}
-
-#characterSpriteContainer.multi-sprite-mode .character-sprite {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
-    transform: none; /* override specific positioned styles */
-    max-height: 60vh;
-    animation: multiSpriteFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-@keyframes multiSpriteFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 768px) {
-    #characterSpriteContainer.multi-sprite-mode {
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0;
-        padding-bottom: 32vh;
-    }
-    #characterSpriteContainer.multi-sprite-mode .character-sprite {
-        max-height: 40vh;
-        margin-top: -15vh; /* Reactive staggered vertical stack */
-        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-    }
-    #characterSpriteContainer.multi-sprite-mode .character-sprite:first-child {
-        margin-top: 0;
-    }
-}
-
+/* ═══════════════════════════════════════════════════════════
+   BASE SPRITE STYLES (single + multi shared)
+   ═══════════════════════════════════════════════════════════ */
 .character-sprite {
     position: absolute;
     bottom: 30%;
-    max-height: 65%;
-    min-height: 45%;
     display: none;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    width: auto;
+    /* Default single-sprite size */
+    max-height: var(--sprite-max-h, 65%);
+    /* Prevent sprite overflowing its slot */
+    max-width: var(--sprite-slot-pct, 50%);
+    object-fit: contain;
+    transition: opacity 0.35s ease-in-out;
     will-change: transform, opacity;
-    /* GPU-accelerated compositing */
-    transform: translateZ(0);
     backface-visibility: hidden;
 }
 
@@ -327,23 +290,26 @@ input[type="range"] {
     opacity: 1;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SINGLE-SPRITE POSITIONS  (class-based, unchanged behaviour)
+   ═══════════════════════════════════════════════════════════ */
 .left-sprite {
-    left: clamp(3%, 4vw, 6%);
+    left: clamp(2%, 4vw, 6%);
     right: auto;
-    transform: none;
+    transform: translateZ(0);
 }
 
-.left-sprite.active {
+.left-sprite.active:not([data-sprite-settled]) {
     animation: slideInLeft 0.5s ease-out;
 }
 
 .right-sprite {
-    right: clamp(3%, 4vw, 6%);
+    right: clamp(2%, 4vw, 6%);
     left: auto;
-    transform: none;
+    transform: translateZ(0);
 }
 
-.right-sprite.active {
+.right-sprite.active:not([data-sprite-settled]) {
     animation: slideInRight 0.5s ease-out;
 }
 
@@ -354,9 +320,62 @@ input[type="range"] {
     transform: translateX(-50%);
 }
 
-.center-sprite.active,
-.middle-sprite.active {
+.center-sprite.active:not([data-sprite-settled]),
+.middle-sprite.active:not([data-sprite-settled]) {
     animation: slideInCenter 0.5s ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MULTI-SPRITE MODE  (JS sets --sprite-count, left%, transform)
+   Sprites get inline left% + translateX(-50%) from JS.
+   CSS only provides the slot-width cap + size scaling.
+   ═══════════════════════════════════════════════════════════ */
+#characterSpriteContainer.multi-sprite-mode {
+    /* custom props are already set by JS on the container style attr */
+}
+
+/* Size scaling by slot count — shrink sprites as more appear */
+#characterSpriteContainer[style*="--sprite-count: 2"] .character-sprite,
+#characterSpriteContainer[style*="--sprite-count:2"]  .character-sprite {
+    --sprite-max-h: 58%;
+    --sprite-slot-pct: 50%;
+}
+#characterSpriteContainer[style*="--sprite-count: 3"] .character-sprite,
+#characterSpriteContainer[style*="--sprite-count:3"]  .character-sprite {
+    --sprite-max-h: 52%;
+    --sprite-slot-pct: 33.333%;
+}
+#characterSpriteContainer[style*="--sprite-count: 4"] .character-sprite,
+#characterSpriteContainer[style*="--sprite-count:4"]  .character-sprite {
+    --sprite-max-h: 44%;
+    --sprite-slot-pct: 25%;
+}
+
+/* 5+ sprites: very compact */
+#characterSpriteContainer.multi-sprite-mode .character-sprite:nth-child(n+5) {
+    --sprite-max-h: 38%;
+}
+
+/* Multi-sprite entry animation: fade + rise (no directional slide to avoid
+   horizontal fighting with JS-positioned left values) */
+#characterSpriteContainer.multi-sprite-mode .character-sprite.active:not([data-sprite-settled]) {
+    animation: multiSpriteEnter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes multiSpriteEnter {
+    from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(0.92); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1);    }
+}
+
+/* Once settled: no re-trigger regardless of body-class effects.
+   Theme files can supply a breathing/idle override (they load after basestyle). */
+.character-sprite[data-sprite-settled].active {
+    animation: none;
+}
+
+/* Settled multi-sprite: breathe while keeping translateX(-50%) centering intact */
+#characterSpriteContainer.multi-sprite-mode .character-sprite[data-sprite-settled].active {
+    animation: sprite-breathe-multi 4s ease-in-out infinite;
 }
 
 /* ── Story Screen ── */
@@ -724,6 +743,12 @@ input[type="range"] {
 @keyframes sprite-breathe-center {
     0%, 100% { transform: translate(-50%, 0); }
     50%       { transform: translate(-50%, -10px); }
+}
+
+/* Breathing for multi-sprite mode — MUST include translateX(-50%) to keep centering */
+@keyframes sprite-breathe-multi {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(-10px); }
 }
 
 /* ── Responsive ── */
@@ -1426,7 +1451,11 @@ input[type="range"] {
 /* ════════════════════════════════════════════════════════════════
    MACRO: SHADOWS — character emerges from darkness
    ════════════════════════════════════════════════════════════════ */
-.fx-shadows .character-sprite.active {
+/* Shadows: reveal on unsettled sprites; on settled sprites, re-reveal smoothly */
+.fx-shadows .character-sprite.active:not([data-sprite-settled]) {
+    animation: fxShadowReveal 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+}
+.fx-shadows .character-sprite[data-sprite-settled].active {
     animation: fxShadowReveal 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
 }
 .fx-shadows::before {

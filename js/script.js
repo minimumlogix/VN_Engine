@@ -589,21 +589,41 @@ function finishLoading() {
     if (loaderContent) loaderContent.style.display = 'none';
     if (startContent) startContent.style.display = 'flex';
 
-    if (startGameBtn) {
-        const doStart = () => {
-            // Force browser audio engine unlock inside immediate user gesture
-            if (typeof audioManager !== 'undefined') audioManager.forceUnlock();
-            
-            const loadingScreen = document.getElementById('loadingScreen');
-            loadingScreen.classList.add('fade-out');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-                screenManager.showScreen('story');
-                setTimeout(initializeStoryScreen, 100);
-            }, 800);
-        };
+    // FIX: The loading screen is controlled with raw DOM (fade-out CSS class + display:none)
+    // which bypasses ScreenManager entirely, leaving currentScreen = null when showScreen('story')
+    // fires. We inform the manager of the 'loading' screen BEFORE transitioning so that
+    // previousScreen and history are populated correctly.
+    const _doStart = () => {
+        // Force browser audio engine unlock inside immediate user gesture
+        if (typeof audioManager !== 'undefined') audioManager.forceUnlock();
 
-        startGameBtn.addEventListener('click', doStart);
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (!loadingScreen) return;
+
+        // Prevent double-fire: disable button and remove key handler before async work begins.
+        if (startGameBtn) startGameBtn.disabled = true;
+
+        // Tell ScreenManager we are departing from 'loading' so onLeave fires correctly
+        // and previousScreen is set to 'loading' rather than null.
+        // We use force:true because currentScreen may already equal 'loading' from _syncInitialState.
+        // We do NOT use showScreen('story') here because the CSS fade-out must happen first.
+        screenManager._transitioning = false; // ensure no stale lock
+        // Manually update internal state to reflect that we are on 'loading'
+        if (screenManager.currentScreen !== 'loading') {
+            screenManager.previousScreen = screenManager.currentScreen;
+            screenManager.currentScreen  = 'loading';
+        }
+
+        loadingScreen.classList.add('fade-out');
+        setTimeout(() => {
+            // Now hand control fully to ScreenManager for the 'story' transition
+            screenManager.showScreen('story');
+            setTimeout(initializeStoryScreen, 100);
+        }, 800);
+    };
+
+    if (startGameBtn) {
+        startGameBtn.addEventListener('click', _doStart);
 
         // Also wire keyboard Enter to start the game from the start screen
         const _startKeyHandler = (e) => {
@@ -611,7 +631,7 @@ function finishLoading() {
             if (startContent && startContent.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
                 document.removeEventListener('keydown', _startKeyHandler);
-                doStart();
+                _doStart();
             }
         };
         document.addEventListener('keydown', _startKeyHandler);
@@ -620,14 +640,8 @@ function finishLoading() {
         _scrambleTitle(document.getElementById('startMainTitle'));
 
     } else {
-        // Fallback
-        const loadingScreen = document.getElementById('loadingScreen');
-        loadingScreen.classList.add('fade-out');
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-            screenManager.showScreen('story');
-            setTimeout(initializeStoryScreen, 100);
-        }, 800);
+        // Fallback: no start button — go straight to story
+        _doStart();
     }
 }
 
@@ -703,7 +717,19 @@ function loadFallbackData() {
     syncVolumes();
 }
 
+// Guard flag: event listeners must only be wired once.
+let _eventListenersSetup = false;
+
 function setupEventListeners() {
+    // FIX: Guard against duplicate registration. loadFallbackData() also calls this
+    // function, which previously caused addCleanup() and addEventListener() to stack
+    // up multiple handlers for the same logical action.
+    if (_eventListenersSetup) {
+        appLogger.warn('setupEventListeners() called more than once — ignoring duplicate call.');
+        return;
+    }
+    _eventListenersSetup = true;
+
     elements.menuIcon.addEventListener('click', () => toggleOverlay('menuOverlay'));
     elements.settingsBtn.addEventListener('click', () => toggleOverlay('settingsOverlay'));
     elements.fullscreenBtn.addEventListener('click', toggleFullscreen);
@@ -729,7 +755,8 @@ function setupEventListeners() {
         });
     }
 
-    // Wire screen lifecycle hooks
+    // Wire screen lifecycle hooks — addCleanup uses a Set internally so
+    // this is safe even if called again (which it won't be, due to the guard above).
     screenManager.addCleanup('story', cleanupStoryScreen);
     screenManager.setHooks('story', {
         onLeave: (from, to) => {
@@ -913,13 +940,7 @@ async function displayNextDialogue() {
         
         // Hide characters and dialogue container so transition is clean
         elements.dialogueContainer.style.visibility = 'hidden';
-        Object.keys(state.characters || {}).forEach(key => {
-            const char = state.characters[key];
-            if (char.imgElement) {
-                char.imgElement.style.display = 'none';
-                char.imgElement.classList.remove('active');
-            }
-        });
+        _hideAllSprites(document.getElementById('characterSpriteContainer'));
 
         await updateChapterAndScene(dialogue.chapter, dialogue.scene);
         
@@ -944,11 +965,14 @@ async function displayNextDialogue() {
         updateCharacter(dialogue.character);
         effectsEngine.setPersistentEffect(dialogue.persistentEffect);
 
-        // Play character SFX via the pooled audio manager
-        let primaryCharKey = typeof dialogue.character === 'string' ? dialogue.character.split(',')[0].trim() : (Array.isArray(dialogue.character) ? dialogue.character[0] : dialogue.character);
+        // Play character SFX via the pooled audio manager.
+        // Pass isCharSfx=true so AudioManager tracks this slot for targeted skip-stop.
+        let primaryCharKey = typeof dialogue.character === 'string'
+            ? dialogue.character.split(',')[0].trim()
+            : (Array.isArray(dialogue.character) ? dialogue.character[0] : dialogue.character);
         const charData = state.characters[primaryCharKey];
         if (charData && charData.sfx) {
-            audioManager.playSfx(charData.sfx);
+            audioManager.playSfx(charData.sfx, true);
         }
 
         state.currentDialogue = dialogue.text;
@@ -967,19 +991,8 @@ async function displayNextDialogue() {
  * Clears all visual layers so they don't bleed into other screens.
  */
 function cleanupStoryScreen() {
-    // Clear all effects
     effectsEngine.cleanup();
-
-    // Hide character sprites dynamically
-    Object.keys(state.characters || {}).forEach(key => {
-        const char = state.characters[key];
-        if (char.imgElement) {
-            char.imgElement.style.display = 'none';
-            char.imgElement.classList.remove('active');
-        }
-    });
-
-    // Reset typing state
+    _hideAllSprites(document.getElementById('characterSpriteContainer'));
     state.isTyping = false;
     state.isEffectPlaying = false;
 }
@@ -989,74 +1002,134 @@ function cleanupStoryScreen() {
 // Update character display
 function updateCharacter(characterInput) {
     if (!state.characters) return;
-    
-    // Parse input to support multiple characters
+
+    // Parse input (array or comma-string)
     let charKeys = [];
     if (Array.isArray(characterInput)) {
-        charKeys = characterInput;
+        charKeys = characterInput.slice();
     } else if (typeof characterInput === 'string') {
         charKeys = characterInput.split(',').map(s => s.trim());
     }
-    
     if (charKeys.length === 0) return;
 
-    // Robust bounds checking & get valid characters
-    const validChars = charKeys.map(k => state.characters[k]).filter(Boolean);
-    if (validChars.length === 0) {
-        console.warn(`Characters ${charKeys.join(',')} not found in registry.`);
-        // Hide all character sprites gracefully
-        Object.keys(state.characters || {}).forEach(key => {
-            const char = state.characters[key];
-            if (char.imgElement) {
-                char.imgElement.style.display = 'none';
-                char.imgElement.classList.remove('active');
-            }
-        });
-        document.getElementById('characterSpriteContainer').classList.remove('multi-sprite-mode');
+    // ── Deduplicate: same key cannot occupy two DOM nodes ────────────────
+    const seenKeys = new Set();
+    charKeys = charKeys.filter(k => {
+        if (seenKeys.has(k)) return false;
+        seenKeys.add(k);
+        return true;
+    });
+
+    // Resolve to valid character objects
+    const validEntries = charKeys
+        .map(k => ({ key: k, data: state.characters[k] }))
+        .filter(e => e.data);
+
+    const container = document.getElementById('characterSpriteContainer');
+
+    if (validEntries.length === 0) {
+        console.warn(`Characters [${charKeys.join(',')}] not found in registry.`);
+        _hideAllSprites(container);
         return;
     }
 
-    state.currentCharacter = validChars[0];
+    state.currentCharacter = validEntries[0].data;
 
-    // Update character name for dialogue header
-    const combinedNames = validChars.map(c => c.name).join(' & ');
+    // Character name in dialogue header
+    const combinedNames = validEntries.map(e => e.data.name).join(' & ');
     elements.characterName.textContent = combinedNames;
     elements.characterName.setAttribute('data-text', combinedNames);
 
-    const container = document.getElementById('characterSpriteContainer');
-    if (validChars.length > 1) {
-        container.classList.add('multi-sprite-mode');
+    const n       = validEntries.length;
+    const isMulti = n > 1;
+    container.classList.toggle('multi-sprite-mode', isMulti);
+
+    // ── Push sprite-count CSS custom prop so slot sizing rules fire ───────
+    if (isMulti) {
+        container.style.setProperty('--sprite-count', n);
     } else {
-        container.classList.remove('multi-sprite-mode');
+        container.style.removeProperty('--sprite-count');
     }
 
-    // Hide character sprites that are NOT in the current scene
-    Object.keys(state.characters || {}).forEach(key => {
-        const char = state.characters[key];
-        // Only hide if the character is not part of the active validChars
-        if (char.imgElement && !validChars.includes(char)) {
-            char.imgElement.style.display = 'none';
-            char.imgElement.classList.remove('active');
+    // ── Hide sprites NOT in this scene ────────────────────────────────────
+    const activeDataSet = new Set(validEntries.map(e => e.data));
+    Object.values(state.characters || {}).forEach(char => {
+        if (char.imgElement && !activeDataSet.has(char)) {
+            _resetSprite(char.imgElement);
         }
     });
 
-    // Display specific character sprites
-    validChars.forEach((char, index) => {
-        if (char.imgElement) {
-            // For multi-sprite mode, ensure correct rendering order without collision
-            char.imgElement.style.zIndex = index + 1;
+    // ── Position and show active sprites ─────────────────────────────────
+    validEntries.forEach((entry, index) => {
+        const char = entry.data;
+        if (!char.imgElement) return;
 
-            // Only trigger display and animation if the sprite wasn't already active
-            if (char.imgElement.style.display === 'none' || char.imgElement.style.display === '' || !char.imgElement.classList.contains('active')) {
-                char.imgElement.style.display = 'block';
-                
-                // Trigger animation strictly using a clean render pipeline frame
-                requestAnimationFrame(() => {
-                    char.imgElement.classList.add('active');
-                });
+        const img = char.imgElement;
+        img.style.zIndex = index + 2;
+
+        if (isMulti) {
+            // Slot-center formula: divide viewport into n equal slots,
+            // place sprite centre at the middle of slot (index).
+            // left = (index + 0.5) / n × 100%
+            const leftPct = ((index + 0.5) / n) * 100;
+            img.style.left      = `${leftPct.toFixed(4)}%`;
+            img.style.right     = 'auto';
+            img.style.transform = 'translateX(-50%)';
+            // Remove class-based position transforms that fight inline style
+            img.classList.remove('left-sprite', 'right-sprite', 'center-sprite', 'middle-sprite');
+        } else {
+            // Single-sprite: restore original class-based positioning
+            img.style.left      = '';
+            img.style.right     = '';
+            img.style.transform = '';
+            // Restore the position class (normalised on setup)
+            const pos = char.position || 'center';
+            if (!img.classList.contains(`${pos}-sprite`)) {
+                img.classList.remove('left-sprite', 'right-sprite', 'center-sprite', 'middle-sprite');
+                img.classList.add(`${pos}-sprite`);
             }
         }
+
+        const wasActive = img.style.display === 'block' && img.classList.contains('active');
+
+        if (!wasActive) {
+            img.removeAttribute('data-sprite-settled');
+            img.style.display = 'block';
+
+            requestAnimationFrame(() => {
+                img.classList.add('active');
+
+                // Mark settled after entry animation so effects don't re-trigger it
+                const ENTRY_MS = 600;
+                setTimeout(() => {
+                    if (img.classList.contains('active')) {
+                        img.setAttribute('data-sprite-settled', '1');
+                    }
+                }, ENTRY_MS);
+            });
+        }
+        // wasActive → sprite visible and settled; nothing to do
     });
+}
+
+/** Hide and fully reset a single sprite element */
+function _resetSprite(img) {
+    img.style.display   = 'none';
+    img.style.left      = '';
+    img.style.right     = '';
+    img.style.transform = '';
+    img.style.zIndex    = '';
+    img.classList.remove('active');
+    img.removeAttribute('data-sprite-settled');
+}
+
+/** Hide all sprites and reset container state */
+function _hideAllSprites(container) {
+    Object.values(state.characters || {}).forEach(char => {
+        if (char.imgElement) _resetSprite(char.imgElement);
+    });
+    container.classList.remove('multi-sprite-mode');
+    container.style.removeProperty('--sprite-count');
 }
 
 // Update button states
@@ -1180,11 +1253,14 @@ async function typeWriter(rawText, baseSpeed) {
 // Handle skip/next button click
 function handleSkipNextClick() {
     if (state.isEffectPlaying) return;
-    
+
     if (state.isTyping) {
-        // Bleeding-edge Fast Forward 
-        // This dynamically collapses the async loop latency to 0ms instantly and skips delays natively
-        state.skipRequested = true; 
+        // Fast-forward: collapse async loop delays to 0ms.
+        // FIX: Also stop any currently-playing character SFX and typing sound
+        // so the old character's audio doesn't bleed into the next dialogue.
+        audioManager.stopAllSfx();
+        audioManager.stopTypingSound();
+        state.skipRequested = true;
     } else {
         displayNextDialogue();
     }
@@ -1197,8 +1273,12 @@ function handleBackClick() {
     }
     if (screenManager.is('story')) {
         if (state.dialogueHistory.length > 1) {
-            state.typingInstanceId++; // Safely kill any mid-flight logic from bleeding edge writer
+            state.typingInstanceId++; // Kill any mid-flight async typeWriter instance
             clearTimeout(state.autoProgressTimeout);
+            // FIX: Stop ALL active SFX (character + effects pool) AND typing sound
+            // before going back, so the old character's audio doesn't overlap the
+            // new one that displayNextDialogue() is about to trigger.
+            audioManager.stopAllSfx();
             audioManager.stopTypingSound();
             state.dialogueHistory.pop();
             const lastIndex = state.dialogueHistory.pop();
@@ -1217,6 +1297,11 @@ function handleBackClick() {
             displayNextDialogue();
         }
     } else if (screenManager.is('end')) {
+        // FIX: Kill any mid-flight async typing instance BEFORE switching screens
+        // to prevent orphaned typeWriter loops from running after the screen change.
+        state.typingInstanceId++;
+        clearTimeout(state.autoProgressTimeout);
+
         screenManager.showScreen('story');
         state.currentDialogueIndex = state.storyData.length - 1;
 
@@ -1406,9 +1491,18 @@ function generateCharacterInfoHTML() {
 
 // Handle key press
 function handleKeyPress(event) {
+    // FIX: Keyboard shortcuts should only be active on the story or end screen.
+    // Previously, pressing Enter/Space/Backspace while on the loading screen (between
+    // the start button press and initializeStoryScreen()) would call displayNextDialogue()
+    // before storyData was ready, causing an index-out-of-bounds read.
+    const activeScreen = screenManager.getCurrentScreen();
+    if (activeScreen !== 'story' && activeScreen !== 'end') return;
+
     switch (event.key) {
         case 'Enter':
         case ' ':
+            // Prevent page scroll on spacebar
+            event.preventDefault();
             handleSkipNextClick();
             break;
         case 'Backspace':

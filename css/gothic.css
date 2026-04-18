@@ -521,16 +521,23 @@ input[type="range"]::-moz-range-thumb {
     filter: drop-shadow(0 0 20px rgba(0,0,0,0.9));
 }
 
-.left-sprite.active {
+.left-sprite.active:not([data-sprite-settled]) {
     animation: mist-appear 1.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.right-sprite.active {
+.right-sprite.active:not([data-sprite-settled]) {
     animation: mist-appear 1.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.center-sprite.active {
+.center-sprite.active:not([data-sprite-settled]) {
     animation: mist-appear-center 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Settled — no mist re-entry */
+.left-sprite[data-sprite-settled].active,
+.right-sprite[data-sprite-settled].active,
+.center-sprite[data-sprite-settled].active {
+    animation: none;
 }
 
 @keyframes mist-appear {

@@ -628,18 +628,29 @@ input[type="range"]::-moz-range-thumb {
     filter: drop-shadow(0 0 12px rgba(212,165,71,0.15));
 }
 
-.left-sprite.active {
+.left-sprite.active:not([data-sprite-settled]) {
     animation: slideInLeft 0.6s ease-out, sprite-breathe 5s 0.6s ease-in-out infinite;
     filter: drop-shadow(0 0 10px rgba(212,165,71,0.12));
 }
 
-.right-sprite.active {
+.right-sprite.active:not([data-sprite-settled]) {
     animation: slideInRight 0.6s ease-out, sprite-breathe 5s 0.6s ease-in-out infinite;
     filter: drop-shadow(0 0 10px rgba(212,165,71,0.12));
 }
 
-.center-sprite.active {
+.center-sprite.active:not([data-sprite-settled]) {
     animation: slideInCenter 0.6s ease-out, sprite-breathe-center 5s 0.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(212,165,71,0.12));
+}
+
+/* Settled sprites: gentle breathe only, no re-entry slide */
+.left-sprite[data-sprite-settled].active,
+.right-sprite[data-sprite-settled].active {
+    animation: sprite-breathe 5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px rgba(212,165,71,0.12));
+}
+.center-sprite[data-sprite-settled].active {
+    animation: sprite-breathe-center 5s ease-in-out infinite;
     filter: drop-shadow(0 0 10px rgba(212,165,71,0.12));
 }
 

@@ -786,9 +786,13 @@ input[type="range"]::-moz-range-thumb {
     filter: drop-shadow(0 0 12px rgba(0,255,255,0.2));
 }
 
-.left-sprite.active  { animation: slideInLeft 0.5s ease-out, sprite-breathe 4s 0.5s infinite ease-in-out; }
-.right-sprite.active { animation: slideInRight 0.5s ease-out, sprite-breathe 4s 0.5s infinite ease-in-out; }
-.center-sprite.active { animation: slideInCenter 0.5s ease-out, sprite-breathe-center 4s 0.5s infinite ease-in-out; }
+.left-sprite.active:not([data-sprite-settled])  { animation: slideInLeft 0.5s ease-out, sprite-breathe 4s 0.5s infinite ease-in-out; }
+.right-sprite.active:not([data-sprite-settled]) { animation: slideInRight 0.5s ease-out, sprite-breathe 4s 0.5s infinite ease-in-out; }
+.center-sprite.active:not([data-sprite-settled]) { animation: slideInCenter 0.5s ease-out, sprite-breathe-center 4s 0.5s infinite ease-in-out; }
+/* Settled sprites: only breathe, no re-entry slide */
+.left-sprite[data-sprite-settled].active  { animation: sprite-breathe 4s infinite ease-in-out; }
+.right-sprite[data-sprite-settled].active { animation: sprite-breathe 4s infinite ease-in-out; }
+.center-sprite[data-sprite-settled].active { animation: sprite-breathe-center 4s infinite ease-in-out; }
 
 /* ===== PERSISTENT EFFECT ===== */
 .persistent-effect-layer {

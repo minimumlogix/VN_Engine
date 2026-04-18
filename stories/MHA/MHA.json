@@ -45,6 +45,12 @@
       "position": "left",
       "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
     },
+    "TWICE2": {
+      "name": "Twice",
+      "sprite": "stories/MHA/assets/images/characters/Twice1.png",
+      "position": "left",
+      "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
+    },
     "COMPRESS": {
       "name": "Mr. Compress",
       "sprite": "stories/MHA/assets/images/characters/Compress1.png",
@@ -99,7 +105,7 @@
       "chapter": 1,
       "scene": 2,
       "character": "AFO",
-      "text": "Ah... what a <i style=\"color:red\">tragic</i> spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?"
+      "text": "[vhs] Ah... what a <i style=\"color:red\">tragic</i> spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?"
     },
     {
       "chapter": 1,
@@ -123,7 +129,7 @@
       "chapter": 2,
       "scene": 1,
       "character": "NARRATION",
-      "text": "[blink] [blink] Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with <b style=\"color:#ff0033; text-shadow: 0 0 5px #ff0033;\">raw energy</b>, igniting a fire deep within."
+      "text": "[blink] Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with <b style=\"color:#ff0033; text-shadow: 0 0 5px #ff0033;\">raw energy</b>, igniting a fire deep within."
     },
     {
       "chapter": 2,
@@ -141,12 +147,15 @@
       "chapter": 2,
       "scene": 1,
       "character": "HIMIKO",
-      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!"
+      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even [bloodsplatter] <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!"
     },
     {
       "chapter": 2,
       "scene": 1,
-      "character": "TWICE",
+      "character": [
+        "TWICE",
+        "TWICE2"
+      ],
       "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!"
     },
     {
@@ -189,7 +198,7 @@
       "chapter": 3,
       "scene": 2,
       "character": "HIMIKO",
-      "text": "[shake] I can't wait to meet Bakugo! Just imagine his face when he sees me! I wonder how much he'll scream… or if I can make him <b style=\"color:red\">bleed!</b> Hehe!"
+      "text": "I can't wait to meet Bakugo! Just imagine his face when he sees me! I wonder how much he'll scream… or if I can make him <b style=\"color:red\">bleed!</b> Hehe!"
     },
     {
       "chapter": 3,

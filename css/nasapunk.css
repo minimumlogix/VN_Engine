@@ -572,9 +572,13 @@ input[type="range"]::-moz-range-thumb {
     }
 }
 
-.left-sprite.active  { animation: slideInLeft 0.3s linear; }
-.right-sprite.active { animation: slideInRight 0.3s linear; }
-.center-sprite.active { animation: slideInCenter 0.3s linear; }
+.left-sprite.active:not([data-sprite-settled])  { animation: slideInLeft 0.3s linear; }
+.right-sprite.active:not([data-sprite-settled]) { animation: slideInRight 0.3s linear; }
+.center-sprite.active:not([data-sprite-settled]) { animation: slideInCenter 0.3s linear; }
+/* Settled — no re-entry */
+.left-sprite[data-sprite-settled].active,
+.right-sprite[data-sprite-settled].active,
+.center-sprite[data-sprite-settled].active { animation: none; }
 
 /* ===== PERSISTENT EFFECT ===== */
 .persistent-effect-layer {

@@ -60,7 +60,10 @@ class AudioManager {
         this._lastCharSfxIndex = -1;
 
         // ── Typing Sound ─────────────────────────────────────────────────────
-        this.typingSoundEffect = new Audio('core_assets/audio/typing_loop.mp3');
+        const typingSoundPath = (typeof ENGINE_CONFIG !== 'undefined' && ENGINE_CONFIG.audio)
+            ? ENGINE_CONFIG.audio.typingSoundPath
+            : 'core_assets/audio/typing_loop.mp3';
+        this.typingSoundEffect = new Audio(typingSoundPath);
         this.typingSoundEffect.loop   = true;
         this.typingSoundEffect.volume = this.typingSfxVolume;
         this.typingSoundEffect.muted  = !this.globalAudioEnabled;

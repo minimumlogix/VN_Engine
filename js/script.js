@@ -1,6 +1,16 @@
-// ============================================================================
-// ADVANCED CHAPTER MANAGER - Professional-Grade Implementation
-// ============================================================================
+/**
+ * ChapterManager — Manages visual novel chapter transitions
+ * 
+ * Handles background changes, music transitions, and chapter title animations.
+ * Queues rapid chapter changes and prevents cascading transitions.
+ * Uses async/await for clean control flow and error recovery.
+ * 
+ * @class ChapterManager
+ * @example
+ * const chapterMgr = new ChapterManager();
+ * await chapterMgr.changeChapter(2, storyData);
+ * console.log(chapterMgr.getStatus()); // { currentChapter: 2, isTransitioning: false, ... }
+ */
 class ChapterManager {
     constructor() {
         this.currentChapter = 1;
@@ -207,7 +217,21 @@ class ChapterManager {
 }
 
 /**
- * Professional logging system with color-coded output
+ * Logger — Centralized, color-coded logging system
+ * 
+ * Provides five severity levels with timestamp and context:
+ * - DEBUG: Detailed diagnostic information
+ * - INFO: General information messages
+ * - SUCCESS: Operation completed successfully
+ * - WARN: Warning or non-fatal error conditions
+ * - ERROR: Fatal or recoverable errors
+ * 
+ * @class Logger
+ * @param {string} prefix - Context label (e.g., "VN-Engine", "AudioManager")
+ * @example
+ * const logger = new Logger('MyComponent');
+ * logger.info('Component initialized');
+ * logger.error('Failed to load asset:', errorData);
  */
 class Logger {
     constructor(prefix = 'App') {
@@ -246,10 +270,16 @@ const chapterManager = new ChapterManager();
 const appLogger = new Logger('VN-Engine');
 
 // ============================================================================
-// CONSTANTS & CORE CONFIGURATION
+// USE ENGINE_CONFIG (defined in config.js)
 // ============================================================================
-const TYPING_SPEED = 50;
-const AUTO_PROGRESS_DELAY = 1000;
+// All magic numbers are now centralized in ENGINE_CONFIG
+// Fallback to ENGINE_CONFIG values if they exist
+const TYPING_SPEED = (typeof ENGINE_CONFIG !== 'undefined') 
+    ? ENGINE_CONFIG.timing.typingSpeed 
+    : 50;
+const AUTO_PROGRESS_DELAY = (typeof ENGINE_CONFIG !== 'undefined') 
+    ? ENGINE_CONFIG.timing.autoProgressDelay 
+    : 1000;
 
 // ============================================================================
 const elements = {
@@ -287,8 +317,8 @@ const state = {
     currentDialogue: '',
     currentCharacter: null,
     typingSpeed: TYPING_SPEED,
-    autoSpeed: 50,
-    chapterTitleDuration: 1800,
+    autoSpeed: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.autoSpeedModifier : 50,
+    chapterTitleDuration: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.chapterTransitionDuration : 1800,
     currentDialogueIndex: 0,
     skipRequested: false,   // Advanced Typewriter skip state
     typingInstanceId: 0,    // Hard-cancel identifier for the async type engine
@@ -760,36 +790,57 @@ function setupEventListeners() {
     screenManager.addCleanup('story', cleanupStoryScreen);
     screenManager.setHooks('story', {
         onLeave: (from, to) => {
-            audioManager.stopTypingSound();
+            if (audioManager) audioManager.stopTypingSound();
             clearTimeout(state.typingTimeout);
             clearTimeout(state.autoProgressTimeout);
         }
     });
 
-    document.querySelectorAll('.close-btn').forEach(btn => {
+    // Store event listeners for cleanup
+    const closeButtonClickHandler = (btn) => {
         btn.addEventListener('click', () => {
             const overlayId = btn.getAttribute('data-close');
-            if (overlayId) {
-                const overlay = document.getElementById(overlayId);
-                overlay.classList.remove('show');
-                // Wait for animation to finish before truly hiding
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    checkOverlaysAndResume();
-                }, 400);
-            }
+            if (!overlayId) return;
+            const overlay = document.getElementById(overlayId);
+            if (!overlay) return;
+            overlay.classList.remove('show');
+            // Wait for animation to finish before truly hiding
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                checkOverlaysAndResume();
+            }, (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.effectOverlayFadeDelay : 400);
         });
-    });
+    };
+    
+    document.querySelectorAll('.close-btn').forEach(closeButtonClickHandler);
 
-    document.addEventListener('keydown', handleKeyPress);
-    elements.textSpeedInput.addEventListener('input', handleTextSpeedChange);
-    elements.autoSpeedInput.addEventListener('input', handleAutoSpeedChange);
-    elements.sfxVolumeInput.addEventListener('input', handleSfxVolumeChange);
-    if (elements.bgmVolumeInput) elements.bgmVolumeInput.addEventListener('input', handleBgmVolumeChange);
-    if (elements.typingSfxVolumeInput) elements.typingSfxVolumeInput.addEventListener('input', handleTypingSfxVolumeChange);
+    // Store listener handlers for cleanup
+    state._listeners = {
+        keydown: handleKeyPress,
+        textSpeedChange: handleTextSpeedChange,
+        autoSpeedChange: handleAutoSpeedChange,
+        sfxVolumeChange: handleSfxVolumeChange,
+        bgmVolumeChange: handleBgmVolumeChange,
+        typingSfxVolumeChange: handleTypingSfxVolumeChange
+    };
+    
+    document.addEventListener('keydown', state._listeners.keydown);
+    if (elements.textSpeedInput) elements.textSpeedInput.addEventListener('input', state._listeners.textSpeedChange);
+    if (elements.autoSpeedInput) elements.autoSpeedInput.addEventListener('input', state._listeners.autoSpeedChange);
+    if (elements.sfxVolumeInput) elements.sfxVolumeInput.addEventListener('input', state._listeners.sfxVolumeChange);
+    if (elements.bgmVolumeInput) elements.bgmVolumeInput.addEventListener('input', state._listeners.bgmVolumeChange);
+    if (elements.typingSfxVolumeInput) elements.typingSfxVolumeInput.addEventListener('input', state._listeners.typingSfxVolumeChange);
 }
 
-// Initialize the story screen
+/**
+ * Initialize story screen with first dialogue
+ * 
+ * Called when entering the story screen. Resets dialogue state,
+ * sets initial chapter, and triggers first dialogue display.
+ * 
+ * @function initializeStoryScreen
+ * @fires displayNextDialogue - Immediately after setup
+ */
 function initializeStoryScreen() {
     state.currentDialogueIndex = 0;
     state.dialogueHistory = [];
@@ -916,57 +967,80 @@ function updateEndScreenButtons() {
     endOptions.appendChild(replayBtn);
 }
 
-// Display the next dialogue
-async function displayNextDialogue() {
-    clearTimeout(state.autoProgressTimeout);
-    state.typingInstanceId++; // Ensure any orphaned async typing loop instances are brutally retired
+/**
+ * Check if dialogue progression should be paused and reschedule if needed
+ * @returns {boolean} true if paused, false if should continue
+ */
+function _shouldPauseDialogue() {
+    if (!state.isPaused) return false;
+    state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
+    return true;
+}
 
-    if (state.isPaused) {
-        state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
-        return;
-    }
-
-    if (state.currentDialogueIndex >= state.storyData.length) {
+/**
+ * Check if we've reached the end of the story
+ * @returns {boolean} true if at end, false otherwise
+ */
+function _isStoryEnded() {
+    if (!state.storyData || state.currentDialogueIndex >= state.storyData.length) {
         handleEndOfStory();
-        return;
+        return true;
     }
+    return false;
+}
 
-    const dialogue = state.storyData[state.currentDialogueIndex];
-
-    // Handle Chapter and Scene Transitions securely, blocking the pipeline until finished
+/**
+ * Handle chapter/scene transitions
+ * @param {Object} dialogue - Current dialogue entry
+ * @returns {Promise<void>}
+ */
+async function _handleTransitions(dialogue) {
+    if (!dialogue || !state.storyData) return;
+    
     if (dialogue.chapter !== chapterManager.currentChapter) {
-        state.isTyping = true; // Lock UI during transition
+        state.isTyping = true;
         updateButtonStates();
-        
-        // Hide characters and dialogue container so transition is clean
         elements.dialogueContainer.style.visibility = 'hidden';
-        _hideAllSprites(document.getElementById('characterSpriteContainer'));
-
+        const spriteContainer = document.getElementById('characterSpriteContainer');
+        if (spriteContainer) _hideAllSprites(spriteContainer);
         await updateChapterAndScene(dialogue.chapter, dialogue.scene);
-        
-        // Reveal UI after transition
         elements.dialogueContainer.style.visibility = 'visible';
     } else if (dialogue.scene !== state.currentScene) {
-        // Just update scene safely
         await updateChapterAndScene(dialogue.chapter, dialogue.scene);
     }
+}
 
-    if (dialogue.effect) {
-        state.isEffectPlaying = true;
+/**
+ * Handle overlay effect display
+ * @param {Object} dialogue - Current dialogue entry
+ */
+function _handleOverlayEffect(dialogue) {
+    if (!dialogue.effect || !effectsEngine) return false;
+    
+    state.isEffectPlaying = true;
+    updateButtonStates();
+    effectsEngine.playOverlayEffect(dialogue.effect, () => {
+        state.isEffectPlaying = false;
+        state.dialogueHistory.push(state.currentDialogueIndex);
+        state.currentDialogueIndex++;
         updateButtonStates();
-        effectsEngine.playOverlayEffect(dialogue.effect, () => {
-            state.isEffectPlaying = false;
-            state.dialogueHistory.push(state.currentDialogueIndex);
-            state.currentDialogueIndex++;
-            updateButtonStates();
-            displayNextDialogue();
-        });
-    } else {
-        updateCharacter(dialogue.character);
-        effectsEngine.setPersistentEffect(dialogue.persistentEffect);
+        displayNextDialogue();
+    });
+    return true;
+}
 
-        // Play character SFX via the pooled audio manager.
-        // Pass isCharSfx=true so AudioManager tracks this slot for targeted skip-stop.
+/**
+ * Play character dialogue with SFX and animation
+ * @param {Object} dialogue - Current dialogue entry
+ */
+function _renderDialogue(dialogue) {
+    if (!dialogue) return;
+    
+    updateCharacter(dialogue.character);
+    if (effectsEngine) effectsEngine.setPersistentEffect(dialogue.persistentEffect);
+
+    // Play character SFX with null safety
+    if (dialogue.character && state.characters && audioManager) {
         let primaryCharKey = typeof dialogue.character === 'string'
             ? dialogue.character.split(',')[0].trim()
             : (Array.isArray(dialogue.character) ? dialogue.character[0] : dialogue.character);
@@ -974,12 +1048,49 @@ async function displayNextDialogue() {
         if (charData && charData.sfx) {
             audioManager.playSfx(charData.sfx, true);
         }
+    }
 
-        state.currentDialogue = dialogue.text;
-        state.isTyping = true;
-        typeWriter(dialogue.text, state.typingSpeed);
-        state.dialogueHistory.push(state.currentDialogueIndex);
-        state.currentDialogueIndex++;
+    state.currentDialogue = dialogue.text || '';
+    state.isTyping = true;
+    typeWriter(dialogue.text, state.typingSpeed);
+    state.dialogueHistory.push(state.currentDialogueIndex);
+    state.currentDialogueIndex++;
+    updateButtonStates();
+}
+
+/**
+ * Display the next dialogue line with proper error handling
+ */
+async function displayNextDialogue() {
+    clearTimeout(state.autoProgressTimeout);
+    state.typingInstanceId++; // Retire orphaned async typing instances
+
+    // Check for pause
+    if (_shouldPauseDialogue()) return;
+
+    // Check for end of story
+    if (_isStoryEnded()) return;
+
+    const dialogue = state.storyData[state.currentDialogueIndex];
+    if (!dialogue) {
+        appLogger.error('Dialogue entry is null or undefined');
+        handleEndOfStory();
+        return;
+    }
+
+    try {
+        // Handle transitions first
+        await _handleTransitions(dialogue);
+
+        // Then handle effects or rendering
+        if (_handleOverlayEffect(dialogue)) {
+            return;
+        }
+
+        _renderDialogue(dialogue);
+    } catch (error) {
+        appLogger.error('Error in displayNextDialogue:', error);
+        state.isTyping = false;
         updateButtonStates();
     }
 }
@@ -999,16 +1110,19 @@ function cleanupStoryScreen() {
 
 // Play effect logic moved to effects.js
 
-// Update character display
+/**
+ * Update character display with null safety checks
+ * @param {string|string[]|null} characterInput - Character key(s) to display
+ */
 function updateCharacter(characterInput) {
-    if (!state.characters) return;
+    if (!state.characters || characterInput === null || characterInput === undefined) return;
 
     // Parse input (array or comma-string)
     let charKeys = [];
     if (Array.isArray(characterInput)) {
         charKeys = characterInput.slice();
     } else if (typeof characterInput === 'string') {
-        charKeys = characterInput.split(',').map(s => s.trim());
+        charKeys = characterInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
     }
     if (charKeys.length === 0) return;
 
@@ -1028,7 +1142,7 @@ function updateCharacter(characterInput) {
     const container = document.getElementById('characterSpriteContainer');
 
     if (validEntries.length === 0) {
-        console.warn(`Characters [${charKeys.join(',')}] not found in registry.`);
+        appLogger.warn(`Characters [${charKeys.join(',')}] not found in registry.`);
         _hideAllSprites(container);
         return;
     }

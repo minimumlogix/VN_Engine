@@ -6,5 +6,11 @@
   "typingSfxVolume": 0.1,
   "chapterTitleDuration": 1700,
   "transitionTiming": 1000,
-  "discordUrl": "https://discord.gg/vZg4GcUWRC"
+  "discordUrl": "https://discord.gg/vZg4GcUWRC",
+  "effectSfx": {
+    "heartbeat": "general_assets/sfx/heartbeat.mp3",
+    "bloodsplatter": "general_assets/sfx/heartbeat.mp3",
+    "SHOCKWAVE": "stories/MHA/assets/audio/sfx/sfx_click.mp3",
+    "NUKE": "general_assets/sfx/heartbeat.mp3"
+  }
 }

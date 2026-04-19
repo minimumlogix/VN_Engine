@@ -119,16 +119,33 @@ class EffectsEngine {
      * @param {object} [opts] - { intensity: 1|2|3, duration?: ms }
      */
     triggerMacro(name, opts = {}) {
-        const macro = this.macros[name];
+        // Robust name parsing: handle intensities in the string e.g. "shake(2)"
+        let baseName = name;
+        if (name.includes('(')) {
+            const match = name.match(/^([a-z]+)\((\d+)\)$/i);
+            if (match) {
+                baseName = match[1];
+                opts.intensity = parseInt(match[2]);
+            }
+        }
+
+        const macro = this.macros[baseName];
         if (!macro) {
-            if (typeof appLogger !== 'undefined') appLogger.warn(`[FX] Unknown macro: '${name}'`);
+            if (typeof appLogger !== 'undefined') appLogger.warn(`[FX] Unknown macro: '${baseName}' (from '${name}')`);
             return;
         }
 
         const intensity = Math.min(3, Math.max(1, opts.intensity || 1));
         const duration = opts.duration || macro.duration;
 
-        if (typeof appLogger !== 'undefined') appLogger.info(`[FX] Macro: ${name} (intensity ${intensity})`);
+        if (typeof appLogger !== 'undefined') appLogger.info(`[FX] Macro: ${baseName} (intensity ${intensity})`);
+
+        // ── SFX Integration ──
+        const configEntry = (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.effects.macroEffects[baseName] : null;
+
+        if (configEntry && configEntry.sfxPath && typeof audioManager !== 'undefined') {
+            audioManager.playSfx(configEntry.sfxPath);
+        }
 
         // Cancel existing timer for this class if re-triggered
         if (this._activeMacroTimers.has(macro.class)) {
@@ -165,7 +182,14 @@ class EffectsEngine {
         return new Promise((resolve) => {
             if (typeof appLogger !== 'undefined') appLogger.info(`[FX] Overlay: ${name}`);
 
+            // ── SFX Integration ──
+            const configEntry = (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.effects.overlayEffects[name] : null;
+            if (configEntry && configEntry.sfxPath && typeof audioManager !== 'undefined') {
+                audioManager.playSfx(configEntry.sfxPath);
+            }
+
             this.overlayLayer.style.display = 'block';
+
             this.overlayLayer.innerHTML = '';
             this.overlayLayer.className = 'effect-overlay';
             def.build(this.overlayLayer);

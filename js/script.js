@@ -371,6 +371,11 @@ async function initializeApp() {
             chapterManager.cache.transitionTiming = config.transitionTiming ?? 300;
             state.chapterTitleDuration = config.chapterTitleDuration ?? 1800;
             state.discordUrl = config.discordUrl ?? null;
+
+            // Merge specialized configuration (SFX mappings, timings, etc.)
+            if (typeof mergeEngineConfig === 'function') {
+                mergeEngineConfig(config);
+            }
         }
     } catch (e) {
         appLogger.warn('No config.json found or failed to load. Using hardcoded defaults.', e);

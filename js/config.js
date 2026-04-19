@@ -156,4 +156,17 @@ function mergeEngineConfig(loadedConfig) {
     if (loadedConfig.transitionTiming !== undefined) {
         ENGINE_CONFIG.timing.chapterTransitionFadeIn = loadedConfig.transitionTiming;
     }
+
+    // Merge macro effect sound mappings
+    if (loadedConfig.effectSfx && typeof loadedConfig.effectSfx === 'object') {
+        for (const [effect, sfxPath] of Object.entries(loadedConfig.effectSfx)) {
+            if (ENGINE_CONFIG.effects.macroEffects[effect]) {
+                ENGINE_CONFIG.effects.macroEffects[effect].sfxPath = sfxPath;
+            }
+            // Also check overlayEffects for a match
+            if (ENGINE_CONFIG.effects.overlayEffects[effect]) {
+                ENGINE_CONFIG.effects.overlayEffects[effect].sfxPath = sfxPath;
+            }
+        }
+    }
 }

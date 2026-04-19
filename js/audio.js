@@ -110,6 +110,18 @@ class AudioManager {
             this._crossfadeTo(this.pendingBgm);
             this.pendingBgm = null;
         }
+
+        // ── SFX Pool "Blessing" ──
+        // Many browsers block .play() on nodes that haven't been triggered by a gesture.
+        // We "bless" the pool now while we are inside the click/keydown event stack.
+        this.sfxPool.forEach(node => {
+            const originalSrc = node.src;
+            // Silent play-pause
+            node.play().then(() => {
+                node.pause();
+                node.currentTime = 0;
+            }).catch(() => {});
+        });
     }
 
     // ── Safe Play ──────────────────────────────────────────────────────────

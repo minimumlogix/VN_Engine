@@ -2,6 +2,7 @@
   "storyTitle": "THE UNFAIR FATE: REBIRTH",
   "storySubtitle": "A MY HERO ACADEMIA TALE",
   "theme": "cyberpunk.css",
+  "wikiUrl": "https://myheroacademia.fandom.com/wiki/My_Hero_Academia_Wiki",
   "loadScreenBackground": "stories/MHA/assets/images/backgrounds/LoadingBG.jpg",
   "chapterBackgrounds": {
     "0": "stories/MHA/assets/images/backgrounds/AI.gif",

@@ -341,6 +341,8 @@ const state = {
     typingSpeed: TYPING_SPEED,
     autoSpeed: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.autoSpeedModifier : 50,
     chapterTitleDuration: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.chapterTransitionDuration : 1800,
+    discordUrl: null,
+    wikiUrl: null,
     _initialState: {},
     isEffectPlaying: false,
     currentChapter: 1,
@@ -368,6 +370,7 @@ async function initializeApp() {
 
             chapterManager.cache.transitionTiming = config.transitionTiming ?? 300;
             state.chapterTitleDuration = config.chapterTitleDuration ?? 1800;
+            state.discordUrl = config.discordUrl ?? null;
         }
     } catch (e) {
         appLogger.warn('No config.json found or failed to load. Using hardcoded defaults.', e);
@@ -426,6 +429,7 @@ function loadStoryData(storyName) {
             state.chapterMusic = data.chapterMusic || {};
             state.chapterBackgrounds = data.chapterBackgrounds || {};
             state.chapterNames = data.chapterNames || {};
+            state.wikiUrl = data.wikiUrl || null;
             state.loadScreenBackground = data.loadScreenBackground;
 
             // ─ Normalize chapter keys to integers for reliable access ─
@@ -986,8 +990,22 @@ function updateEndScreenButtons() {
         screenManager.showScreen('story');
         initializeStoryScreen();
     });
-
     endOptions.appendChild(replayBtn);
+
+    // Dynamic external links
+    if (state.discordUrl) {
+        const discordBtn = createButton('Join Discord', () => {
+            window.open(state.discordUrl, '_blank');
+        });
+        endOptions.appendChild(discordBtn);
+    }
+
+    if (state.wikiUrl) {
+        const wikiBtn = createButton('About World', () => {
+            window.open(state.wikiUrl, '_blank');
+        });
+        endOptions.appendChild(wikiBtn);
+    }
 }
 
 /**

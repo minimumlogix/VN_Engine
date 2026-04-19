@@ -16,6 +16,7 @@ class EffectsEngine {
     constructor() {
         this.persistentLayer = document.getElementById('persistentEffectLayer');
         this.overlayLayer = document.getElementById('effectOverlay');
+        this.simpleLayer = document.getElementById('simpleEffectLayer');
 
         // ── Macro effects — applied as CSS classes on <body> ─────────────
         // intensity: 1=default, 2=strong, 3=violent (scales CSS var --fx-intensity)
@@ -99,6 +100,9 @@ class EffectsEngine {
         this._queue = [];
         this._running = false;
         this._activeMacroTimers = new Map();
+        
+        this._activeSimpleStartTimer = null;
+        this._activeSimpleEndTimer = null;
 
         if (typeof appLogger !== 'undefined') {
             appLogger.info('EffectsEngine v4.0 initialised — GODMODE');
@@ -206,6 +210,48 @@ class EffectsEngine {
         this.persistentLayer.innerHTML = '';
     }
 
+    // ── Simple Effect Layer (Scene-local, Timebound) ─────────────────────
+
+    playSimpleEffect(effectUrl, delayStartMs, delayEndMs) {
+        this.clearSimpleEffect(); // Reset any existing simple effect
+        if (!effectUrl) return;
+
+        const msStart = (delayStartMs !== null && delayStartMs !== undefined) ? parseInt(delayStartMs) : 0;
+        
+        if (typeof appLogger !== 'undefined') appLogger.info(`[FX] Scheduled simple effect: ${effectUrl} starting at ${msStart}ms`);
+
+        this._activeSimpleStartTimer = setTimeout(() => {
+            if (this.simpleLayer) {
+                this.simpleLayer.style.display = 'block';
+                this.simpleLayer.innerHTML = `<img src="${effectUrl}" class="persistent-effect-img" alt="simple effect layer">`;
+            }
+
+            if (delayEndMs !== null && delayEndMs !== undefined) {
+                const msEnd = parseInt(delayEndMs);
+                // Absolute timeframe relative to node trigger
+                const duration = Math.max(0, msEnd - msStart);
+                this._activeSimpleEndTimer = setTimeout(() => {
+                    this.clearSimpleEffect();
+                }, duration);
+            }
+        }, msStart);
+    }
+
+    clearSimpleEffect() {
+        if (this._activeSimpleStartTimer) {
+            clearTimeout(this._activeSimpleStartTimer);
+            this._activeSimpleStartTimer = null;
+        }
+        if (this._activeSimpleEndTimer) {
+            clearTimeout(this._activeSimpleEndTimer);
+            this._activeSimpleEndTimer = null;
+        }
+        if (this.simpleLayer) {
+            this.simpleLayer.style.display = 'none';
+            this.simpleLayer.innerHTML = '';
+        }
+    }
+
     /**
      * Walk back through story data to find the most recent persistentEffect declaration.
      */
@@ -222,6 +268,7 @@ class EffectsEngine {
 
     cleanup() {
         this.clearPersistentEffect();
+        this.clearSimpleEffect();
 
         // Hide overlay
         if (this.overlayLayer) {

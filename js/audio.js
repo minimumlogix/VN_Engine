@@ -59,6 +59,11 @@ class AudioManager {
         // stop specifically that one (and not future effects-pool sounds).
         this._lastCharSfxIndex = -1;
 
+        // ── Scene SFX Tracking ───────────────────────────────────────────────
+        this._sceneSfxStartTimers = [];
+        this._sceneSfxEndTimers   = [];
+        this._activeSceneSfxNodes = [];
+
         // ── Typing Sound ─────────────────────────────────────────────────────
         const typingSoundPath = (typeof ENGINE_CONFIG !== 'undefined' && ENGINE_CONFIG.audio)
             ? ENGINE_CONFIG.audio.typingSoundPath
@@ -281,6 +286,58 @@ class AudioManager {
 
         // FIX #14: Apply to all live pool nodes so in-flight sounds update immediately.
         this.sfxPool.forEach(node => { node.volume = this.sfxVolume; });
+        this._activeSceneSfxNodes.forEach(node => { node.volume = this.sfxVolume; });
+    }
+
+    // ── Scene SFX Engine (Timebound) ──────────────────────────────────────
+
+    playSceneSfx(src, delayStartMs, delayEndMs) {
+        if (!this.globalAudioEnabled || !this.userInteracted || !src) return;
+
+        const msStart = (delayStartMs !== null && delayStartMs !== undefined) ? parseInt(delayStartMs) : 0;
+        
+        const startTimer = setTimeout(() => {
+            const node = this._createNode(false);
+            node.src    = src;
+            node.volume = this.sfxVolume;
+            node.muted  = !this.globalAudioEnabled;
+            
+            this._safePlay(node);
+            this._activeSceneSfxNodes.push(node);
+
+            if (delayEndMs !== null && delayEndMs !== undefined) {
+                const msEnd = parseInt(delayEndMs);
+                const duration = Math.max(0, msEnd - msStart);
+                const endTimer = setTimeout(() => {
+                    node.pause();
+                    node.currentTime = 0;
+                    // Remove from active nodes list
+                    const index = this._activeSceneSfxNodes.indexOf(node);
+                    if (index > -1) {
+                        this._activeSceneSfxNodes.splice(index, 1);
+                    }
+                }, duration);
+                this._sceneSfxEndTimers.push(endTimer);
+            }
+        }, msStart);
+
+        this._sceneSfxStartTimers.push(startTimer);
+    }
+
+    clearSceneSfx() {
+        this._sceneSfxStartTimers.forEach(t => clearTimeout(t));
+        this._sceneSfxStartTimers = [];
+        
+        this._sceneSfxEndTimers.forEach(t => clearTimeout(t));
+        this._sceneSfxEndTimers = [];
+        
+        this._activeSceneSfxNodes.forEach(node => {
+            if (!node.paused) {
+                node.pause();
+            }
+            node.currentTime = 0;
+        });
+        this._activeSceneSfxNodes = [];
     }
 
     setTypingSfxVolume(volume) {
@@ -299,6 +356,7 @@ class AudioManager {
         this.bgmAudio2.muted          = !this.globalAudioEnabled;
         this.typingSoundEffect.muted  = !this.globalAudioEnabled;
         this.sfxPool.forEach(node => { node.muted = !this.globalAudioEnabled; });
+        this._activeSceneSfxNodes.forEach(node => { node.muted = !this.globalAudioEnabled; });
 
         const activeNode = this.activeBgmChannel === 1 ? this.bgmAudio1 : this.bgmAudio2;
 

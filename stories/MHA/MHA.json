@@ -147,13 +147,15 @@
       "chapter": 2,
       "scene": 1,
       "character": "HIMIKO",
-      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even [bloodsplatter] <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!"
+      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even [bloodsplatter] <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!",
+      "persistentEffect": "general_assets/effects/CherryBlossomEffect.gif"
     },
     {
       "chapter": 2,
       "scene": 1,
       "character": "TWICE",
-      "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!"
+      "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!",
+      "persistentEffect": ""
     },
     {
       "chapter": 2,

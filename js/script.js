@@ -1013,10 +1013,20 @@ async function displayNextDialogue() {
     updateCharacter(node.character);
     effectsEngine.setPersistentEffect(node.persistentEffect);
 
+    // Simple Effects (Scene-bound)
+    if (node.Effect && Array.isArray(node.Effect)) {
+        effectsEngine.playSimpleEffect(node.Effect[0], node.Effect[1], node.Effect[2]);
+    }
+
     // Play SFX
     const charKey = Array.isArray(node.character) ? node.character[0] : node.character?.split(',')[0].trim();
     if (charKey && state.characters[charKey]?.sfx) {
         audioManager.playSfx(state.characters[charKey].sfx, true);
+    }
+    
+    // Play Scene SFX (Timebound)
+    if (node.sfx && Array.isArray(node.sfx)) {
+        audioManager.playSceneSfx(node.sfx[0], node.sfx[1], node.sfx[2]);
     }
 
     // 4. Start Typewriter
@@ -1036,6 +1046,7 @@ async function displayNextDialogue() {
  */
 function cleanupStoryScreen() {
     effectsEngine.cleanup();
+    if (typeof audioManager !== 'undefined') audioManager.clearSceneSfx();
     _hideAllSprites(document.getElementById('characterSpriteContainer'));
     state.isTyping = false;
     state.isEffectPlaying = false;
@@ -1242,6 +1253,7 @@ function handleBackClick() {
     if (writer) writer.forceStop();
     clearTimeout(state.autoProgressTimeout);
     audioManager.stopAllSfx();
+    audioManager.clearSceneSfx();
     audioManager.stopTypingSound();
 
     const overlay = document.getElementById('choicesOverlay');
@@ -1251,6 +1263,7 @@ function handleBackClick() {
     if (node) {
         const correctEffect = effectsEngine.resolveEffectForIndex(narration.currentIndex, state.storyData);
         effectsEngine.setPersistentEffect(correctEffect);
+        effectsEngine.clearSimpleEffect();
 
         if (node.chapter && node.scene) {
             updateChapterAndScene(node.chapter, node.scene);
@@ -1350,6 +1363,11 @@ async function updateChapterAndScene(chapter, scene) {
         // Update scene
         if (scene !== state.currentScene) {
             state.currentScene = scene;
+
+            // Clear scene-bound effects and sfx since scene changed
+            if (typeof effectsEngine !== 'undefined') effectsEngine.clearSimpleEffect();
+            if (typeof audioManager !== 'undefined') audioManager.clearSceneSfx();
+
             appLogger.debug(`Scene updated to ${scene}`);
         }
     } catch (error) {

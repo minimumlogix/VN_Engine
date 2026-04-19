@@ -41,7 +41,7 @@
     },
     "TWICE": {
       "name": "Twice",
-      "sprite": "stories/MHA/assets/images/characters/Twice1.png",
+      "sprite": "stories/MHA/assets/images/characters/Twice2.png",
       "position": "left",
       "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
     },

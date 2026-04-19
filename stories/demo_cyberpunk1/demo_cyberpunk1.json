@@ -17,6 +17,10 @@
     "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
     "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
   },
+  "initialState": {
+    "compliance": 0,
+    "defiance": 0
+  },
   "characters": {
     "TIA": {
       "name": "TIA",
@@ -144,7 +148,11 @@
       "chapter": 2,
       "scene": 5,
       "character": "EVA",
-      "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand."
+      "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand.",
+      "choices": [
+        { "text": "Blink twice", "effect": { "compliance": 1 } },
+        { "text": "Glare back", "effect": { "defiance": 1 } }
+      ]
     },
     {
       "chapter": 2,
@@ -153,10 +161,38 @@
       "text": "Who are you really? And why is your Boss trying to <i style='color:#f2c300;'>incinerate</i> your consciousness from the inside out?"
     },
     {
+      "id": "final_choice",
       "chapter": 2,
       "scene": 7,
       "character": "NARRATION",
-      "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>."
+      "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>.",
+      "choices": [
+        { "text": "Ally with EVA", "condition": "defiance >= 1", "nextId": "end_eva" },
+        { "text": "Accept TIA's Help", "condition": "compliance >= 1", "nextId": "end_tia" }
+      ]
+    },
+    {
+      "id": "end_eva",
+      "chapter": 2,
+      "scene": 7,
+      "character": "EVA",
+      "text": "Good choice. We'll burn this city down together.",
+      "nextId": "credits_roll"
+    },
+    {
+      "id": "end_tia",
+      "chapter": 2,
+      "scene": 7,
+      "character": "TIA",
+      "text": "I knew there was still a human inside you. Let's get to work.",
+      "nextId": "credits_roll"
+    },
+    {
+      "id": "credits_roll",
+      "chapter": 2,
+      "scene": 7,
+      "character": "NARRATION",
+      "text": "THANK YOU FOR PLAYING."
     }
   ]
 }

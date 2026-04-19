@@ -78,14 +78,14 @@ class ChapterManager {
     async _updateBackground(chapter, chapterData) {
         try {
             const backgroundUrl = chapterData?.chapterBackgrounds?.[chapter];
-            
+
             if (!backgroundUrl) {
                 throw new Error(`No background found for chapter ${chapter}`);
             }
 
             // Cache busting for GIFs
-            const finalUrl = backgroundUrl.includes('.gif') 
-                ? `${backgroundUrl}?cache=${Date.now()}` 
+            const finalUrl = backgroundUrl.includes('.gif')
+                ? `${backgroundUrl}?cache=${Date.now()}`
                 : backgroundUrl;
 
             return new Promise((resolve) => {
@@ -114,7 +114,7 @@ class ChapterManager {
     async _updateMusic(chapter, chapterData) {
         try {
             const musicUrl = chapterData?.chapterMusic?.[chapter];
-            
+
             if (!musicUrl) {
                 this.logger.debug(`No music defined for chapter ${chapter}`);
                 return;
@@ -250,7 +250,7 @@ class Logger {
         const timestamp = new Date().toLocaleTimeString();
         const formatted = `%c[${timestamp}] ${levelInfo.icon} ${this.prefix}: ${message}`;
         const style = `color: ${levelInfo.color}; font-weight: bold;`;
-        
+
         if (data) {
             console.log(formatted, style, data);
         } else {
@@ -274,11 +274,11 @@ const appLogger = new Logger('VN-Engine');
 // ============================================================================
 // All magic numbers are now centralized in ENGINE_CONFIG
 // Fallback to ENGINE_CONFIG values if they exist
-const TYPING_SPEED = (typeof ENGINE_CONFIG !== 'undefined') 
-    ? ENGINE_CONFIG.timing.typingSpeed 
+const TYPING_SPEED = (typeof ENGINE_CONFIG !== 'undefined')
+    ? ENGINE_CONFIG.timing.typingSpeed
     : 50;
-const AUTO_PROGRESS_DELAY = (typeof ENGINE_CONFIG !== 'undefined') 
-    ? ENGINE_CONFIG.timing.autoProgressDelay 
+const AUTO_PROGRESS_DELAY = (typeof ENGINE_CONFIG !== 'undefined')
+    ? ENGINE_CONFIG.timing.autoProgressDelay
     : 1000;
 
 // ============================================================================
@@ -311,30 +311,28 @@ const elements = {
     chapterTransition: document.getElementById('chapterTransition')
 };
 
-// State
+// Global Instances
+let narration = null;
+let writer = null;
+
+// The UI State
 const state = {
-    isTyping: false,
-    currentDialogue: '',
-    currentCharacter: null,
+    isPaused: false,
+    isAutoMode: false,
+    autoProgressTimeout: null,
+    storyBasePath: '',
+    storyData: null,
+    characters: null,
+    chapterBackgrounds: null,
+    chapterMusic: null,
+    chapterNames: null,
     typingSpeed: TYPING_SPEED,
     autoSpeed: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.autoSpeedModifier : 50,
     chapterTitleDuration: (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.chapterTransitionDuration : 1800,
-    currentDialogueIndex: 0,
-    skipRequested: false,   // Advanced Typewriter skip state
-    typingInstanceId: 0,    // Hard-cancel identifier for the async type engine
-    autoProgressTimeout: null,
-    dialogueHistory: [],
-    currentChapter: 1,
-    currentScene: 1,
-    isAutoMode: false,
+    _initialState: {},
     isEffectPlaying: false,
-    isPaused: false,
-    storyData: null,
-    characters: null,
-    chapterMusic: null,
-    chapterBackgrounds: null,
-    chapterNames: null,
-    storyBasePath: ''   // e.g. "stories/demo_anime/" — prefix for local assets
+    currentChapter: 1,
+    currentScene: 1
 };
 
 // Effects definition moved to effects.js
@@ -345,17 +343,17 @@ async function initializeApp() {
         const configResponse = await fetch('config.json');
         if (configResponse.ok) {
             const config = await configResponse.json();
-            
+
             if (localStorage.getItem('lvne_typingSpeed') === null) state.typingSpeed = config.typingSpeed ?? 50;
             else state.typingSpeed = parseInt(localStorage.getItem('lvne_typingSpeed'));
-            
+
             if (localStorage.getItem('lvne_autoSpeed') === null) state.autoSpeed = config.autoSpeed ?? 50;
             else state.autoSpeed = parseInt(localStorage.getItem('lvne_autoSpeed'));
 
             if (localStorage.getItem('lvne_sfxVolume') === null) audioManager.setSfxVolume(config.sfxVolume ?? 0.5);
             if (localStorage.getItem('lvne_bgmVolume') === null) audioManager.setBgmVolume(config.bgmVolume ?? 0.4);
             if (localStorage.getItem('lvne_typingSfxVolume') === null) audioManager.setTypingSfxVolume(config.typingSfxVolume ?? 0.2);
-            
+
             chapterManager.cache.transitionTiming = config.transitionTiming ?? 300;
             state.chapterTitleDuration = config.chapterTitleDuration ?? 1800;
         }
@@ -400,6 +398,19 @@ function loadStoryData(storyName) {
             state.storySubtitle = data.storySubtitle || "";
             state.storyData = data.storyDialogue;
             state.characters = data.characters;
+
+            // RDAG Integration: Load topological engines
+            state._initialState = data.initialState ? JSON.parse(JSON.stringify(data.initialState)) : {};
+            narration = new NarrationEngine(data.storyDialogue, state._initialState);
+            writer = new WritingEngine(elements.typedText, document.getElementById('typewriter-ghost'));
+
+            // Setup engine callbacks
+            writer.onCharTyped = () => { if (typeof audioManager !== 'undefined') audioManager.playTypingSound(); };
+            writer.onComplete = () => {
+                if (typeof audioManager !== 'undefined') audioManager.stopTypingSound();
+                onDialogueFinished();
+            };
+
             state.chapterMusic = data.chapterMusic || {};
             state.chapterBackgrounds = data.chapterBackgrounds || {};
             state.chapterNames = data.chapterNames || {};
@@ -457,7 +468,7 @@ function loadStoryData(storyName) {
             updateLoaderStatus('Preloading assets...');
             const assets = collectAssetUrls(data);
             appLogger.info(`Preloading ${assets.length} assets`);
-            
+
             preloadAssets(assets, () => {
                 finishLoading();
                 setupEventListeners();
@@ -608,13 +619,13 @@ function finishLoading() {
     const loaderContent = document.getElementById('loaderContent');
     const startContent = document.getElementById('startContent');
     const startGameBtn = document.getElementById('startGameBtn');
-    
+
     // Inject Dynamic Titles Professionally
     const mainTitleEl = document.getElementById('startMainTitle');
     const subTitleEl = document.getElementById('startSubTitle');
     if (mainTitleEl) mainTitleEl.textContent = state.storyTitle;
     if (subTitleEl) subTitleEl.textContent = state.storySubtitle;
-    
+
     // Switch from loading text to start screen securely
     if (loaderContent) loaderContent.style.display = 'none';
     if (startContent) startContent.style.display = 'flex';
@@ -641,7 +652,7 @@ function finishLoading() {
         // Manually update internal state to reflect that we are on 'loading'
         if (screenManager.currentScreen !== 'loading') {
             screenManager.previousScreen = screenManager.currentScreen;
-            screenManager.currentScreen  = 'loading';
+            screenManager.currentScreen = 'loading';
         }
 
         loadingScreen.classList.add('fade-out');
@@ -775,12 +786,12 @@ function setupEventListeners() {
                 elements.muteIcon.classList.remove('muted');
                 elements.muteIcon.title = 'Pause Audio';
                 if (soundWaves) soundWaves.style.display = '';
-                if (muteX)      muteX.style.display = 'none';
+                if (muteX) muteX.style.display = 'none';
             } else {
                 elements.muteIcon.classList.add('muted');
                 elements.muteIcon.title = 'Play Audio';
                 if (soundWaves) soundWaves.style.display = 'none';
-                if (muteX)      muteX.style.display = '';
+                if (muteX) muteX.style.display = '';
             }
         });
     }
@@ -811,7 +822,7 @@ function setupEventListeners() {
             }, (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.effectOverlayFadeDelay : 400);
         });
     };
-    
+
     document.querySelectorAll('.close-btn').forEach(closeButtonClickHandler);
 
     // Store listener handlers for cleanup
@@ -823,7 +834,7 @@ function setupEventListeners() {
         bgmVolumeChange: handleBgmVolumeChange,
         typingSfxVolumeChange: handleTypingSfxVolumeChange
     };
-    
+
     document.addEventListener('keydown', state._listeners.keydown);
     if (elements.textSpeedInput) elements.textSpeedInput.addEventListener('input', state._listeners.textSpeedChange);
     if (elements.autoSpeedInput) elements.autoSpeedInput.addEventListener('input', state._listeners.autoSpeedChange);
@@ -867,8 +878,8 @@ function initializeEndScreen() {
         endScreen.style.backgroundSize = 'cover';
         endScreen.style.backgroundPosition = 'center';
     } else {
-        const fallbackBg = state.chapterBackgrounds && state.chapterBackgrounds[1] 
-            ? state.chapterBackgrounds[1] 
+        const fallbackBg = state.chapterBackgrounds && state.chapterBackgrounds[1]
+            ? state.chapterBackgrounds[1]
             : 'https://images.unsplash.com/photo-1542401886-65d6c61de152?q=80&w=1920&auto=format&fit=crop';
         endScreen.style.backgroundImage = `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 100%), url('${fallbackBg}')`;
         endScreen.style.backgroundSize = 'cover';
@@ -880,7 +891,7 @@ function initializeEndScreen() {
 function setupCharacterSprites() {
     const container = document.getElementById('characterSpriteContainer');
     container.innerHTML = '';
-    
+
     // Inject exact img tags for each character's sprite directly into the DOM
     Object.keys(state.characters || {}).forEach(key => {
         const char = state.characters[key];
@@ -921,7 +932,7 @@ function setupAdditionalElements() {
     // RIGHT: SKIP / NEXT
     const skipNextBtn = document.createElement('button');
     skipNextBtn.id = 'nextSkipBtn';
-    skipNextBtn.classList.add('nav-icon-btn', 'nav-next-skip', 'show-skip'); 
+    skipNextBtn.classList.add('nav-icon-btn', 'nav-next-skip', 'show-skip');
     skipNextBtn.innerHTML = `
         <div class="icon-layer icon-next">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -968,134 +979,56 @@ function updateEndScreenButtons() {
 }
 
 /**
- * Check if dialogue progression should be paused and reschedule if needed
- * @returns {boolean} true if paused, false if should continue
- */
-function _shouldPauseDialogue() {
-    if (!state.isPaused) return false;
-    state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
-    return true;
-}
-
-/**
- * Check if we've reached the end of the story
- * @returns {boolean} true if at end, false otherwise
- */
-function _isStoryEnded() {
-    if (!state.storyData || state.currentDialogueIndex >= state.storyData.length) {
-        handleEndOfStory();
-        return true;
-    }
-    return false;
-}
-
-/**
- * Handle chapter/scene transitions
- * @param {Object} dialogue - Current dialogue entry
- * @returns {Promise<void>}
- */
-async function _handleTransitions(dialogue) {
-    if (!dialogue || !state.storyData) return;
-    
-    if (dialogue.chapter !== chapterManager.currentChapter) {
-        state.isTyping = true;
-        updateButtonStates();
-        elements.dialogueContainer.style.visibility = 'hidden';
-        const spriteContainer = document.getElementById('characterSpriteContainer');
-        if (spriteContainer) _hideAllSprites(spriteContainer);
-        await updateChapterAndScene(dialogue.chapter, dialogue.scene);
-        elements.dialogueContainer.style.visibility = 'visible';
-    } else if (dialogue.scene !== state.currentScene) {
-        await updateChapterAndScene(dialogue.chapter, dialogue.scene);
-    }
-}
-
-/**
- * Handle overlay effect display
- * @param {Object} dialogue - Current dialogue entry
- */
-function _handleOverlayEffect(dialogue) {
-    if (!dialogue.effect || !effectsEngine) return false;
-    
-    state.isEffectPlaying = true;
-    updateButtonStates();
-    effectsEngine.playOverlayEffect(dialogue.effect, () => {
-        state.isEffectPlaying = false;
-        state.dialogueHistory.push(state.currentDialogueIndex);
-        state.currentDialogueIndex++;
-        updateButtonStates();
-        displayNextDialogue();
-    });
-    return true;
-}
-
-/**
- * Play character dialogue with SFX and animation
- * @param {Object} dialogue - Current dialogue entry
- */
-function _renderDialogue(dialogue) {
-    if (!dialogue) return;
-    
-    updateCharacter(dialogue.character);
-    if (effectsEngine) effectsEngine.setPersistentEffect(dialogue.persistentEffect);
-
-    // Play character SFX with null safety
-    if (dialogue.character && state.characters && audioManager) {
-        let primaryCharKey = typeof dialogue.character === 'string'
-            ? dialogue.character.split(',')[0].trim()
-            : (Array.isArray(dialogue.character) ? dialogue.character[0] : dialogue.character);
-        const charData = state.characters[primaryCharKey];
-        if (charData && charData.sfx) {
-            audioManager.playSfx(charData.sfx, true);
-        }
-    }
-
-    state.currentDialogue = dialogue.text || '';
-    state.isTyping = true;
-    typeWriter(dialogue.text, state.typingSpeed);
-    state.dialogueHistory.push(state.currentDialogueIndex);
-    state.currentDialogueIndex++;
-    updateButtonStates();
-}
-
-/**
- * Display the next dialogue line with proper error handling
+ * Main Game Loop Trigger
  */
 async function displayNextDialogue() {
     clearTimeout(state.autoProgressTimeout);
-    state.typingInstanceId++; // Retire orphaned async typing instances
+    if (writer) writer.forceStop();
 
-    // Check for pause
-    if (_shouldPauseDialogue()) return;
-
-    // Check for end of story
-    if (_isStoryEnded()) return;
-
-    const dialogue = state.storyData[state.currentDialogueIndex];
-    if (!dialogue) {
-        appLogger.error('Dialogue entry is null or undefined');
-        handleEndOfStory();
+    if (state.isPaused) {
+        state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
         return;
     }
 
-    try {
-        // Handle transitions first
-        await _handleTransitions(dialogue);
+    const node = narration.getCurrentNode();
+    if (!node) return handleEndOfStory();
 
-        // Then handle effects or rendering
-        if (_handleOverlayEffect(dialogue)) {
-            return;
-        }
+    // 1. Handle Chapter/Scene Transitions
+    await updateChapterAndScene(node.chapter, node.scene);
 
-        _renderDialogue(dialogue);
-    } catch (error) {
-        appLogger.error('Error in displayNextDialogue:', error);
-        state.isTyping = false;
+    // 2. Handle Blocking Overlay Effects
+    if (node.effect) {
+        state.isEffectPlaying = true;
         updateButtonStates();
-    }
-}
 
-// Legacy persistent effect functions moved to effects.js
+        // Ensure effectsEngine evaluates properly, some nodes might have strings
+        await effectsEngine.playOverlayEffect(node.effect);
+
+        state.isEffectPlaying = false;
+        narration.advance();
+        return displayNextDialogue();
+    }
+
+    // 3. Render Visuals
+    updateCharacter(node.character);
+    effectsEngine.setPersistentEffect(node.persistentEffect);
+
+    // Play SFX
+    const charKey = Array.isArray(node.character) ? node.character[0] : node.character?.split(',')[0].trim();
+    if (charKey && state.characters[charKey]?.sfx) {
+        audioManager.playSfx(state.characters[charKey].sfx, true);
+    }
+
+    // 4. Start Typewriter
+    elements.characterName.textContent = state.characters[charKey]?.name || "???";
+
+    if (writer) {
+        writer.setSpeed(state.typingSpeed);
+        writer.write(node.text);
+    }
+
+    updateButtonStates();
+}
 
 /**
  * Cleanup function called when leaving the story screen.
@@ -1154,7 +1087,7 @@ function updateCharacter(characterInput) {
     elements.characterName.textContent = combinedNames;
     elements.characterName.setAttribute('data-text', combinedNames);
 
-    const n       = validEntries.length;
+    const n = validEntries.length;
     const isMulti = n > 1;
     container.classList.toggle('multi-sprite-mode', isMulti);
 
@@ -1186,15 +1119,15 @@ function updateCharacter(characterInput) {
             // place sprite centre at the middle of slot (index).
             // left = (index + 0.5) / n × 100%
             const leftPct = ((index + 0.5) / n) * 100;
-            img.style.left      = `${leftPct.toFixed(4)}%`;
-            img.style.right     = 'auto';
+            img.style.left = `${leftPct.toFixed(4)}%`;
+            img.style.right = 'auto';
             img.style.transform = 'translateX(-50%)';
             // Remove class-based position transforms that fight inline style
             img.classList.remove('left-sprite', 'right-sprite', 'center-sprite', 'middle-sprite');
         } else {
             // Single-sprite: restore original class-based positioning
-            img.style.left      = '';
-            img.style.right     = '';
+            img.style.left = '';
+            img.style.right = '';
             img.style.transform = '';
             // Restore the position class (normalised on setup)
             const pos = char.position || 'center';
@@ -1228,11 +1161,11 @@ function updateCharacter(characterInput) {
 
 /** Hide and fully reset a single sprite element */
 function _resetSprite(img) {
-    img.style.display   = 'none';
-    img.style.left      = '';
-    img.style.right     = '';
+    img.style.display = 'none';
+    img.style.left = '';
+    img.style.right = '';
     img.style.transform = '';
-    img.style.zIndex    = '';
+    img.style.zIndex = '';
     img.classList.remove('active');
     img.removeAttribute('data-sprite-settled');
 }
@@ -1250,16 +1183,20 @@ function _hideAllSprites(container) {
 function updateButtonStates() {
     if (!elements.skipNextBtn || !elements.backBtn || !elements.autoToggleBtn) return;
 
-    elements.skipNextBtn.disabled = state.isEffectPlaying;
-    elements.backBtn.disabled = state.dialogueHistory.length <= 1 || state.isEffectPlaying;
-    elements.autoToggleBtn.disabled = state.isEffectPlaying;
-    
+    const isTyping = writer ? writer.isTyping : false;
+    const isWaiting = document.getElementById('choicesOverlay')?.style.display === 'flex';
+    const isBackDisabled = narration ? narration.history.length === 0 : true;
+
+    elements.skipNextBtn.disabled = state.isEffectPlaying || isWaiting;
+    elements.backBtn.disabled = isBackDisabled || state.isEffectPlaying;
+    elements.autoToggleBtn.disabled = state.isEffectPlaying || isWaiting;
+
     // UI Visual Sync for Auto Mode
     elements.autoToggleBtn.textContent = state.isAutoMode ? 'AUTO ON' : 'AUTO OFF';
     elements.autoToggleBtn.classList.toggle('auto-active', state.isAutoMode);
 
     // UI Visual Sync for Skip/Next SVG
-    if (state.isTyping) {
+    if (isTyping) {
         elements.skipNextBtn.classList.add('show-skip');
         elements.skipNextBtn.classList.remove('show-next');
     } else {
@@ -1268,163 +1205,90 @@ function updateButtonStates() {
     }
 }
 
-// Type writer effect (Bleeding Edge Implementation)
-async function typeWriter(rawText, baseSpeed) {
-    const instanceId = ++state.typingInstanceId;
-    state.skipRequested = false;
-    state.isTyping = true;
-    
-    const container = elements.typedText;
-    
-    // Step 1: Layout Lock using a Ghost Container
-    // We render everything invisibly to calculate the container height
-    let ghost = document.getElementById('typewriter-ghost');
-    if (!ghost) {
-        ghost = document.createElement('div');
-        ghost.id = 'typewriter-ghost';
-        ghost.style.visibility = 'hidden';
-        ghost.style.position = 'absolute';
-        ghost.style.pointerEvents = 'none';
-        ghost.style.whiteSpace = 'pre-wrap';
-        if (container.parentNode) container.parentNode.appendChild(ghost);
-    }
-    
-    // Inherit precise width for perfect measurement
-    ghost.style.width = getComputedStyle(container).width;
-    ghost.innerHTML = rawText;
-    container.style.minHeight = `${ghost.offsetHeight}px`;
-    container.innerHTML = '';
-    
-    // Step 2: Tokenize HTML Tags & Logic Events
-    const tokens = rawText.split(/(<[^>]+>|\[[^\]]+\])/g);
-    let currentHTML = "";
-    
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, state.skipRequested ? 0 : ms));
-
-    for (const token of tokens) {
-        if (state.typingInstanceId !== instanceId) return; // Strict isolation bailout
-        
-        // Ignore Engine events for rendering
-        if (token.startsWith('[')) {
-            const eventName = token.slice(1, -1);
-            if (typeof effectsEngine !== 'undefined') {
-                effectsEngine.triggerMacro(eventName);
-            }
-            continue;
-        }
-        
-        // Push HTML tags immediately into buffer
-        if (token.startsWith('<')) {
-            currentHTML += token;
-            continue;
-        }
-        
-        // Type visible characters
-        for (const char of token) {
-            if (state.typingInstanceId !== instanceId) return;
-            
-            // Sync with game's global pause (Menu/Settings overlap)
-            while (state.isPaused && !state.skipRequested) {
-                await new Promise(r => setTimeout(r, 100));
-            }
-            
-            if (state.skipRequested) break; // Break char loop to compile the rest instantly
-            
-            currentHTML += char;
-            container.innerHTML = currentHTML;
-            
-            if (typeof audioManager !== 'undefined') audioManager.playTypingSound();
-            
-            // Step 3: Punctuation Pacing
-            let delay = baseSpeed;
-            if (/[.!?]/.test(char)) delay *= 15;
-            else if (/,/.test(char)) delay *= 8;
-            
-            await wait(delay);
-        }
-    }
-    
-    if (state.typingInstanceId !== instanceId) return;
-
-    // Fast-Forward Cleanup
-    if (state.skipRequested) {
-        // Strip logic bracket events safely and render raw HTML fully parsed natively
-        container.innerHTML = rawText.replace(/\[[^\]]+\]/g, ''); 
-    }
-    
-    // Natural Teardown
-    state.isTyping = false;
-    if (typeof audioManager !== 'undefined') audioManager.stopTypingSound();
+/**
+ * Engine Callback: Triggered when text finishes typing
+ */
+function onDialogueFinished() {
     updateButtonStates();
-    
-    container.style.minHeight = 'auto'; // release layout lock gracefully
-    
-    if (state.isAutoMode && !state.skipRequested) {
-        state.autoProgressTimeout = setTimeout(displayNextDialogue, calculateAutoDelay());
+    const node = narration.getCurrentNode();
+
+    if (node.choices && node.choices.length > 0) {
+        showChoices(node.choices);
+    } else if (state.isAutoMode) {
+        state.autoProgressTimeout = setTimeout(() => {
+            narration.advance();
+            displayNextDialogue();
+        }, calculateAutoDelay());
     }
 }
 
-// Handle skip/next button click
 function handleSkipNextClick() {
     if (state.isEffectPlaying) return;
+    const isWaiting = document.getElementById('choicesOverlay')?.style.display === 'flex';
+    if (isWaiting) return;
 
-    if (state.isTyping) {
-        // Fast-forward: collapse async loop delays to 0ms.
-        // FIX: Also stop any currently-playing character SFX and typing sound
-        // so the old character's audio doesn't bleed into the next dialogue.
+    if (writer && writer.isTyping) {
+        writer.skip();
         audioManager.stopAllSfx();
-        audioManager.stopTypingSound();
-        state.skipRequested = true;
     } else {
+        narration.advance();
         displayNextDialogue();
     }
 }
 
-// Handle back button click
 function handleBackClick() {
-    if (state.isEffectPlaying) {
-        return;
-    }
-    if (screenManager.is('story')) {
-        if (state.dialogueHistory.length > 1) {
-            state.typingInstanceId++; // Kill any mid-flight async typeWriter instance
-            clearTimeout(state.autoProgressTimeout);
-            // FIX: Stop ALL active SFX (character + effects pool) AND typing sound
-            // before going back, so the old character's audio doesn't overlap the
-            // new one that displayNextDialogue() is about to trigger.
-            audioManager.stopAllSfx();
-            audioManager.stopTypingSound();
-            state.dialogueHistory.pop();
-            const lastIndex = state.dialogueHistory.pop();
-            state.currentDialogueIndex = lastIndex;
+    if (state.isEffectPlaying) return;
 
-            // Resolve the correct persistent effect for this point in the story
-            const correctEffect = effectsEngine.resolveEffectForIndex(lastIndex, state.storyData);
-            effectsEngine.setPersistentEffect(correctEffect);
+    if (writer) writer.forceStop();
+    clearTimeout(state.autoProgressTimeout);
+    audioManager.stopAllSfx();
+    audioManager.stopTypingSound();
 
-            // Also restore the correct chapter/background for this index
-            const targetDialogue = state.storyData[lastIndex];
-            if (targetDialogue) {
-                updateChapterAndScene(targetDialogue.chapter, targetDialogue.scene);
-            }
+    const overlay = document.getElementById('choicesOverlay');
+    if (overlay) overlay.style.display = 'none';
 
-            displayNextDialogue();
-        }
-    } else if (screenManager.is('end')) {
-        // FIX: Kill any mid-flight async typing instance BEFORE switching screens
-        // to prevent orphaned typeWriter loops from running after the screen change.
-        state.typingInstanceId++;
-        clearTimeout(state.autoProgressTimeout);
-
-        screenManager.showScreen('story');
-        state.currentDialogueIndex = state.storyData.length - 1;
-
-        // Resolve effect for the last dialogue
-        const correctEffect = effectsEngine.resolveEffectForIndex(state.currentDialogueIndex, state.storyData);
+    const node = narration.stepBack();
+    if (node) {
+        const correctEffect = effectsEngine.resolveEffectForIndex(narration.currentIndex, state.storyData);
         effectsEngine.setPersistentEffect(correctEffect);
 
+        if (node.chapter && node.scene) {
+            updateChapterAndScene(node.chapter, node.scene);
+        }
+
+        displayNextDialogue();
+    } else if (screenManager.is('end')) {
+        // Going back from the end screen
+        screenManager.showScreen('story');
+        narration.advance(state.storyData.length - 1);
+        const correctEffect = effectsEngine.resolveEffectForIndex(narration.currentIndex, state.storyData);
+        effectsEngine.setPersistentEffect(correctEffect);
         displayNextDialogue();
     }
+}
+
+function showChoices(choices) {
+    const overlay = document.getElementById('choicesOverlay');
+    if (!overlay) return;
+    overlay.innerHTML = '';
+
+    const validChoices = choices.filter(c => narration.evaluateCondition(c.condition));
+
+    validChoices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = choice.text;
+        btn.onclick = () => {
+            overlay.style.display = 'none';
+            narration.applyEffect(choice.effect);
+            narration.advance(choice.nextId);
+            displayNextDialogue();
+        };
+        overlay.appendChild(btn);
+    });
+
+    overlay.style.display = 'flex';
+    updateButtonStates();
 }
 
 // Toggle global audio (Pause BGM & Mute SFX)
@@ -1439,8 +1303,15 @@ function toggleAutoMode() {
     state.isAutoMode = !state.isAutoMode;
     elements.autoToggleBtn.textContent = state.isAutoMode ? 'AUTO ON' : 'AUTO OFF';
     elements.autoToggleBtn.classList.toggle('auto-active', state.isAutoMode);
-    if (state.isAutoMode && !state.isTyping) {
-        state.autoProgressTimeout = setTimeout(displayNextDialogue, calculateAutoDelay());
+
+    const isTyping = writer ? writer.isTyping : false;
+    const isWaiting = document.getElementById('choicesOverlay')?.style.display === 'flex';
+
+    if (state.isAutoMode && !isTyping && !isWaiting) {
+        state.autoProgressTimeout = setTimeout(() => {
+            narration.advance();
+            displayNextDialogue();
+        }, calculateAutoDelay());
     } else {
         clearTimeout(state.autoProgressTimeout);
     }
@@ -1464,7 +1335,7 @@ async function updateChapterAndScene(chapter, scene) {
         // Only proceed if chapter actually changed
         if (chapter !== chapterManager.currentChapter) {
             appLogger.debug(`Initiating chapter transition: ${chapterManager.currentChapter} → ${chapter}`);
-            
+
             // Use ChapterManager for coordinated update
             await chapterManager.changeChapter(chapter, {
                 chapterBackgrounds: state.chapterBackgrounds,
@@ -1509,17 +1380,29 @@ function handleEndOfStory() {
 
 // Reset story
 function resetStory() {
-    state.currentDialogueIndex = 0;
-    state.dialogueHistory = [];
     state.currentChapter = 1;
     state.currentScene = 1;
     state.isAutoMode = false;
-    state.isTyping = false;
     state.isEffectPlaying = false;
+
+    if (writer) writer.forceStop();
+    if (narration) narration.reset(state._initialState);
+
+    const overlay = document.getElementById('choicesOverlay');
+    if (overlay) overlay.style.display = 'none';
 
     // Clear all visual layers
     cleanupStoryScreen();
     updateButtonStates();
+}
+
+/**
+ * Initialize Story Screen
+ */
+function initializeStoryScreen() {
+    if (narration) narration.reset(state._initialState);
+    chapterManager.currentChapter = null;
+    displayNextDialogue();
 }
 
 // Toggle overlay
@@ -1674,7 +1557,7 @@ function syncVolumes() {
     elements.sfxVolumeInput.value = audioManager.sfxVolume * 100;
     if (elements.bgmVolumeInput) elements.bgmVolumeInput.value = audioManager.bgmVolume * 100;
     if (elements.typingSfxVolumeInput) elements.typingSfxVolumeInput.value = audioManager.typingSfxVolume * 100;
-    
+
     // Also sync standard script.js UI sliders
     if (elements.textSpeedInput) elements.textSpeedInput.value = 101 - state.typingSpeed;
     if (elements.autoSpeedInput) elements.autoSpeedInput.value = state.autoSpeed;

@@ -47,8 +47,8 @@
     },
     "TWICE2": {
       "name": "Twice",
-      "sprite": "stories/MHA/assets/images/characters/Twice1.png",
-      "position": "left",
+      "sprite": "stories/MHA/assets/images/characters/Twice2.png",
+      "position": "center",
       "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
     },
     "COMPRESS": {
@@ -60,7 +60,7 @@
     "SPINNER": {
       "name": "Spinner",
       "sprite": "stories/MHA/assets/images/characters/Spinner1.png",
-      "position": "left",
+      "position": "right",
       "sfx": "stories/MHA/assets/audio/characters/spinner1.mp4"
     },
     "DEKU": {
@@ -152,10 +152,7 @@
     {
       "chapter": 2,
       "scene": 1,
-      "character": [
-        "TWICE",
-        "TWICE2"
-      ],
+      "character": "TWICE",
       "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!"
     },
     {

@@ -15,29 +15,29 @@
 class EffectsEngine {
     constructor() {
         this.persistentLayer = document.getElementById('persistentEffectLayer');
-        this.overlayLayer    = document.getElementById('effectOverlay');
+        this.overlayLayer = document.getElementById('effectOverlay');
 
         // ── Macro effects — applied as CSS classes on <body> ─────────────
         // intensity: 1=default, 2=strong, 3=violent (scales CSS var --fx-intensity)
         this.macros = {
             /* ── EXISTING (perfected) ── */
-            'shake':        { class: 'fx-shake',        duration: 600  },
-            'glitch':       { class: 'fx-glitch',       duration: 1800 },
-            'flash':        { class: 'fx-flash',        duration: 200  },
-            'blink':        { class: 'fx-blink',        duration: 1400 },
+            'shake': { class: 'fx-shake', duration: 600 },
+            'glitch': { class: 'fx-glitch', duration: 1800 },
+            'flash': { class: 'fx-flash', duration: 200 },
+            'blink': { class: 'fx-blink', duration: 1400 },
             'electricuted': { class: 'fx-electricuted', duration: 1200 },
-            'shadows':      { class: 'fx-shadows',      duration: 2200 },
+            'shadows': { class: 'fx-shadows', duration: 2200 },
 
             /* ── NEW EFFECTS ── */
-            'earthquake':   { class: 'fx-earthquake',   duration: 1800 }, // low-freq violent shake
-            'heartbeat':    { class: 'fx-heartbeat',    duration: 1600 }, // double-thump zoom pulse
-            'vhs':          { class: 'fx-vhs',          duration: 2500 }, // analog VHS distortion
-            'drain':        { class: 'fx-drain',        duration: 2000 }, // colour drains to mono
-            'nuke':         { class: 'fx-nuke',         duration: 3000 }, // white flash → shockwave
-            'bloodsplatter':{ class: 'fx-bloodsplatter',duration: 1600 }, // red vignette burst
-            'shockwave':    { class: 'fx-shockwave',    duration: 1000 }, // radial ripple
-            'hologram':     { class: 'fx-hologram',     duration: 3000 }, // flickering hologram lines
-            'rage':         { class: 'fx-rage',         duration: 2000 }, // red-tinted violent shake
+            'earthquake': { class: 'fx-earthquake', duration: 1800 }, // low-freq violent shake
+            'heartbeat': { class: 'fx-heartbeat', duration: 1600 }, // double-thump zoom pulse
+            'vhs': { class: 'fx-vhs', duration: 2500 }, // analog VHS distortion
+            'drain': { class: 'fx-drain', duration: 2000 }, // colour drains to mono
+            'nuke': { class: 'fx-nuke', duration: 3000 }, // white flash → shockwave
+            'bloodsplatter': { class: 'fx-bloodsplatter', duration: 1600 }, // red vignette burst
+            'shockwave': { class: 'fx-shockwave', duration: 1000 }, // radial ripple
+            'hologram': { class: 'fx-hologram', duration: 3000 }, // flickering hologram lines
+            'rage': { class: 'fx-rage', duration: 2000 }, // red-tinted violent shake
         };
 
         // ── Legacy / blocking overlay effects ───────────────────────────
@@ -60,7 +60,7 @@ class EffectsEngine {
                     el.classList.add('fxov-electrocuted');
                     // Canvas-powered lightning arcs
                     const canvas = document.createElement('canvas');
-                    canvas.width  = window.innerWidth;
+                    canvas.width = window.innerWidth;
                     canvas.height = window.innerHeight;
                     canvas.className = 'fxov-lightning-canvas';
                     el.appendChild(canvas);
@@ -96,8 +96,8 @@ class EffectsEngine {
         };
 
         // ── Private state ─────────────────────────────────────────────────
-        this._queue    = [];
-        this._running  = false;
+        this._queue = [];
+        this._running = false;
         this._activeMacroTimers = new Map();
 
         if (typeof appLogger !== 'undefined') {
@@ -122,7 +122,7 @@ class EffectsEngine {
         }
 
         const intensity = Math.min(3, Math.max(1, opts.intensity || 1));
-        const duration  = opts.duration || macro.duration;
+        const duration = opts.duration || macro.duration;
 
         if (typeof appLogger !== 'undefined') appLogger.info(`[FX] Macro: ${name} (intensity ${intensity})`);
 

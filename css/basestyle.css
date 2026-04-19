@@ -924,7 +924,7 @@ input[type="range"] {
     }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
     h1 {
         font-size: 1.6rem;
     }
@@ -939,19 +939,19 @@ input[type="range"] {
     }
 
     .dialogue-header {
-        font-size: 14px;
+        font-size: 15px;
         padding: 6px;
     }
 
     .dialogue-container {
         width: 98%;
-        height: 45vh;
+        height: 47vh;
         bottom: 1%;
     }
 
     .dialogue-content {
         padding: 8px 10px 18px;
-        font-size: 13px;
+        font-size: 11px;
     }
 
     .dialogue-options {
@@ -959,17 +959,17 @@ input[type="range"] {
     }
 
     .nav-icon-btn {
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
     }
 
     .nav-icon-btn svg {
-        width: 22px;
-        height: 22px;
+        width: 19px;
+        height: 19px;
     }
 
     .auto-btn {
-        font-size: 0.65rem;
+        font-size: 0.55rem;
         padding: 6px 12px;
     }
 }

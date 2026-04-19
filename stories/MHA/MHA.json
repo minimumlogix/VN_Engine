@@ -1,5 +1,5 @@
 {
-  "storyTitle": "THE UNFAIR FATE",
+  "storyTitle": "THE UNFAIR FATE: REBIRTH",
   "storySubtitle": "A MY HERO ACADEMIA TALE",
   "theme": "cyberpunk.css",
   "loadScreenBackground": "stories/MHA/assets/images/backgrounds/LoadingBG.jpg",
@@ -10,9 +10,9 @@
     "3": "stories/MHA/assets/images/backgrounds/SC3.jpg"
   },
   "chapterNames": {
-    "1": "THE UNFAIR FATE",
+    "1": "THE ROTTING MARTYR",
     "2": "THE NEW VANGUARD",
-    "3": "CLASH AT U.A."
+    "3": "ECHOES OF HYPOCRISY"
   },
   "chapterMusic": {
     "0": "stories/MHA/assets/audio/bgm/heartrate.wav",
@@ -24,7 +24,7 @@
     "AFO": {
       "name": "All For One",
       "sprite": "stories/MHA/assets/images/characters/All_For_One_One.png",
-      "position": "left",
+      "position": "center",
       "sfx": "stories/MHA/assets/audio/characters/all-for-one1.mp4"
     },
     "DABI": {
@@ -34,21 +34,15 @@
       "sfx": "stories/MHA/assets/audio/characters/dabi1.mp4"
     },
     "HIMIKO": {
-      "name": "Himiko",
+      "name": "Himiko Toga",
       "sprite": "stories/MHA/assets/images/characters/Himiko1.png",
-      "position": "right",
+      "position": "left",
       "sfx": "stories/MHA/assets/audio/characters/himiko1.mp4"
     },
     "TWICE": {
       "name": "Twice",
       "sprite": "stories/MHA/assets/images/characters/Twice2.png",
-      "position": "left",
-      "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
-    },
-    "TWICE2": {
-      "name": "Twice",
-      "sprite": "stories/MHA/assets/images/characters/Twice2.png",
-      "position": "center",
+      "position": "right",
       "sfx": "stories/MHA/assets/audio/characters/twice1.mp4"
     },
     "COMPRESS": {
@@ -62,6 +56,30 @@
       "sprite": "stories/MHA/assets/images/characters/Spinner1.png",
       "position": "right",
       "sfx": "stories/MHA/assets/audio/characters/spinner1.mp4"
+    },
+    "MUSCULAR": {
+      "name": "Muscular",
+      "sprite": "stories/MHA/assets/images/characters/Muscular1.png",
+      "position": "center",
+      "sfx": ""
+    },
+    "MAGNE": {
+      "name": "Magne",
+      "sprite": "stories/MHA/assets/images/characters/Magne1.png",
+      "position": "left",
+      "sfx": ""
+    },
+    "MUSTARD": {
+      "name": "Mustard",
+      "sprite": "stories/MHA/assets/images/characters/Mustard1.png",
+      "position": "right",
+      "sfx": ""
+    },
+    "MOONFISH": {
+      "name": "Moonfish",
+      "sprite": "stories/MHA/assets/images/characters/Moonfish1.png",
+      "position": "center",
+      "sfx": ""
     },
     "DEKU": {
       "name": "Izuku Midoriya",
@@ -93,141 +111,151 @@
       "chapter": 1,
       "scene": 1,
       "character": "NARRATION",
-      "text": "In a world of <b style=\"color:#f2c300;\">bright heroes</b>, you lie in a hospital bed, the relentless beeping of machines a stark reminder of your fate."
+      "text": "The heart monitor is the only applause you get now. You saved millions. The reward? A corporate bioweapon rotting your veins from the inside out."
     },
     {
       "chapter": 1,
       "scene": 1,
       "character": "NARRATION",
-      "text": "You sacrificed everything, saving a stranger, only to be shackled by a terminal illness... a <i style=\"color:#555;\">cruel twist of irony</i>."
+      "text": "The 'heroes' smiled for the cameras, collected their corporate sponsorships, and threw you in this quarantined basement. [drain] <i style=\"color:#888;\">'Tragic collateral damage,'</i> they told the press."
     },
     {
       "chapter": 1,
-      "scene": 2,
-      "character": "AFO",
-      "text": "[vhs] Ah... what a <i style=\"color:red\">tragic</i> spectacle. A once-promising hero, now reduced to this pitiful state. But tell me, do you truly believe this is the end of your story?"
-    },
-    {
-      "chapter": 1,
-      "scene": 2,
-      "character": "AFO",
-      "text": "Imagine a life beyond this bed, a chance to wield [glitch] <span style=\"font-size:1.2em; color:#a25fff; text-shadow: 0 0 10px #a25fff;\">unimaginable power</span>."
-    },
-    {
-      "chapter": 1,
-      "scene": 2,
-      "character": "AFO",
-      "text": "Join me, and you can reshape the world in your image."
-    },
-    {
-      "chapter": 1,
-      "scene": 2,
-      "character": "NARRATION",
-      "text": "His voice slithers into your mind, offering a tantalizing glimpse of hope amidst despair. What lies ahead could change <b>everything</b>."
-    },
-    {
-      "chapter": 2,
       "scene": 1,
       "character": "NARRATION",
-      "text": "[blink] Days later, you awaken, transformed. All For One has resurrected you, bestowing a new quirk that pulses with <b style=\"color:#ff0033; text-shadow: 0 0 5px #ff0033;\">raw energy</b>, igniting a fire deep within."
+      "text": "You can feel your lungs crystallizing. You are suffocating in the dark, erased by the very society you bled to protect."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "AFO",
+      "text": "[shadows] Such a <b style=\"color:red\">disgusting</b> display of hypocrisy. They paraded your sacrifice, and now they let your flesh rot to protect their stock prices."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "AFO",
+      "text": "I do not care about their politics. I see a survivor. I can strip this virus from your marrow, but the process... it requires a new Quirk to anchor your fragile soul."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "AFO",
+      "text": "The choice is yours. Die choking on your own blood as a forgotten martyr... [drain] or let me remake you, and give you the power to make them choke on their [heartbeat] 'justice.'"
+    },
+    {
+      "chapter": 2,
+      "scene": 1,
+      "character": "NARRATION",
+      "text": "[blink] The pain of rebirth was blinding. But the decay is gone. In its place is a dark, thrumming power, and for the first time, you are breathing freely."
     },
     {
       "chapter": 2,
       "scene": 1,
       "character": "AFO",
-      "text": "[blink] Welcome to the Vanguard Action Squad. Allow me to introduce you to your new family, where <i>chaos reigns supreme.</i>"
+      "text": "Welcome to the Vanguard Action Squad. They are broken things, just like you. But here, you will not be discarded."
     },
     {
       "chapter": 2,
-      "scene": 1,
+      "scene": 2,
       "character": "DABI",
-      "text": "You look like you'll fit right in with our delightful madness. Just remember, don't cross me, or you might end up as a <b style=\"color:#00e5ff\">smoldering pile of ash.</b>"
+      "text": "Look who finally woke up. The fallen golden child. Just don't slow us down, or I'll finish what that virus started and reduce you to ash. [glitch]"
     },
     {
       "chapter": 2,
-      "scene": 1,
+      "scene": 2,
       "character": "HIMIKO",
-      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even [bloodsplatter] <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!",
-      "persistentEffect": "general_assets/effects/CherryBlossomEffect.gif"
+      "text": "Oh, I'm so excited! You seem like someone who knows how to have fun! I can't wait to see what you're made of—maybe even [bloodsplatter] <i style=\"color:#ff3366\">taste it!</i> What's your blood type? Hehe!"
     },
     {
       "chapter": 2,
-      "scene": 1,
+      "scene": 2,
+      "character": "MUSCULAR",
+      "text": "Bah! I don't care about your tragic backstory! As long as you can take a punch and crush some skulls when we raid the camp, you're fine by me!"
+    },
+    {
+      "chapter": 2,
+      "scene": 3,
       "character": "TWICE",
-      "text": "And I'll make a copy of you! We can have a party with the real you and the clone—just imagine the chaos!",
-      "persistentEffect": ""
+      "text": "Welcome to the family, we love you! / <i style=\"color:#aaa\">Go back to the hospital and die, traitor!</i>"
     },
     {
       "chapter": 2,
-      "scene": 1,
-      "character": "COMPRESS",
-      "text": "Focus, everyone. We have a mission to execute. No slip-ups. We're going for Bakugo."
-    },
-    {
-      "chapter": 2,
-      "scene": 1,
+      "scene": 3,
       "character": "SPINNER",
-      "text": "With you on our side, this will be a cakewalk. U.A. won't even know what hit them."
+      "text": "You saw the ugly truth behind their capes. They are corporate lapdogs. Stain would respect that you survived their betrayal."
     },
     {
       "chapter": 2,
-      "scene": 1,
+      "scene": 3,
+      "character": "COMPRESS",
+      "text": "A tragic savior reborn as a phantom of vengeance! Truly, what a spectacular narrative arc! We shall make a grand debut together."
+    },
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "MAGNE",
+      "text": "Society draws lines to keep people like us out, darling. You've crossed over. You're among real friends now."
+    },
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "MUSTARD",
+      "text": "Whatever. Just stay out of my gas when the time comes. I don't care how immune you think you are."
+    },
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "MOONFISH",
+      "text": "Flesh... so much beautiful flesh... don't tempt me... mustn't bite the new one..."
+    },
+    {
+      "chapter": 2,
+      "scene": 5,
       "character": "NARRATION",
-      "text": "As they devise their wicked plan to capture Katsuki Bakugo, a thrilling sense of power courses through you—a heady mix of rebellion and darkness."
+      "text": "Ten rejects. Psychopaths, murderers, and outcasts. Yet, as they map out the U.A. training camp raid, they look at you not as a liability to be buried, but as an equal."
     },
     {
       "chapter": 3,
       "scene": 1,
       "character": "NARRATION",
-      "text": "[blink] The day has arrived. You stand shoulder to shoulder with your comrades, the air thick with anticipation. This is your moment—ready to dive headfirst into a world of chaos."
-    },
-    {
-      "chapter": 3,
-      "scene": 1,
-      "character": "NARRATION",
-      "text": "Every calculated step fills you with adrenaline, the thrill of <i style=\"color:#888;\">danger</i> intoxicating your senses."
+      "text": "[vhs] The Beast's Forest is burning. The air is thick with Mustard's toxic gas and the scent of Dabi's blue flames. The screams of U.A. students echo through the trees."
     },
     {
       "chapter": 3,
       "scene": 1,
       "character": "DABI",
-      "text": "[blink] Keep low and stick to the shadows. We're not here to play nice; let's make some noise and <span style=\"letter-spacing: 2px;\">draw them in.</span>"
+      "text": "The target is Bakugo. Roast anyone else who gets in the way. It's time to show these kids what the real world looks like."
     },
     {
       "chapter": 3,
-      "scene": 2,
-      "character": "HIMIKO",
-      "text": "I can't wait to meet Bakugo! Just imagine his face when he sees me! I wonder how much he'll scream… or if I can make him <b style=\"color:red\">bleed!</b> Hehe!"
-    },
-    {
-      "chapter": 3,
-      "scene": 2,
-      "character": "TWICE",
-      "text": "This is gonna be a blast! Let's give 'em a show they won't forget!"
+      "scene": 1,
+      "character": "NARRATION",
+      "text": "You step into the clearing. The absolute freedom from society's suffocating rules is intoxicating. But then, a familiar uniform breaks through the smoke."
     },
     {
       "chapter": 3,
       "scene": 2,
       "character": "DEKU",
-      "text": "[shake] <b style=\"color:#00ff88; font-size:1.1em;\">STOP RIGHT THERE!</b> You can't just barge in here!"
+      "text": "[shake] <b style=\"color:#00ff88; font-size:1.1em;\">WAIT! IT'S YOU!</b> You were a hero! I watched you save that city! Why are you with THEM?!"
     },
     {
       "chapter": 3,
       "scene": 2,
       "character": "NARRATION",
-      "text": "You stand before the heroes you once admired, heart racing as dark ambition stirs within you. The weight of your choices presses down, but the thrill of the chase ignites a fire in your soul."
+      "text": "Midoriya stands before you, battered and trembling, clinging desperately to the exact same naive ideals that almost put you in an unmarked grave."
     },
     {
       "chapter": 3,
       "scene": 2,
       "character": "NARRATION",
-      "text": "As the tension crackles in the air, you find yourself at a crossroads. Will you embrace the <b style=\"color:#444;text-shadow:0 0 5px #000\">darkness</b>, reveling in your newfound power, or will you turn back against the tide?"
+      "text": "The Vanguard squad is waiting in the shadows. The boy representing the society that left you to rot is begging for your soul."
     },
     {
       "chapter": 3,
       "scene": 2,
       "character": "NARRATION",
-      "text": "The choice is yours, and the consequences will echo in the shadows…"
+      "text": "Will you burn the hypocritical world to ash alongside the only people who saved your life... or will you step back into the light that discarded you?"
     }
   ]
 }

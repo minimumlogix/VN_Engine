@@ -429,7 +429,9 @@ input[type="range"] {
     border-radius: var(--radius-md);
     overflow: hidden;
     padding-bottom: 8px;
-    will-change: transform;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    will-change: transform, opacity;
 }
 
 .dialogue-header {

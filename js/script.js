@@ -28,11 +28,11 @@ class ChapterManager {
     /**
      * Perform theme-aware chapter change with full validation
      */
-    async changeChapter(newChapter, chapterData) {
+    async changeChapter(newChapter, chapterData, midpointCallback) {
         if (this.isTransitioning) {
             this.logger.warn(`Transition already in progress, queueing chapter ${newChapter}`);
             return new Promise(resolve => {
-                this.transitionQueue.push({ chapter: newChapter, data: chapterData, resolve });
+                this.transitionQueue.push({ chapter: newChapter, data: chapterData, midpointCallback, resolve });
             });
         }
 
@@ -47,22 +47,23 @@ class ChapterManager {
             this.previousChapter = this.currentChapter;
             this.currentChapter = newChapter;
 
-            // Sequential rendering: Background & Music first
-            await Promise.all([
-                this._updateBackground(newChapter, chapterData),
-                this._updateMusic(newChapter, chapterData)
-            ]);
-
-            // Followed by the chapter transition animation
-            await this._showTransitionAnimation(newChapter, chapterData);
+            // Coordinated rendering: Perform visual updates DURING the transition animation
+            // this ensures they happen behind the "curtain" overlay.
+            await this._showTransitionAnimation(newChapter, chapterData, async () => {
+                await Promise.all([
+                    this._updateBackground(newChapter, chapterData),
+                    this._updateMusic(newChapter, chapterData),
+                    midpointCallback ? midpointCallback() : Promise.resolve()
+                ]);
+            });
 
             this.logger.success(`Chapter ${newChapter} transition complete`);
 
             // Process queued transitions
             if (this.transitionQueue.length > 0) {
-                const { chapter, data, resolve } = this.transitionQueue.shift();
+                const { chapter, data, midpointCallback: queuedMidpoint, resolve } = this.transitionQueue.shift();
                 this.isTransitioning = false;
-                resolve(await this.changeChapter(chapter, data));
+                resolve(await this.changeChapter(chapter, data, queuedMidpoint));
             }
         } catch (error) {
             this.logger.error(`Chapter transition failed:`, error);
@@ -134,9 +135,10 @@ class ChapterManager {
     /**
      * Advanced theme-aware transition animation
      */
-    async _showTransitionAnimation(chapter, chapterData) {
+    async _showTransitionAnimation(chapter, chapterData, midpointCallback) {
         if (parseInt(chapter) === 0) {
             this.logger.debug(`Skipping transition animation for chapter 0`);
+            if (midpointCallback) await midpointCallback();
             return Promise.resolve();
         }
         try {
@@ -157,6 +159,7 @@ class ChapterManager {
                 `;
 
                 el.style.display = 'flex';
+                el.classList.remove('fade-out'); // Clear stale states
                 el.classList.add('active', `theme-${theme}`);
 
                 // Staggered animation timing for visual polish
@@ -164,16 +167,25 @@ class ChapterManager {
                     el.classList.add('fade-in');
                 });
 
-                setTimeout(() => {
-                    el.classList.remove('fade-in');
-                    el.classList.add('fade-out');
+                // MIDPOINT: FIRE CALLBACK WHILE OPAQUE
+                setTimeout(async () => {
+                    if (midpointCallback) {
+                        try { await midpointCallback(); }
+                        catch (e) { this.logger.error("Midpoint callback failed", e); }
+                    }
 
+                    // WAIT FOR FULL DURATION
                     setTimeout(() => {
-                        el.style.display = 'none';
-                        el.classList.remove('active', 'fade-out', `theme-${theme}`);
-                        resolve();
-                    }, this.cache.transitionTiming);
-                }, state.chapterTitleDuration); // Display duration
+                        el.classList.remove('fade-in');
+                        el.classList.add('fade-out');
+
+                        setTimeout(() => {
+                            el.style.display = 'none';
+                            el.classList.remove('active', 'fade-out', `theme-${theme}`);
+                            resolve();
+                        }, this.cache.transitionTiming);
+                    }, state.chapterTitleDuration); // Display duration
+                }, this.cache.transitionTiming); // Wait for fade-in to complete
             });
         } catch (error) {
             this.logger.error(`Transition animation failed:`, error);
@@ -985,6 +997,13 @@ async function displayNextDialogue() {
     clearTimeout(state.autoProgressTimeout);
     if (writer) writer.forceStop();
 
+    // CLEAR TEXT IMMEDIATELY: Prevents previous text lingering during asset load/transition
+    if (elements.typedText) elements.typedText.innerHTML = '';
+    if (elements.characterName) {
+        elements.characterName.textContent = "...";
+        elements.characterName.removeAttribute('data-text');
+    }
+
     if (state.isPaused) {
         state.autoProgressTimeout = setTimeout(displayNextDialogue, 100);
         return;
@@ -994,7 +1013,8 @@ async function displayNextDialogue() {
     if (!node) return handleEndOfStory();
 
     // 1. Handle Chapter/Scene Transitions
-    await updateChapterAndScene(node.chapter, node.scene);
+    // Passes node.character to the transition so it can be updated "behind the curtain"
+    const transitioned = await updateChapterAndScene(node.chapter, node.scene, node.character);
 
     // 2. Handle Blocking Overlay Effects
     if (node.effect) {
@@ -1010,7 +1030,11 @@ async function displayNextDialogue() {
     }
 
     // 3. Render Visuals
-    updateCharacter(node.character);
+    // Only call updateCharacter here if a chapter transition DID NOT happen.
+    // If it did, updateCharacter was already called while the screen was opaque.
+    if (!transitioned) {
+        updateCharacter(node.character);
+    }
     effectsEngine.setPersistentEffect(node.persistentEffect);
 
     // Simple Effects (Scene-bound)
@@ -1197,10 +1221,11 @@ function updateButtonStates() {
     const isTyping = writer ? writer.isTyping : false;
     const isWaiting = document.getElementById('choicesOverlay')?.style.display === 'flex';
     const isBackDisabled = narration ? narration.history.length === 0 : true;
+    const isTransitioning = chapterManager && chapterManager.isTransitioning;
 
-    elements.skipNextBtn.disabled = state.isEffectPlaying || isWaiting;
-    elements.backBtn.disabled = isBackDisabled || state.isEffectPlaying;
-    elements.autoToggleBtn.disabled = state.isEffectPlaying || isWaiting;
+    elements.skipNextBtn.disabled = state.isEffectPlaying || isWaiting || isTransitioning;
+    elements.backBtn.disabled = isBackDisabled || state.isEffectPlaying || isTransitioning;
+    elements.autoToggleBtn.disabled = state.isEffectPlaying || isWaiting || isTransitioning;
 
     // UI Visual Sync for Auto Mode
     elements.autoToggleBtn.textContent = state.isAutoMode ? 'AUTO ON' : 'AUTO OFF';
@@ -1234,7 +1259,7 @@ function onDialogueFinished() {
 }
 
 function handleSkipNextClick() {
-    if (state.isEffectPlaying) return;
+    if (state.isEffectPlaying || (chapterManager && chapterManager.isTransitioning)) return;
     const isWaiting = document.getElementById('choicesOverlay')?.style.display === 'flex';
     if (isWaiting) return;
 
@@ -1248,7 +1273,7 @@ function handleSkipNextClick() {
 }
 
 function handleBackClick() {
-    if (state.isEffectPlaying) return;
+    if (state.isEffectPlaying || (chapterManager && chapterManager.isTransitioning)) return;
 
     if (writer) writer.forceStop();
     clearTimeout(state.autoProgressTimeout);
@@ -1342,19 +1367,38 @@ function calculateAutoDelay() {
 /**
  * Update chapter and scene - now using ChapterManager for professional handling
  * This function coordinates all chapter-related updates
+ * @returns {Promise<boolean>} True if a chapter transition occurred
  */
-async function updateChapterAndScene(chapter, scene) {
+async function updateChapterAndScene(chapter, scene, characterInput) {
     try {
+        let transitionOccurred = false;
+
         // Only proceed if chapter actually changed
         if (chapter !== chapterManager.currentChapter) {
             appLogger.debug(`Initiating chapter transition: ${chapterManager.currentChapter} → ${chapter}`);
+            transitionOccurred = true;
+            
+            // UI PAUSE & HIDE: Ensure writing pauses and dialogue box is cleaner
+            state.isPaused = true;
+            if (elements.dialogueContainer) elements.dialogueContainer.style.opacity = '0';
 
             // Use ChapterManager for coordinated update
             await chapterManager.changeChapter(chapter, {
                 chapterBackgrounds: state.chapterBackgrounds,
                 chapterMusic: state.chapterMusic,
                 chapterNames: state.chapterNames
+            }, async () => {
+                // MIDPOINT CALLBACK: Executed while the screen is opaque
+                // 1. Clear the stage
+                _hideAllSprites(document.getElementById('characterSpriteContainer'));
+                
+                // 2. Set the new actors (this forces a re-entry animation even for old sprites)
+                updateCharacter(characterInput);
             });
+
+            // RESTORE UI STATE
+            if (elements.dialogueContainer) elements.dialogueContainer.style.opacity = '1';
+            checkOverlaysAndResume();
 
             // Update state reference to match manager
             state.currentChapter = chapterManager.currentChapter;
@@ -1370,8 +1414,11 @@ async function updateChapterAndScene(chapter, scene) {
 
             appLogger.debug(`Scene updated to ${scene}`);
         }
+
+        return transitionOccurred;
     } catch (error) {
         appLogger.error(`Failed to update chapter/scene:`, error);
+        return false;
     }
 }
 

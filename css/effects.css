@@ -1,0 +1,1570 @@
+/* ================================================================
+   EFFECTS ENGINE STYLES v4.0 — GODMODE
+   ================================================================
+   Class prefix: fx-*      → macro (body-class) effects
+                 fxov-*    → full-screen overlay effects
+   ================================================================ */
+
+/* ── Effect intensity CSS variable (set by JS) ── */
+:root {
+    --fx-intensity: 1;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PERSISTENT LAYER
+   ════════════════════════════════════════════════════════════════ */
+.persistent-effect-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    display: none;
+}
+
+.persistent-effect-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
+    mix-blend-mode: screen;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: SHAKE  — upgraded cinematic camera shake
+   ════════════════════════════════════════════════════════════════ */
+.fx-shake {
+    animation: fxShake calc(0.6s / var(--fx-intensity, 1)) cubic-bezier(.36, .07, .19, .97) both;
+    will-change: transform;
+}
+
+@keyframes fxShake {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+
+    8% {
+        transform: translate3d(-8px, 3px, 0) rotate(-1.5deg);
+    }
+
+    18% {
+        transform: translate3d(10px, -4px, 0) rotate(1.5deg);
+    }
+
+    28% {
+        transform: translate3d(-12px, 5px, 0) rotate(-2deg);
+    }
+
+    38% {
+        transform: translate3d(12px, -3px, 0) rotate(2deg);
+    }
+
+    48% {
+        transform: translate3d(-8px, 4px, 0) rotate(-1deg);
+    }
+
+    58% {
+        transform: translate3d(6px, -2px, 0) rotate(1deg);
+    }
+
+    70% {
+        transform: translate3d(-4px, 2px, 0) rotate(-0.5deg);
+    }
+
+    85% {
+        transform: translate3d(2px, -1px, 0) rotate(0.3deg);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: GLITCH — chromatic aberration + scanline tears
+   ════════════════════════════════════════════════════════════════ */
+.fx-glitch {
+    animation: fxGlitchBase 1.8s linear both;
+    position: relative;
+}
+
+@keyframes fxGlitchBase {
+
+    0%,
+    100% {
+        transform: translate(0, 0) skew(0deg);
+        filter: none;
+    }
+
+    3% {
+        transform: translate(-3px, 0) skew(-2deg);
+        filter: hue-rotate(90deg) saturate(2);
+    }
+
+    6% {
+        transform: translate(3px, 0) skew(2deg);
+        filter: hue-rotate(-90deg);
+    }
+
+    9% {
+        transform: translate(-1px, 2px) skew(0deg);
+        filter: none;
+    }
+
+    40% {
+        transform: translate(0, 0);
+        filter: none;
+    }
+
+    43% {
+        transform: translate(4px, 0) skew(-3deg);
+        filter: hue-rotate(45deg) brightness(1.4);
+    }
+
+    46% {
+        transform: translate(-4px, -1px) skew(3deg);
+        filter: hue-rotate(-45deg);
+    }
+
+    49% {
+        transform: translate(0, 0) skew(0deg);
+        filter: none;
+    }
+
+    80% {
+        transform: translate(0, 0);
+        filter: none;
+    }
+
+    83% {
+        transform: translate(-2px, 0) skew(-1deg);
+        filter: invert(0.15) hue-rotate(180deg);
+    }
+
+    86% {
+        transform: translate(2px, 1px) skew(1deg);
+        filter: none;
+    }
+}
+
+/* RGB split pseudo-elements */
+.fx-glitch::before,
+.fx-glitch::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    mix-blend-mode: screen;
+}
+
+.fx-glitch::before {
+    background: rgba(255, 0, 60, 0.08);
+    animation: fxGlitchRed 1.8s linear both;
+    clip-path: inset(0 0 60% 0);
+}
+
+.fx-glitch::after {
+    background: rgba(0, 255, 220, 0.08);
+    animation: fxGlitchCyan 1.8s 0.04s linear both;
+    clip-path: inset(55% 0 0 0);
+}
+
+@keyframes fxGlitchRed {
+
+    0%,
+    100% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    3%,
+    9% {
+        transform: translateX(-4px);
+        opacity: 0.7;
+    }
+
+    6% {
+        transform: translateX(4px);
+        opacity: 0.7;
+    }
+
+    43%,
+    49% {
+        transform: translateX(-3px);
+        opacity: 0.5;
+    }
+
+    46% {
+        transform: translateX(3px);
+        opacity: 0.5;
+    }
+
+    83%,
+    89% {
+        transform: translateX(-2px);
+        opacity: 0.4;
+    }
+
+    86% {
+        transform: translateX(2px);
+        opacity: 0.4;
+    }
+}
+
+@keyframes fxGlitchCyan {
+
+    0%,
+    100% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    3%,
+    9% {
+        transform: translateX(4px);
+        opacity: 0.7;
+    }
+
+    6% {
+        transform: translateX(-4px);
+        opacity: 0.7;
+    }
+
+    43%,
+    49% {
+        transform: translateX(3px);
+        opacity: 0.5;
+    }
+
+    46% {
+        transform: translateX(-3px);
+        opacity: 0.5;
+    }
+
+    83%,
+    89% {
+        transform: translateX(2px);
+        opacity: 0.4;
+    }
+
+    86% {
+        transform: translateX(-2px);
+        opacity: 0.4;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: FLASH — white shockwave flash
+   ════════════════════════════════════════════════════════════════ */
+.fx-flash::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: white;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fxFlash 0.2s ease-out both;
+}
+
+@keyframes fxFlash {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.95;
+    }
+
+    40% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: BLINK — cinematic hard-cut eyelid close/open
+   ════════════════════════════════════════════════════════════════ */
+.fx-blink::before,
+.fx-blink::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    width: 100vw;
+    height: 50vh;
+    background: #000;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.fx-blink::before {
+    top: 0;
+    transform-origin: top center;
+    animation: fxBlinkTop 1.4s cubic-bezier(0.77, 0, 0.175, 1) both;
+}
+
+.fx-blink::after {
+    bottom: 0;
+    transform-origin: bottom center;
+    animation: fxBlinkBottom 1.4s cubic-bezier(0.77, 0, 0.175, 1) both;
+}
+
+@keyframes fxBlinkTop {
+    0% {
+        transform: scaleY(0);
+    }
+
+    25%,
+    55% {
+        transform: scaleY(1);
+    }
+
+    100% {
+        transform: scaleY(0);
+    }
+}
+
+@keyframes fxBlinkBottom {
+    0% {
+        transform: scaleY(0);
+    }
+
+    25%,
+    55% {
+        transform: scaleY(1);
+    }
+
+    100% {
+        transform: scaleY(0);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: ELECTRICUTED — blue lightning jitter + inversion
+   ════════════════════════════════════════════════════════════════ */
+.fx-electricuted {
+    animation: fxElectroJitter 0.08s infinite;
+}
+
+.fx-electricuted::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 200, 255, 0.35);
+    z-index: 9998;
+    pointer-events: none;
+    animation: fxElectroFlash 0.12s infinite alternate;
+}
+
+@keyframes fxElectroJitter {
+    0% {
+        transform: translate(4px, 2px) rotate(0.5deg) skew(0.5deg);
+    }
+
+    20% {
+        transform: translate(-4px, -3px) rotate(-1deg) skew(-0.5deg);
+    }
+
+    40% {
+        transform: translate(2px, 4px) rotate(0.8deg) skew(0.3deg);
+    }
+
+    60% {
+        transform: translate(-2px, -2px) rotate(-0.5deg) skew(0.1deg);
+    }
+
+    80% {
+        transform: translate(3px, 1px) rotate(1deg) skew(-0.3deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+}
+
+@keyframes fxElectroFlash {
+    0% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.6;
+        filter: hue-rotate(30deg) brightness(1.3);
+    }
+
+    100% {
+        opacity: 0.9;
+        filter: saturate(2) hue-rotate(-30deg);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: SHADOWS — character emerges from darkness
+   ════════════════════════════════════════════════════════════════ */
+/* Shadows: reveal on unsettled sprites; on settled sprites, re-reveal smoothly */
+.fx-shadows .character-sprite.active:not([data-sprite-settled]) {
+    animation: fxShadowReveal 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+}
+
+.fx-shadows .character-sprite[data-sprite-settled].active {
+    animation: fxShadowReveal 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+}
+
+.fx-shadows::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.8) 80%);
+    z-index: 9;
+    pointer-events: none;
+    animation: fxShadowVignette 2.2s ease-in-out both;
+}
+
+@keyframes fxShadowReveal {
+    0% {
+        filter: brightness(0) blur(6px);
+        opacity: 0;
+    }
+
+    20% {
+        filter: brightness(0.05) blur(3px);
+        opacity: 1;
+    }
+
+    55% {
+        filter: brightness(0.3) blur(1px);
+        opacity: 1;
+    }
+
+    100% {
+        filter: brightness(1) blur(0px);
+        opacity: 1;
+    }
+}
+
+@keyframes fxShadowVignette {
+    0% {
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: EARTHQUAKE — low-freq heavy ground shake
+   ════════════════════════════════════════════════════════════════ */
+.fx-earthquake {
+    animation: fxEarthquake 1.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+    will-change: transform;
+}
+
+@keyframes fxEarthquake {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    4% {
+        transform: translate(-18px, 6px) rotate(-0.8deg);
+    }
+
+    8% {
+        transform: translate(16px, -8px) rotate(0.8deg);
+    }
+
+    12% {
+        transform: translate(-14px, 10px) rotate(-1.2deg);
+    }
+
+    16% {
+        transform: translate(18px, -6px) rotate(1deg);
+    }
+
+    20% {
+        transform: translate(-20px, 8px) rotate(-1.5deg);
+    }
+
+    28% {
+        transform: translate(16px, -4px) rotate(1.2deg);
+    }
+
+    36% {
+        transform: translate(-12px, 6px) rotate(-0.8deg);
+    }
+
+    44% {
+        transform: translate(10px, -4px) rotate(0.6deg);
+    }
+
+    55% {
+        transform: translate(-8px, 3px) rotate(-0.4deg);
+    }
+
+    70% {
+        transform: translate(4px, -2px) rotate(0.2deg);
+    }
+
+    85% {
+        transform: translate(-2px, 1px) rotate(-0.1deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: HEARTBEAT — double-thump zoom pulse (tense moments)
+   ════════════════════════════════════════════════════════════════ */
+.fx-heartbeat {
+    animation: fxHeartbeat 1.6s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+    will-change: transform;
+}
+
+@keyframes fxHeartbeat {
+    0% {
+        transform: scale(1);
+    }
+
+    10% {
+        transform: scale(1.03);
+    }
+
+    20% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.05);
+    }
+
+    /* stronger second thump */
+    40% {
+        transform: scale(1);
+    }
+
+    55% {
+        transform: scale(1.015);
+    }
+
+    /* fade-out echo */
+    65% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: VHS — analog tape distortion & colour fringing
+   ════════════════════════════════════════════════════════════════ */
+.fx-vhs {
+    animation: fxVhsJitter 2.5s linear both;
+}
+
+.fx-vhs::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 3px,
+            rgba(0, 0, 0, 0.06) 3px,
+            rgba(0, 0, 0, 0.06) 6px);
+    z-index: 9998;
+    pointer-events: none;
+    animation: fxVhsScan 2.5s linear both;
+    mix-blend-mode: multiply;
+}
+
+.fx-vhs::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(255, 20, 80, 0.06) 0%,
+            rgba(0, 255, 200, 0.05) 50%,
+            rgba(80, 20, 255, 0.06) 100%);
+    z-index: 9997;
+    pointer-events: none;
+    animation: fxVhsColor 2.5s linear both;
+}
+
+@keyframes fxVhsJitter {
+
+    0%,
+    100% {
+        transform: translate(0, 0) skew(0deg);
+        filter: none;
+    }
+
+    10% {
+        transform: translate(-3px, 0) skew(-0.5deg);
+        filter: hue-rotate(15deg);
+    }
+
+    20% {
+        transform: translate(2px, 1px) skew(0.3deg);
+        filter: none;
+    }
+
+    45% {
+        transform: translate(-1px, 0) skew(-0.2deg);
+        filter: saturate(1.5);
+    }
+
+    52% {
+        transform: translate(4px, -1px) skew(0.4deg);
+        filter: hue-rotate(-15deg) brightness(1.1);
+    }
+
+    58% {
+        transform: translate(-2px, 1px) skew(0.1deg);
+        filter: none;
+    }
+
+    78% {
+        transform: translate(1px, 0) skew(-0.1deg);
+        filter: saturate(0.8);
+    }
+}
+
+@keyframes fxVhsScan {
+
+    0%,
+    100% {
+        background-position: 0 0;
+        opacity: 0.5;
+    }
+
+    50% {
+        background-position: 0 12px;
+        opacity: 0.9;
+    }
+}
+
+@keyframes fxVhsColor {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: DRAIN — colour drains to desaturated grey
+   ════════════════════════════════════════════════════════════════ */
+.fx-drain {
+    animation: fxDrain 2s ease-in-out both;
+}
+
+@keyframes fxDrain {
+    0% {
+        filter: saturate(1) brightness(1);
+    }
+
+    40% {
+        filter: saturate(0.2) brightness(0.85) contrast(1.1);
+    }
+
+    65% {
+        filter: saturate(0) brightness(0.75) contrast(1.2);
+    }
+
+    85% {
+        filter: saturate(0.4) brightness(0.9) contrast(1);
+    }
+
+    100% {
+        filter: saturate(1) brightness(1);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: NUKE — blinding white flash + scale burst
+   ════════════════════════════════════════════════════════════════ */
+.fx-nuke::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: white;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fxNuke 3s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.fx-nuke {
+    animation: fxNukeScale 3s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+@keyframes fxNuke {
+    0% {
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    25% {
+        opacity: 0.85;
+    }
+
+    60% {
+        opacity: 0.4;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxNukeScale {
+    0% {
+        filter: brightness(1);
+    }
+
+    5% {
+        filter: brightness(5) saturate(0);
+    }
+
+    20% {
+        filter: brightness(2) saturate(0.3);
+    }
+
+    60% {
+        filter: brightness(1.2) saturate(0.7);
+    }
+
+    100% {
+        filter: brightness(1) saturate(1);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: BLOODSPLATTER — red vignette burst + trauma
+   ════════════════════════════════════════════════════════════════ */
+.fx-bloodsplatter::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center,
+            transparent 30%,
+            rgba(160, 0, 0, 0.6) 75%,
+            rgba(80, 0, 0, 0.9) 100%);
+    z-index: 9998;
+    pointer-events: none;
+    animation: fxBloodVignette 1.6s ease-out both;
+}
+
+.fx-bloodsplatter::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(200, 0, 0, 0.12);
+    z-index: 9997;
+    pointer-events: none;
+    animation: fxBloodFlash 0.15s ease both;
+}
+
+.fx-bloodsplatter {
+    animation: fxBloodShake 0.6s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes fxBloodVignette {
+    0% {
+        opacity: 0;
+    }
+
+    8% {
+        opacity: 1;
+    }
+
+    25% {
+        opacity: 0.85;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxBloodFlash {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxBloodShake {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    10% {
+        transform: translate(-10px, 4px) rotate(-1deg);
+    }
+
+    20% {
+        transform: translate(8px, -3px) rotate(1deg);
+    }
+
+    30% {
+        transform: translate(-6px, 2px) rotate(-0.7deg);
+    }
+
+    45% {
+        transform: translate(4px, -1px);
+    }
+
+    60% {
+        transform: translate(-2px, 1px);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: SHOCKWAVE — radial screen ripple / impact ring
+   ════════════════════════════════════════════════════════════════ */
+.fx-shockwave::after {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 0px solid rgba(255, 255, 255, 0.6);
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    pointer-events: none;
+    animation: fxShockwaveRing 1s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.fx-shockwave {
+    animation: fxShockwaveJolt 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes fxShockwaveRing {
+    0% {
+        width: 0;
+        height: 0;
+        border-width: 20px;
+        opacity: 0.8;
+    }
+
+    80% {
+        width: 300vw;
+        height: 300vw;
+        border-width: 2px;
+        opacity: 0;
+    }
+
+    100% {
+        width: 300vw;
+        height: 300vw;
+        border-width: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fxShockwaveJolt {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    20% {
+        transform: scale(1.02);
+    }
+
+    40% {
+        transform: scale(0.98);
+    }
+
+    60% {
+        transform: scale(1.01);
+    }
+
+    80% {
+        transform: scale(0.995);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: HOLOGRAM — flickering scan-line hologram distortion
+   ════════════════════════════════════════════════════════════════ */
+.fx-hologram {
+    animation: fxHologramDistort 3s linear both;
+}
+
+.fx-hologram::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 4px,
+            rgba(0, 220, 255, 0.04) 4px,
+            rgba(0, 220, 255, 0.04) 8px);
+    z-index: 9997;
+    pointer-events: none;
+    animation: fxHologramScan 3s linear both;
+}
+
+.fx-hologram::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 220, 255, 0.06) 0%,
+            rgba(0, 220, 255, 0.02) 50%,
+            rgba(0, 220, 255, 0.06) 100%);
+    z-index: 9996;
+    pointer-events: none;
+    animation: fxHologramGlow 3s linear both;
+}
+
+@keyframes fxHologramDistort {
+
+    0%,
+    100% {
+        filter: none;
+    }
+
+    8% {
+        filter: hue-rotate(180deg) saturate(0.3) brightness(1.3);
+        opacity: 0.6;
+    }
+
+    12% {
+        filter: none;
+        opacity: 1;
+    }
+
+    25% {
+        filter: hue-rotate(90deg) saturate(0.5) brightness(1.1);
+        opacity: 0.8;
+    }
+
+    30% {
+        filter: none;
+        opacity: 1;
+    }
+
+    55% {
+        filter: hue-rotate(-90deg) saturate(0.4) brightness(1.2);
+        opacity: 0.7;
+    }
+
+    60% {
+        filter: none;
+        opacity: 1;
+    }
+
+    80% {
+        filter: hue-rotate(45deg) saturate(0.6);
+        opacity: 0.85;
+    }
+
+    88% {
+        filter: none;
+        opacity: 1;
+    }
+}
+
+@keyframes fxHologramScan {
+    0% {
+        background-position: 0 0;
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 1;
+    }
+
+    100% {
+        background-position: 0 100px;
+        opacity: 0;
+    }
+}
+
+@keyframes fxHologramGlow {
+
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    10%,
+    90% {
+        opacity: 1;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MACRO: RAGE — red-tinted violent shake (anger/ferocity)
+   ════════════════════════════════════════════════════════════════ */
+.fx-rage {
+    animation: fxRageShake 2s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+.fx-rage::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center,
+            transparent 40%,
+            rgba(200, 0, 0, 0.25) 80%,
+            rgba(100, 0, 0, 0.5) 100%);
+    z-index: 9997;
+    pointer-events: none;
+    animation: fxRageVignette 2s ease-out both;
+}
+
+.fx-rage::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(180, 0, 0, 0.08);
+    z-index: 9996;
+    pointer-events: none;
+    filter: saturate(2);
+    animation: fxRageTint 2s ease-in-out both;
+}
+
+@keyframes fxRageShake {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        filter: saturate(1);
+    }
+
+    4% {
+        transform: translate(-14px, 6px) rotate(-2deg);
+        filter: saturate(2) hue-rotate(-15deg);
+    }
+
+    8% {
+        transform: translate(14px, -5px) rotate(2deg);
+    }
+
+    12% {
+        transform: translate(-16px, 7px) rotate(-2.5deg);
+        filter: saturate(2.5);
+    }
+
+    16% {
+        transform: translate(15px, -6px) rotate(2.5deg);
+    }
+
+    22% {
+        transform: translate(-12px, 5px) rotate(-1.5deg);
+        filter: saturate(2);
+    }
+
+    28% {
+        transform: translate(10px, -4px) rotate(1.5deg);
+    }
+
+    36% {
+        transform: translate(-8px, 3px) rotate(-1deg);
+        filter: saturate(1.5);
+    }
+
+    46% {
+        transform: translate(6px, -2px) rotate(0.8deg);
+    }
+
+    58% {
+        transform: translate(-4px, 2px) rotate(-0.5deg);
+        filter: saturate(1.2);
+    }
+
+    73% {
+        transform: translate(2px, -1px) rotate(0.3deg);
+    }
+
+    88% {
+        transform: translate(-1px, 0px) rotate(-0.1deg);
+        filter: saturate(1.05);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+        filter: saturate(1);
+    }
+}
+
+@keyframes fxRageVignette {
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    70% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxRageTint {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   OVERLAY EFFECTS (Full-screen blocking, built by JS)
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay: GLITCH ── */
+.fxov-glitch {
+    background: linear-gradient(180deg, #000508 0%, #030c18 100%);
+    animation: fxovGlitchBg 2s steps(1) both;
+}
+
+.fxov-glitch-bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 255, 255, 0.15);
+    mix-blend-mode: screen;
+}
+
+.fxov-glitch-bar:nth-child(1) {
+    height: 4px;
+    animation: fxovGlitchBarA 2s linear both;
+}
+
+.fxov-glitch-bar:nth-child(2) {
+    height: 6px;
+    animation: fxovGlitchBarB 2s 0.05s linear both;
+}
+
+.fxov-glitch-bar:nth-child(3) {
+    height: 3px;
+    animation: fxovGlitchBarC 2s 0.08s linear both;
+}
+
+.fxov-glitch-scan {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent, transparent 2px,
+            rgba(0, 255, 255, 0.04) 2px, rgba(0, 255, 255, 0.04) 4px);
+    animation: fxovScanDrift 2s linear both;
+}
+
+@keyframes fxovGlitchBg {
+
+    0%,
+    20%,
+    22%,
+    40%,
+    42%,
+    80%,
+    82%,
+    100% {
+        background-color: #000;
+    }
+
+    21%,
+    41% {
+        background-color: #010a16;
+        filter: hue-rotate(90deg);
+    }
+
+    81% {
+        background-color: #000509;
+    }
+}
+
+@keyframes fxovGlitchBarA {
+    0% {
+        top: 10%;
+        opacity: 0;
+    }
+
+    10% {
+        top: 15%;
+        opacity: 1;
+    }
+
+    30% {
+        top: 60%;
+        opacity: 0.8;
+    }
+
+    55% {
+        top: 30%;
+        opacity: 1;
+    }
+
+    80% {
+        top: 75%;
+        opacity: 0;
+    }
+
+    100% {
+        top: 90%;
+        opacity: 0;
+    }
+}
+
+@keyframes fxovGlitchBarB {
+    0% {
+        top: 50%;
+        opacity: 0;
+    }
+
+    15% {
+        top: 40%;
+        opacity: 1;
+    }
+
+    40% {
+        top: 20%;
+        opacity: 0.6;
+    }
+
+    65% {
+        top: 80%;
+        opacity: 0.9;
+    }
+
+    90% {
+        top: 10%;
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxovGlitchBarC {
+    0% {
+        top: 80%;
+        opacity: 0;
+    }
+
+    20% {
+        top: 70%;
+        opacity: 0.8;
+    }
+
+    45% {
+        top: 50%;
+        opacity: 0.5;
+    }
+
+    70% {
+        top: 25%;
+        opacity: 1;
+    }
+
+    95% {
+        top: 5%;
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxovScanDrift {
+    0% {
+        background-position: 0 0;
+        opacity: 0.3;
+    }
+
+    50% {
+        background-position: 0 40px;
+        opacity: 0.8;
+    }
+
+    100% {
+        background-position: 0 80px;
+        opacity: 0.2;
+    }
+}
+
+/* ── Overlay: ELECTROCUTED ── */
+.fxov-electrocuted {
+    background: rgba(0, 10, 30, 0.95);
+}
+
+.fxov-lightning-canvas {
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: screen;
+}
+
+/* ── Overlay: NUKE ── */
+.fxov-nuke {
+    background: white;
+    animation: fxovNukeBg 3.5s ease-out both;
+}
+
+.fxov-nuke-flash {
+    position: absolute;
+    inset: 0;
+    background: white;
+    animation: fxovNukeFlash 1s ease-out both;
+}
+
+.fxov-nuke-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 8px solid rgba(255, 200, 100, 0.6);
+    animation: fxovNukeRing 3.5s cubic-bezier(0.19, 1, 0.22, 1) 0.3s both;
+}
+
+.fxov-nuke-ring--2 {
+    border-color: rgba(255, 100, 50, 0.4);
+    animation-delay: 0.6s;
+}
+
+@keyframes fxovNukeBg {
+    0% {
+        background: white;
+    }
+
+    15% {
+        background: rgba(255, 240, 200, 0.9);
+    }
+
+    40% {
+        background: rgba(50, 40, 30, 0.85);
+    }
+
+    100% {
+        background: rgba(0, 0, 0, 0);
+    }
+}
+
+@keyframes fxovNukeFlash {
+    0% {
+        opacity: 1;
+    }
+
+    40% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fxovNukeRing {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+
+    80% {
+        width: 500vw;
+        height: 500vw;
+        opacity: 0;
+    }
+
+    100% {
+        width: 500vw;
+        height: 500vw;
+        opacity: 0;
+    }
+}
+
+/* ── Overlay: SHOCKWAVE ── */
+.fxov-shockwave {
+    background: transparent;
+}
+
+.fxov-shockwave-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 15px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.4), inset 0 0 40px rgba(255, 255, 255, 0.2);
+    animation: fxovShockwaveRing 1.2s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+@keyframes fxovShockwaveRing {
+    0% {
+        width: 0;
+        height: 0;
+        border-width: 20px;
+        opacity: 1;
+    }
+
+    70% {
+        width: 250vw;
+        height: 250vw;
+        border-width: 3px;
+        opacity: 0.3;
+    }
+
+    100% {
+        width: 300vw;
+        height: 300vw;
+        border-width: 0px;
+        opacity: 0;
+    }
+}
+
+/* ── Overlay: PORTAL ── */
+.fxov-portal {
+    background: radial-gradient(ellipse at center, rgba(20, 0, 40, 0.98) 0%, #000 70%);
+}
+
+.fxov-portal-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border-style: solid;
+}
+
+.fxov-portal-ring--1 {
+    width: 40vmin;
+    height: 40vmin;
+    border-width: 4px;
+    border-color: rgba(120, 0, 255, 0.8);
+    box-shadow: 0 0 30px rgba(120, 0, 255, 0.6), inset 0 0 30px rgba(120, 0, 255, 0.3);
+    animation: fxovPortalRing 2.8s ease-in-out both;
+}
+
+.fxov-portal-ring--2 {
+    width: 28vmin;
+    height: 28vmin;
+    border-width: 2px;
+    border-color: rgba(200, 80, 255, 0.6);
+    animation: fxovPortalRing 2.8s 0.15s ease-in-out both reverse;
+}
+
+.fxov-portal-ring--3 {
+    width: 16vmin;
+    height: 16vmin;
+    border-width: 1px;
+    border-color: rgba(255, 160, 255, 0.4);
+    animation: fxovPortalRing 2.8s 0.3s linear both;
+}
+
+.fxov-portal-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8vmin;
+    height: 8vmin;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 220, 255, 0.9) 0%, rgba(120, 0, 255, 0.6) 60%, transparent 100%);
+    box-shadow: 0 0 60px rgba(200, 100, 255, 0.8), 0 0 120px rgba(120, 0, 255, 0.4);
+    animation: fxovPortalCore 2.8s ease-in-out both;
+}
+
+@keyframes fxovPortalRing {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) scale(0.1);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    70% {
+        transform: translate(-50%, -50%) rotate(360deg) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(540deg) scale(0.9);
+        opacity: 0;
+    }
+}
+
+@keyframes fxovPortalCore {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    30% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0;
+    }
+}

@@ -16,7 +16,7 @@
     "3": "ECHOES OF HYPOCRISY"
   },
   "chapterMusic": {
-    "0": "stories/MHA/assets/audio/bgm/heartrate.wav",
+    "0": null,
     "1": "stories/MHA/assets/audio/bgm/heartrate.wav",
     "2": "stories/MHA/assets/audio/bgm/AFOTHEME.mp3",
     "3": "stories/MHA/assets/audio/bgm/You Say Run.mp3"
@@ -112,7 +112,7 @@
       "chapter": 1,
       "scene": 1,
       "character": "NARRATION",
-      "text": "The heart monitor is the only applause you get now. You saved millions. The reward? A corporate bioweapon rotting your veins from the inside out."
+      "text": "[blink] The heart monitor is the only applause you get now. You saved millions. The reward? A corporate bioweapon rotting your veins from the inside out."
     },
     {
       "chapter": 1,

@@ -1,85 +1,84 @@
 /* ============================================================
-   romantic.css — Soft Romance Theme (v1.0)
+   romantic.css — LVNE Romantic Theme (v1.0)
+   ============================================================
+   Soft pastel UI. Warm glow, floating elements, gentle pulses,
+   glassy pink overlays, subtle heart-like motion language.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:wght@500;700&display=swap');
 
 :root {
     --font-primary: 'Quicksand', sans-serif;
-    --font-display: 'Great Vibes', cursive;
+    --font-display: 'Playfair Display', serif;
 
-    --color-bg: #fff5f8;
-    --color-surface: rgba(255, 240, 245, 0.9);
-    --color-text: #5a3a42;
+    --color-bg: #fff5f7;
+    --color-surface: rgba(255, 240, 245, 0.85);
+    --color-text: #5a3e45;
 
-    --color-accent: #ff8fb1;
+    --color-accent: #ff6f91;
     --color-accent-alt: #ffc2d1;
     --color-border: #ffd6e0;
 
-    --color-overlay-bg: rgba(255, 245, 248, 0.85);
+    --color-overlay-bg: rgba(255, 240, 245, 0.9);
 
     --radius-sm: 10px;
-    --radius-md: 18px;
-    --radius-lg: 26px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
 
     --transition-speed: 0.25s;
 
-    --soft-glow: 0 0 10px rgba(255, 143, 177, 0.25);
-    --soft-glow-strong: 0 0 25px rgba(255, 143, 177, 0.35);
+    --soft-glow: 0 4px 20px rgba(255, 111, 145, 0.25);
+    --soft-glow-strong: 0 8px 35px rgba(255, 111, 145, 0.35);
 }
 
 /* ===== BODY ===== */
 body {
     font-family: var(--font-primary);
-    background:
-        radial-gradient(circle at 20% 30%, #ffe4ec 0%, transparent 40%),
-        radial-gradient(circle at 80% 70%, #ffd6e0 0%, transparent 40%),
-        var(--color-bg);
+    background: radial-gradient(circle at top, #fff0f5, #ffe4ec 60%, #ffd6e0);
     color: var(--color-text);
 }
 
-/* ===== LOADING ===== */
+/* ===== LOADING SCREEN ===== */
 .loading-screen {
-    background: linear-gradient(180deg, #fff5f8, #ffe4ec);
+    background: linear-gradient(180deg, #fff0f5, #ffd6e0);
 }
 
 .loader-title {
     font-family: var(--font-display);
-    font-size: 2rem;
+    letter-spacing: 4px;
     color: var(--color-accent);
-    letter-spacing: 2px;
-    text-shadow: var(--soft-glow);
-    animation: fade-pulse 2.5s ease-in-out infinite;
+    text-shadow: 0 2px 10px rgba(255, 111, 145, 0.4);
+    animation: soft-float 3s ease-in-out infinite;
 }
 
-@keyframes fade-pulse {
-    0%,100% { opacity: 0.8; }
-    50% { opacity: 1; }
+@keyframes soft-float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
 }
 
 .loader-bar-track {
-    height: 6px;
-    background: #ffe4ec;
-    border-radius: 999px;
+    background: rgba(255, 111, 145, 0.1);
+    border-radius: 20px;
 }
 
 .loader-bar-fill {
-    background: linear-gradient(90deg, #ff8fb1, #ffc2d1);
-    border-radius: 999px;
+    background: linear-gradient(90deg, #ff9bb3, #ff6f91, #ff9bb3);
+    border-radius: 20px;
     box-shadow: var(--soft-glow);
-}
-
-/* ===== HEADINGS ===== */
-h1 {
-    font-family: var(--font-display);
-    color: var(--color-accent);
-    text-shadow: var(--soft-glow);
 }
 
 /* ===== GLASS ===== */
 .glass-overlay {
-    background: rgba(255,255,255,0.5);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 240, 245, 0.5);
+    backdrop-filter: blur(14px);
+}
+
+/* ===== TITLE ===== */
+h1 {
+    font-family: var(--font-display);
+    color: var(--color-accent);
+    letter-spacing: 2px;
+    text-shadow: 0 4px 15px rgba(255, 111, 145, 0.25);
 }
 
 /* ===== BUTTON ===== */
@@ -89,123 +88,118 @@ h1 {
     border-radius: var(--radius-md);
     color: var(--color-accent);
     box-shadow: var(--soft-glow);
-    transition: all var(--transition-speed) ease;
+    transition: all 0.25s ease;
 }
 
 .button:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-3px) scale(1.02);
     box-shadow: var(--soft-glow-strong);
     background: linear-gradient(135deg, #ffe4ec, #ffd6e0);
-    color: #fff;
 }
 
 /* ===== START BUTTON ===== */
 .start-btn {
     font-family: var(--font-display);
-    font-size: 1.3rem;
-    letter-spacing: 1px;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, #ff8fb1, #ffc2d1);
-    color: #fff;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #ff9bb3, #ff6f91);
+    color: white;
     box-shadow: var(--soft-glow);
-    animation: soft-bounce 2.5s ease-in-out infinite;
+    animation: heartbeat 2s infinite;
 }
 
-@keyframes soft-bounce {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+@keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 .start-btn:hover {
-    transform: scale(1.05);
+    transform: scale(1.08);
+    box-shadow: var(--soft-glow-strong);
 }
 
 /* ===== ICON BUTTON ===== */
 .icon-btn {
-    background: #fff0f5;
     border-radius: 50%;
+    background: #fff0f5;
     border: 1px solid var(--color-border);
     color: var(--color-accent);
     box-shadow: var(--soft-glow);
+    transition: all 0.3s ease;
 }
 
 .icon-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
     box-shadow: var(--soft-glow-strong);
 }
 
 /* ===== SLIDER ===== */
 input[type="range"] {
-    background: linear-gradient(90deg, #ff8fb1, #ffc2d1);
-    border-radius: 999px;
+    background: linear-gradient(90deg, #ff9bb3, #ff6f91);
+    border-radius: 20px;
 }
 
 input[type="range"]::-webkit-slider-thumb {
-    background: #fff;
+    background: white;
     border-radius: 50%;
     box-shadow: var(--soft-glow);
 }
 
 /* ===== DIALOGUE ===== */
 .dialogue-container {
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(12px);
+    background: rgba(255, 240, 245, 0.75);
     border-radius: var(--radius-lg);
     box-shadow: var(--soft-glow);
 }
 
 #characterName {
     font-family: var(--font-display);
-    color: #fff;
-    background: linear-gradient(90deg, #ff8fb1, #ffc2d1);
-    padding: 4px 16px;
-    border-radius: 999px;
+    background: linear-gradient(135deg, #ff9bb3, #ff6f91);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 30px;
     box-shadow: var(--soft-glow);
 }
 
-/* ===== OPTIONS ===== */
+.dialogue-content {
+    line-height: 1.7;
+}
+
+/* ===== OPTION BUTTON ===== */
 .option-btn, .nav-icon-btn, .auto-btn {
-    background: #fff0f5;
     border-radius: var(--radius-sm);
+    background: #fff0f5;
     border: 1px solid var(--color-border);
     color: var(--color-accent);
 }
 
-.option-btn:hover,
-.nav-icon-btn:hover,
-.auto-btn:hover {
-    background: #ffd6e0;
-    color: #fff;
-}
-
-/* ===== OVERLAY ===== */
-.overlay {
-    background: var(--color-overlay-bg);
-}
-
-.overlay-content {
-    background: #fff;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 10px 40px rgba(255, 143, 177, 0.2);
+.option-btn:hover {
+    background: #ffe4ec;
+    transform: translateY(-2px);
 }
 
 /* ===== MENU ===== */
 .menu-btn {
-    border-bottom: 1px solid #ffe4ec;
-    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease;
 }
 
 .menu-btn:hover {
-    color: var(--color-accent);
-    background: #fff0f5;
+    background: rgba(255, 182, 193, 0.2);
 }
 
-/* ===== LITTLE EXTRA TOUCH ===== */
-body::after {
-    content: "❤";
-    position: fixed;
-    bottom: 10px;
-    right: 14px;
-    opacity: 0.15;
-    font-size: 20px;
+/* ===== OVERLAY ===== */
+.overlay-content {
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #fff0f5, #ffe4ec);
+    box-shadow: var(--soft-glow-strong);
+}
+
+.overlay-header {
+    color: var(--color-accent);
+}
+
+/* ===== SETTINGS ===== */
+.settings-option {
+    border-left: 3px solid var(--color-accent);
+    background: rgba(255, 182, 193, 0.1);
 }

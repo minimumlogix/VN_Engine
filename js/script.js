@@ -382,21 +382,47 @@ async function initializeApp() {
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    // Support both ?story= (new) and legacy ?storytitle=
-    const storyName = urlParams.get('story') || urlParams.get('storytitle') || 'demo_anime';
+    const assetCfg = (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.assets : {};
+    
+    // Support both ?story= (new) and legacy ?storytitle= based on config
+    const storyName = urlParams.get('story') || 
+                      urlParams.get(assetCfg.legacyParam || 'storytitle') || 
+                      assetCfg.defaultStory || 
+                      'demo_anime';
+    
     loadStoryData(storyName);
 }
 
 // Load story data from JSON file, then preload all assets
-function loadStoryData(storyName) {
+function loadStoryData(storyInput) {
     updateLoaderStatus('Fetching story data...');
-    appLogger.info(`Loading story: ${storyName}`);
+    appLogger.info(`Loading story: ${storyInput}`);
 
-    // Stories live in stories/{storyName}/{storyName}.json
-    const storyBasePath = `stories/${storyName}/`;
+    const assetCfg = (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.assets : { basePath: 'stories/' };
+    const base = assetCfg.basePath || 'stories/';
+
+    let folder = storyInput;
+    let filename = storyInput;
+
+    // Handle folder:filename format: "MHA:MHA_H1" -> folder: "MHA", filename: "MHA_H1"
+    // Also supports legacy format: "MHA/MHA_H1" -> folder: "MHA", filename: "MHA_H1"
+    if (storyInput.includes(':')) {
+        const parts = storyInput.split(':');
+        folder = parts[0];
+        filename = parts[1];
+    } else if (storyInput.includes('/')) {
+        const parts = storyInput.split('/');
+        filename = parts.pop();
+        folder = parts.join('/');
+    }
+
+    appLogger.debug(`Story folder: ${folder}, filename: ${filename}`);
+
+    // Standardize path: Ensure storyBasePath reflects the folder containing the JSON
+    const storyBasePath = base.endsWith('/') ? `${base}${folder}/` : `${base}/${folder}/`;
     state.storyBasePath = storyBasePath;
 
-    fetch(`${storyBasePath}${storyName}.json`)
+    fetch(`${storyBasePath}${filename}.json`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`[HTTP ${response.status}] Failed to fetch story data`);

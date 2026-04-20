@@ -1,511 +1,199 @@
 /* ============================================================
-   romantic.css — LVNE Romantic Theme Override
+   romantic.css — LVNE Romantic Bloom Theme (v3.1 — AAA Overhaul)
    ============================================================
-   Soft pastels, elegant typography, heartbeat animations,
-   frosted glassmorphism, and gentle drop shadows.
+   Ethereal, soft, and blooming. Features rose gold accents,
+   soft-focus glassmorphism, and elegant typography.
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@600&display=swap');
 
 :root {
-    --font-primary: 'Quicksand', sans-serif;
-    --font-display: 'Dancing Script', cursive;
-    --color-bg: #fff5f8;
-    --color-surface: rgba(255, 255, 255, 0.85);
-    --color-text: #5c3a45;
-    --color-accent: #ff4d85;
-    --color-accent-alt: #ffa6c9;
-    --color-border: #ffd1dc;
-    --color-overlay-bg: rgba(255, 240, 245, 0.85);
+    --font-primary: 'Inter', sans-serif;
+    --font-display: 'Playfair Display', serif;
+    --font-accent: 'Dancing Script', cursive;
     
-    /* Soft, rounded corners replace cyberpunk jagged edges */
+    --color-bg: #fff5f7;
+    --color-surface: rgba(255, 255, 255, 0.85);
+    --color-text: #5c3d46;
+    --color-accent: #d48181;
+    --color-accent-alt: #eebcbd;
+    --color-border: rgba(212, 129, 129, 0.3);
+    --color-overlay-bg: rgba(255, 245, 247, 0.9);
+    
+    --rose-gold: linear-gradient(135deg, #eebcbd 0%, #d48181 100%);
+    --soft-glow: 0 0 15px rgba(212, 129, 129, 0.3);
     --radius-sm: 12px;
-    --radius-md: 20px;
-    --radius-lg: 32px;
-    --radius-pill: 9999px;
+    --radius-md: 24px;
+    --radius-lg: 40px;
     --transition-speed: 0.4s;
-
-    --romantic-glow-sm: 0 4px 10px rgba(255, 77, 133, 0.15);
-    --romantic-glow-md: 0 8px 25px rgba(255, 77, 133, 0.25);
-    --romantic-shadow: 0 10px 30px rgba(92, 58, 69, 0.08);
 }
 
-/* ===== LOADING SCREEN ===== */
-.loading-screen {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    background-color: var(--color-bg);
-    background-image: radial-gradient(circle at 50% 50%, #fff 0%, #fff5f8 100%);
-    padding-bottom: 60px;
-    z-index: 9999;
-    position: fixed;
-    inset: 0;
-    transition: opacity 1s ease, transform 1s ease;
-}
-
-.loading-screen.fade-out {
-    opacity: 0;
-    transform: scale(1.02);
-    pointer-events: none;
-}
-
-/* Soft floating light particles instead of scanlines */
-.loading-screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(255, 166, 201, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(255, 77, 133, 0.08) 0%, transparent 40%);
-    pointer-events: none;
-    animation: soft-drift 10s ease-in-out infinite alternate;
-    z-index: 1;
-}
-
-@keyframes soft-drift {
-    0%   { transform: translateY(0) scale(1); }
-    100% { transform: translateY(-20px) scale(1.05); }
-}
-
-.loader-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    width: 80%;
-    max-width: 600px;
-    position: relative;
-    z-index: 2;
-}
-
-.loader-title {
-    font-family: var(--font-display);
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--color-accent);
-    text-shadow: 2px 2px 0px #fff, var(--romantic-glow-sm);
-    position: relative;
-    animation: gentle-float 3s ease-in-out infinite;
-}
-
-/* Removed chromatic aberration pseudo-elements completely */
-.loader-title::before, .loader-title::after { display: none; }
-
-@keyframes gentle-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-8px); }
-}
-
-.loader-bar-track {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.loader-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--color-accent-alt), var(--color-accent));
-    border-radius: var(--radius-pill);
-    box-shadow: var(--romantic-glow-sm);
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.loader-bar-fill::after { display: none; /* Removed harsh tip flicker */ }
-
-.loader-info {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    font-family: var(--font-primary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--color-accent-alt);
-    letter-spacing: 0.5px;
-}
-
-.loader-percent {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--color-accent);
-}
-
-.loader-status {
-    animation: pulse-opacity 2s ease-in-out infinite;
-}
-
-@keyframes pulse-opacity {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-}
-
-/* ===== BODY & GLOBALS ===== */
+/* ===== BODY — Soft Gradient Bokeh ===== */
 body {
     font-family: var(--font-primary);
     background-color: var(--color-bg);
     color: var(--color-text);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(238, 188, 189, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(212, 129, 129, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+    background-attachment: fixed;
 }
 
-/* ===== GLASS & OVERLAYS ===== */
-.glass-overlay {
-    background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,240,245,0.6));
-    backdrop-filter: blur(12px) saturate(1.2);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+/* ===== LOADING SCREEN ===== */
+.loading-screen {
+    background: #fffafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* ===== H1 TITLE ===== */
-h1 {
+.loader-title {
     font-family: var(--font-display);
+    font-style: italic;
+    font-size: 2rem;
     color: var(--color-accent);
-    font-weight: 700;
-    letter-spacing: 1px;
-    font-size: 3rem;
-    text-shadow: 2px 4px 10px rgba(255, 77, 133, 0.2);
-    animation: none; /* Removed aggressive flicker */
+    letter-spacing: 2px;
 }
 
-/* ===== BUTTONS ===== */
-.button {
-    background: #fff;
-    color: var(--color-accent);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    box-shadow: var(--romantic-shadow);
-    clip-path: none; /* Remove cyberpunk clipping */
-    backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-    padding: 10px 24px;
-    font-weight: 600;
-}
-
-.button::before { display: none; }
-
-.button:hover {
-    background: var(--color-accent);
-    color: #fff;
-    border-color: var(--color-accent);
-    box-shadow: var(--romantic-glow-md);
-    transform: translateY(-3px);
-}
-
-/* ===== START BUTTON ===== */
-.start-btn {
-    font-family: var(--font-primary);
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    border-radius: var(--radius-pill);
-    padding: 16px 40px;
-    border: 2px solid transparent;
-    background: #fff;
-    color: var(--color-accent);
-    box-shadow: var(--romantic-shadow);
-    animation: heartbeat 2s infinite ease-in-out !important;
-    transition: all 0.4s ease;
-    clip-path: none;
-}
-
-@keyframes heartbeat {
-    0%   { transform: scale(1); box-shadow: var(--romantic-shadow); }
-    15%  { transform: scale(1.05); box-shadow: var(--romantic-glow-md); }
-    30%  { transform: scale(1); box-shadow: var(--romantic-shadow); }
-    45%  { transform: scale(1.05); box-shadow: var(--romantic-glow-md); }
-    60%, 100% { transform: scale(1); box-shadow: var(--romantic-shadow); }
-}
-
-.start-btn .start-btn-text, .start-btn .start-btn-arrow {
-    color: inherit;
-}
-
-.start-btn:hover {
-    animation-play-state: paused !important;
-    background: var(--color-accent);
-    color: #fff;
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(255, 77, 133, 0.3);
-}
-
-/* ===== START SCREEN EXTRA ELEMENTS ===== */
-.start-eyebrow {
-    font-family: var(--font-primary);
-    color: var(--color-accent-alt);
-    letter-spacing: 4px;
-    font-size: 0.8rem;
-    text-shadow: none;
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
-.start-title-deco { display: none; /* Too geometric for romantic theme */ }
-
-.start-hint, .start-footer, .engine-badge {
-    color: rgba(92, 58, 69, 0.5);
-    font-family: var(--font-primary);
-}
-
-.start-hint kbd {
-    background: #fff;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    color: var(--color-accent);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.screen-corner--tl, .screen-corner--tr, .screen-corner--bl, .screen-corner--br {
-    border-color: var(--color-border);
-    border-radius: 20px; /* Soften the corners */
-    box-shadow: none;
-    opacity: 0.5;
-}
-
-/* ===== ICON BUTTONS ===== */
-.icon-btn {
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid #fff;
-    border-radius: 50%;
-    color: var(--color-accent);
-    box-shadow: var(--romantic-shadow);
-    backdrop-filter: blur(4px);
-    animation: gentle-float 4s ease-in-out infinite;
-}
-
-.icon-btn::before, .icon-btn::after { display: none; /* Remove spin/conic effects */ }
-
-.icon-btn-label {
-    font-family: var(--font-primary);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--color-accent);
-    text-shadow: none;
-    text-transform: uppercase;
-}
-
-.icon-btn:hover {
-    background: var(--color-accent);
-    color: #fff;
-    box-shadow: var(--romantic-glow-md);
-    transform: translateY(-5px);
-}
-
-.icon-btn:hover .icon-btn-label { color: #fff; }
-
-.icon-btn.muted {
-    border-color: #ddd;
-    color: #aaa;
-    background: #f9f9f9;
-}
-
-/* ===== SLIDERS ===== */
-input[type="range"] {
-    background: var(--color-border);
-    border: none;
-    border-radius: var(--radius-pill);
+.loader-bar-track {
     height: 6px;
+    background: rgba(212, 129, 129, 0.1);
+    border-radius: 100px;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--color-accent);
-    border-radius: 50%;
-    box-shadow: var(--romantic-glow-sm);
-    clip-path: none;
+.loader-bar-fill {
+    background: var(--rose-gold);
+    box-shadow: 0 0 10px rgba(212, 129, 129, 0.5);
+    border-radius: 100px;
 }
 
-/* ===== DIALOGUE ===== */
+/* ===== DIALOGUE SYSTEM ===== */
 .dialogue-container {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid #fff;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--romantic-shadow);
-    padding: 24px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 -10px 40px rgba(212, 129, 129, 0.1);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
-
-.dialogue-header { border-bottom: 1px solid var(--color-border); padding-bottom: 12px; }
 
 #characterName {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.6rem;
+    font-weight: 900;
+    font-style: italic;
     color: var(--color-accent);
-    background: transparent;
-    padding: 0;
-    text-transform: none;
-    letter-spacing: 1px;
-    clip-path: none;
-    box-shadow: none;
-    animation: none;
+    font-size: 1.4rem;
+    padding: 0 10px;
+    border-bottom: 2px solid var(--color-accent-alt);
 }
 
 .dialogue-content {
-    color: var(--color-text);
     font-size: 1.1rem;
     line-height: 1.8;
-    text-shadow: none;
-    font-weight: 500;
+    color: #4a343a;
 }
 
-/* ===== OPTION BUTTONS & NAVIGATION ===== */
-.option-btn, .nav-icon-btn, .auto-btn {
-    font-family: var(--font-primary);
-    font-weight: 600;
-    border-radius: var(--radius-pill);
-    background: #fff;
+/* ===== BUTTONS — Petal Style ===== */
+.button, .option-btn, .choice-btn {
+    font-family: var(--font-display);
+    background: var(--color-surface);
+    color: var(--color-accent);
     border: 1px solid var(--color-border);
-    color: var(--color-text);
-    clip-path: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    padding: 12px 24px;
+    border-radius: 50px 5px 50px 5px; /* Organic petal shape */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.option-btn::before, .nav-icon-btn::before, .auto-btn::before { display: none; }
+.button:hover, .option-btn:hover {
+    background: var(--rose-gold);
+    color: white;
+    transform: translateY(-3px) rotate(1deg);
+    box-shadow: 0 8px 25px rgba(212, 129, 129, 0.3);
+    border-color: transparent;
+}
 
-.option-btn:hover, .nav-icon-btn:hover, .auto-btn:hover, .auto-btn.auto-active {
-    background: var(--color-accent);
-    color: #fff;
+/* ===== START SCREEN OVERHAUL ===== */
+.start-main-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    color: var(--color-accent);
+    text-shadow: 2px 4px 0px rgba(238, 188, 189, 0.4);
+    letter-spacing: -1px;
+}
+
+.start-eyebrow {
+    font-family: var(--font-accent);
+    font-size: 1.8rem;
+    text-transform: none;
+    letter-spacing: 1px;
+    color: var(--color-accent-alt);
+}
+
+.start-btn {
+    border-radius: 100px;
+    background: white;
+    border: 1px solid var(--color-accent-alt);
+    color: var(--color-accent);
+    padding: 1.2rem 4rem;
+}
+
+.start-btn:hover {
+    background: #fff;
     border-color: var(--color-accent);
-    box-shadow: var(--romantic-glow-sm);
-    transform: translateY(-2px);
-}
-
-/* ===== OVERLAYS ===== */
-.overlay-content {
-    background: rgba(255, 255, 255, 0.95);
-    border: none;
-    border-radius: var(--radius-md);
-    box-shadow: 0 20px 50px rgba(92, 58, 69, 0.15);
-}
-
-.overlay-header {
     color: var(--color-accent);
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    letter-spacing: 1px;
-    border-bottom: 1px dashed var(--color-border);
-    text-shadow: none;
-    text-transform: none;
+    box-shadow: 0 0 30px rgba(212, 129, 129, 0.4);
 }
 
-.close-btn { color: var(--color-accent-alt); text-shadow: none; }
-.close-btn:hover { color: var(--color-accent); transform: scale(1.1) rotate(90deg); }
-
-/* ===== SETTINGS ===== */
-.settings-option {
-    background: rgba(255, 240, 245, 0.5);
-    border-left: 4px solid var(--color-accent-alt);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+/* ===== CHARACTER SPRITES ===== */
+.character-sprite {
+    filter: drop-shadow(0 10px 25px rgba(212, 129, 129, 0.15));
 }
 
-.settings-option label {
-    color: var(--color-text);
-    font-family: var(--font-primary);
-    font-weight: 700;
-    text-shadow: none;
-    letter-spacing: 1px;
+/* Custom "Heartbeat" Entry for Romance */
+@keyframes romantic-entrance {
+    0% { opacity: 0; transform: scale(0.95) translateY(10px); filter: blur(5px); }
+    50% { transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
-/* ===== MENU PANEL ===== */
-.menu-btn {
-    border-bottom: 1px dashed var(--color-border);
-    font-family: var(--font-primary);
-    font-weight: 600;
-    color: var(--color-text);
-    letter-spacing: 1px;
-    border-radius: var(--radius-md);
-    margin-bottom: 4px;
-}
-
-.menu-btn::after { display: none; }
-.menu-btn svg { stroke: var(--color-accent-alt); }
-
-.menu-btn:hover {
-    background: var(--color-bg);
-    color: var(--color-accent);
-    padding-left: 24px;
-    text-shadow: none;
-}
-.menu-btn:hover svg { stroke: var(--color-accent); filter: none; }
-
-/* ===== END SCREEN ===== */
-.end-glass-panel {
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid #fff;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 20px 60px rgba(255, 77, 133, 0.15);
-    clip-path: none;
-    padding: 60px;
-}
-
-.end-message {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 4rem;
-    letter-spacing: 2px;
-    color: var(--color-accent);
-    text-shadow: 2px 4px 8px rgba(255, 77, 133, 0.2);
-    animation: gentle-float 3s ease-in-out infinite;
-    text-transform: none;
-}
-
-.end-subtext {
-    color: var(--color-text);
-    font-size: 1.2rem;
-    font-weight: 500;
-    letter-spacing: 0px;
+.center-sprite.active:not([data-sprite-settled]) {
+    animation: romantic-entrance 0.8s ease-out forwards;
 }
 
 /* ===== CHAPTER TRANSITION ===== */
 .chapter-transition.theme-romantic {
-    background: linear-gradient(135deg, rgba(255, 240, 245, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
-    border: 4px solid #fff;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--romantic-shadow);
+    background: radial-gradient(circle, #fff5f7 0%, #fce4ec 100%);
 }
 
 .chapter-transition.theme-romantic .chapter-number {
-    color: var(--color-accent-alt);
-    font-family: var(--font-primary);
-    font-weight: 700;
+    font-family: var(--font-accent);
+    color: var(--color-accent);
+    font-size: 6rem;
     text-shadow: none;
-    animation: romanticFadeIn 1s ease-out forwards;
 }
 
 .chapter-transition.theme-romantic .chapter-title {
-    color: var(--color-accent);
     font-family: var(--font-display);
-    font-size: 3rem;
-    text-shadow: 1px 2px 4px rgba(255, 77, 133, 0.1);
-    animation: romanticSlideUp 1s ease-out 0.3s forwards;
-    opacity: 0;
+    color: #5c3d46;
+    letter-spacing: 8px;
+    font-weight: 300;
 }
 
 .chapter-transition.theme-romantic .chapter-divider {
-    background: linear-gradient(90deg, transparent, var(--color-accent-alt), transparent);
-    height: 2px;
-    box-shadow: none;
+    background: var(--rose-gold);
+    height: 1px;
 }
 
-@keyframes romanticFadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to   { opacity: 1; transform: scale(1); }
+/* ===== UI DECORATION ===== */
+.menu-icon, .mute-icon {
+    background: white;
+    color: var(--color-accent);
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-@keyframes romanticSlideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+.menu-icon:hover {
+    transform: scale(1.1) rotate(90deg);
+    color: var(--color-accent);
 }
-
-/* Clear character sprite heavy filter from cyberpunk */
-.character-sprite { filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }

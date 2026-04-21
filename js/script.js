@@ -496,7 +496,7 @@ function loadStoryData(storyInput) {
 
             // ─ Apply theme ─
             if (data.theme) {
-                const themeHref = data.theme.startsWith('css/') ? data.theme : `css/${data.theme}`;
+                const themeHref = data.theme.startsWith('css/themes/') ? data.theme : `css/themes/${data.theme}`;
                 document.getElementById('themeStylesheet').href = themeHref;
                 appLogger.success(`Theme applied: ${data.theme}`);
             }

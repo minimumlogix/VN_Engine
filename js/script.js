@@ -547,7 +547,16 @@ function collectAssetUrls(data) {
     // Character sprites & SFX
     if (data.characters) {
         Object.values(data.characters).forEach(c => {
+            // Legacy/Single sprite
             if (c.sprite) urls.push({ url: c.sprite, type: 'image' });
+            
+            // Multiple expressions
+            if (c.sprites && typeof c.sprites === 'object') {
+                Object.values(c.sprites).forEach(s => {
+                    if (s) urls.push({ url: s, type: 'image' });
+                });
+            }
+            
             if (c.sfx && !c.sfx.startsWith('/path/')) urls.push({ url: c.sfx, type: 'audio' });
         });
     }
@@ -942,12 +951,24 @@ function setupCharacterSprites() {
     // Inject exact img tags for each character's sprite directly into the DOM
     Object.keys(state.characters || {}).forEach(key => {
         const char = state.characters[key];
-        if (char.sprite && char.sprite.trim() !== '') {
+        
+        // Resolve initial sprite URL
+        let initialSprite = char.sprite || "";
+        if (!initialSprite && char.sprites && typeof char.sprites === 'object') {
+            const expressionKeys = Object.keys(char.sprites);
+            if (expressionKeys.length > 0) {
+                // Use 'neutral' if available, otherwise first key
+                const defaultKey = char.sprites.neutral ? 'neutral' : expressionKeys[0];
+                initialSprite = char.sprites[defaultKey];
+            }
+        }
+
+        if (initialSprite && initialSprite.trim() !== '') {
             const img = document.createElement('img');
             img.id = `sprite-${key}`;
             const normalizedPosition = ['left', 'right', 'center'].includes(char.position) ? char.position : (char.position === 'middle' ? 'center' : 'center');
             img.className = `character-sprite ${normalizedPosition}-sprite`;
-            img.src = char.sprite;
+            img.src = initialSprite;
             img.alt = char.name;
             img.style.display = 'none';
             container.appendChild(img);
@@ -1063,7 +1084,7 @@ async function displayNextDialogue() {
 
     // 1. Handle Chapter/Scene Transitions
     // Passes node.character to the transition so it can be updated "behind the curtain"
-    const transitioned = await updateChapterAndScene(node.chapter, node.scene, node.character);
+    const transitioned = await updateChapterAndScene(node.chapter, node.scene, node.character, node.sprite || node.expression);
 
     // 2. Handle Blocking Overlay Effects
     if (node.effect) {
@@ -1082,7 +1103,7 @@ async function displayNextDialogue() {
     // Only call updateCharacter here if a chapter transition DID NOT happen.
     // If it did, updateCharacter was already called while the screen was opaque.
     if (!transitioned) {
-        updateCharacter(node.character);
+        updateCharacter(node.character, node.sprite || node.expression);
     }
     effectsEngine.setPersistentEffect(node.persistentEffect);
 
@@ -1092,7 +1113,9 @@ async function displayNextDialogue() {
     }
 
     // Play SFX
-    const charKey = Array.isArray(node.character) ? node.character[0] : node.character?.split(',')[0].trim();
+    const rawCharKey = Array.isArray(node.character) ? node.character[0] : node.character?.split(',')[0].trim();
+    const charKey = rawCharKey?.split(':')[0].trim();
+    
     if (charKey && state.characters[charKey]?.sfx) {
         audioManager.playSfx(state.characters[charKey].sfx, true);
     }
@@ -1103,8 +1126,6 @@ async function displayNextDialogue() {
     }
 
     // 4. Start Typewriter
-    elements.characterName.textContent = state.characters[charKey]?.name || "???";
-
     if (writer) {
         writer.setSpeed(state.typingSpeed);
         writer.write(node.text);
@@ -1130,8 +1151,9 @@ function cleanupStoryScreen() {
 /**
  * Update character display with null safety checks
  * @param {string|string[]|null} characterInput - Character key(s) to display
+ * @param {string|null} expressionOverride - Optional singular expression for all characters
  */
-function updateCharacter(characterInput) {
+function updateCharacter(characterInput, expressionOverride = null) {
     if (!state.characters || characterInput === null || characterInput === undefined) return;
 
     // Parse input (array or comma-string)
@@ -1151,10 +1173,29 @@ function updateCharacter(characterInput) {
         return true;
     });
 
-    // Resolve to valid character objects
+    // Resolve to valid character objects with optional expression parsing
     const validEntries = charKeys
-        .map(k => ({ key: k, data: state.characters[k] }))
-        .filter(e => e.data);
+        .map(k => {
+            // Check for shorthand Character:Expression (e.g. TIA:angry)
+            let key = k;
+            let expression = expressionOverride;
+            
+            if (k.includes(':')) {
+                const parts = k.split(':');
+                key = parts[0].trim();
+                expression = parts[1].trim();
+            }
+
+            const charData = state.characters[key];
+            if (!charData) return null;
+
+            return {
+                key: key,
+                data: charData,
+                expression: expression
+            };
+        })
+        .filter(e => e !== null);
 
     const container = document.getElementById('characterSpriteContainer');
 
@@ -1197,6 +1238,26 @@ function updateCharacter(characterInput) {
 
         const img = char.imgElement;
         img.style.zIndex = index + 2;
+
+        // ── Expression Swapping ──
+        if (entry.expression && char.sprites && char.sprites[entry.expression]) {
+            const newSrc = char.sprites[entry.expression];
+            if (img.getAttribute('src') !== newSrc) {
+                img.src = newSrc;
+                appLogger.debug(`Swapped expression for ${char.name}: ${entry.expression}`);
+            }
+        } else if (char.sprite && img.getAttribute('src') !== char.sprite && !entry.expression) {
+            // Revert to default if no expression specified
+            img.src = char.sprite;
+        } else if (!char.sprite && char.sprites && !entry.expression) {
+            // If no base sprite but has sprites object, use neutral or first
+            const expressionKeys = Object.keys(char.sprites);
+            const defaultKey = char.sprites.neutral ? 'neutral' : expressionKeys[0];
+            const newSrc = char.sprites[defaultKey];
+            if (img.getAttribute('src') !== newSrc) {
+                img.src = newSrc;
+            }
+        }
 
         if (isMulti) {
             // Slot-center formula: divide viewport into n equal slots,
@@ -1418,7 +1479,7 @@ function calculateAutoDelay() {
  * This function coordinates all chapter-related updates
  * @returns {Promise<boolean>} True if a chapter transition occurred
  */
-async function updateChapterAndScene(chapter, scene, characterInput) {
+async function updateChapterAndScene(chapter, scene, characterInput, expression = null) {
     try {
         let transitionOccurred = false;
 
@@ -1427,26 +1488,29 @@ async function updateChapterAndScene(chapter, scene, characterInput) {
             appLogger.debug(`Initiating chapter transition: ${chapterManager.currentChapter} → ${chapter}`);
             transitionOccurred = true;
             
-            // UI PAUSE & HIDE: Ensure writing pauses and dialogue box is cleaner
+            // UI ORCHESTRATION: Start of transition
+            // 1. Hide sprites first
+            _hideAllSprites(document.getElementById('characterSpriteContainer'));
+            
+            // 2. Hide dialogue container
             state.isPaused = true;
             if (elements.dialogueContainer) elements.dialogueContainer.style.opacity = '0';
 
-            // Use ChapterManager for coordinated update
+            // 3. Coordinate chapter change with background/music updates
             await chapterManager.changeChapter(chapter, {
                 chapterBackgrounds: state.chapterBackgrounds,
                 chapterMusic: state.chapterMusic,
                 chapterNames: state.chapterNames
-            }, async () => {
-                // MIDPOINT CALLBACK: Executed while the screen is opaque
-                // 1. Clear the stage
-                _hideAllSprites(document.getElementById('characterSpriteContainer'));
-                
-                // 2. Set the new actors (this forces a re-entry animation even for old sprites)
-                updateCharacter(characterInput);
             });
 
-            // RESTORE UI STATE
+            // 4. Restore dialogue box (End of transition)
             if (elements.dialogueContainer) elements.dialogueContainer.style.opacity = '1';
+            
+            // 5. Short stagger before sprites enter for professional feel
+            setTimeout(() => {
+                updateCharacter(characterInput, expression);
+            }, (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.timing.spriteEntryStagger : 150);
+
             checkOverlaysAndResume();
 
             // Update state reference to match manager

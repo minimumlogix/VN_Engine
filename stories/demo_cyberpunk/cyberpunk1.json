@@ -2,11 +2,11 @@
   "storyTitle": "CYBER RUNNER",
   "storySubtitle": "CHAPTER 1: THE BLACK BOX",
   "theme": "cyberpunk.css",
-  "loadScreenBackground": "stories/demo_cyberpunk1/assets/images/backgrounds/loading.jpg",
+  "loadScreenBackground": "stories/demo_cyberpunk/assets/images/backgrounds/loading.jpg",
   "chapterBackgrounds": {
     "0": "general_assets/effects/BlueCode.gif",
-    "1": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
-    "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins2.jpg"
+    "1": "stories/demo_cyberpunk/assets/images/backgrounds/ancient_ruins.jpg",
+    "2": "stories/demo_cyberpunk/assets/images/backgrounds/ancient_ruins_2.jpg"
   },
   "chapterNames": {
     "1": "THE UNFAIR FATE",
@@ -15,8 +15,8 @@
   },
   "chapterMusic": {
     "0": "",
-    "1": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3",
-    "2": "stories/demo_cyberpunk1/assets/audio/bgm_main_theme.mp3"
+    "1": "stories/demo_cyberpunk/assets/audio/bgm_main_theme.mp3",
+    "2": "stories/demo_cyberpunk/assets/audio/bgm_main_theme.mp3"
   },
   "initialState": {
     "compliance": 0,
@@ -25,33 +25,44 @@
   "characters": {
     "TIA": {
       "name": "TIA",
-      "sprite": "stories/demo_cyberpunk1/assets/images/characters/TIA.png",
+      "sprite": "stories/demo_cyberpunk/assets/images/characters/TIA_neutral.png",
+      "sprites": {
+        "neutral": "stories/demo_cyberpunk/assets/images/characters/TIA_neutral.png",
+        "angry": "stories/demo_cyberpunk/assets/images/characters/TIA_angry.png",
+        "thinking": "stories/demo_cyberpunk/assets/images/characters/TIA_thinking.png"
+      },
       "position": "left",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
+      "sfx": "stories/demo_cyberpunk/assets/audio/female_sfx1"
     },
     "EVA": {
       "name": "EVA",
-      "sprite": "stories/demo_cyberpunk1/assets/images/characters/EVA.png",
+      "sprites": {
+        "neutral": "stories/demo_cyberpunk/assets/images/characters/EVA.png",
+        "angry": "stories/demo_cyberpunk/assets/images/characters/EVA_angry.png"
+      },
       "position": "right",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
+      "sfx": "stories/demo_cyberpunk/assets/audio/female_sfx1"
     },
     "BOSS": {
       "name": "VEIL [HOLO CALL]",
-      "sprite": "stories/demo_cyberpunk1/assets/images/characters/VEIL.png",
+      "sprite": "stories/demo_cyberpunk/assets/images/characters/VEIL.png",
       "position": "left",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
+      "sfx": "stories/demo_cyberpunk/assets/audio/female_sfx1"
     },
     "RUNNER": {
       "name": "KANE [HOLO CALL]",
-      "sprite": "stories/demo_cyberpunk1/assets/images/characters/KANE.png",
+      "sprites": {
+        "neutral": "stories/demo_cyberpunk/assets/images/characters/KANE.png",
+        "upset": "stories/demo_cyberpunk/assets/images/characters/KANE_upset.png"
+      },
       "position": "right",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/kane_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk/assets/audio/kane_sfx.mp3"
     },
     "NARRATION": {
       "name": "SYSTEM",
-      "sprite": "stories/demo_cyberpunk1/assets/images/characters/narrator.png",
+      "sprite": "general_assets/effects/UO.gif",
       "position": "center",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/narrator_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk/assets/audio/narrator_sfx.mp3"
     }
   },
   "storyDialogue": [
@@ -76,37 +87,37 @@
     {
       "chapter": 1,
       "scene": 3,
-      "character": "RUNNER",
+      "character": "RUNNER:upset",
       "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there! [electricuted]"
     },
     {
       "chapter": 1,
       "scene": 4,
-      "character": "EVA",
+      "character": "EVA:angry",
       "text": "[shadows] Late for the <b style='color:#ff3366; text-shadow: 0 0 10px red;'>execution</b>, Corp rat. We don't take prisoners in the slums."
     },
     {
       "chapter": 1,
       "scene": 5,
-      "character": "TIA",
+      "character": "TIA:angry",
       "text": "[shadows] Eva, he's leaking <i style='color:#00e5ff;'>neural fluid</i>. Did we short his brain? He looks... pathetic for an assassin."
     },
     {
       "chapter": 1,
       "scene": 6,
-      "character": "EVA",
+      "character": "EVA:angry",
       "text": "Let him rot. They butchered our block for profit. It's time for some <b style='color:#888;'>reciprocal violence</b>."
     },
     {
       "chapter": 1,
       "scene": 7,
-      "character": "RUNNER",
+      "character": "RUNNER:upset",
       "text": "[glitch] <span style='font-family: monospace; color:red;'>ERROR: SYNAPTIC COLLAPSE</span> Ru...ner?! Copy... <span style='letter-spacing: 4px;'>REBOOT...</span>"
     },
     {
       "chapter": 1,
       "scene": 8,
-      "character": "TIA",
+      "character": "TIA:thinking",
       "text": "Eva, his cortex is wide open. We can use him to unlock the <b style='color:#f2c300;'>Arasaka Vault</b>. Don't kill him yet."
     },
     {
@@ -130,19 +141,19 @@
     {
       "chapter": 2,
       "scene": 2,
-      "character": "EVA",
+      "character": "EVA:angry",
       "text": "Stay back, Tia. He's a <i style='color:#ff3366;'>predator</i>. We should've flatlined him while his fans were still spinning."
     },
     {
       "chapter": 2,
       "scene": 3,
-      "character": "EVA",
+      "character": "EVA:angry",
       "text": "Corporate filth like him have one purpose: erasing us. Stop treating a <b style='color:#888;'>corpse-in-waiting</b> like a pet project."
     },
     {
       "chapter": 2,
       "scene": 4,
-      "character": "TIA",
+      "character": "TIA:thinking",
       "text": "But look at his <i style='color:#00e5ff;'>memory logs</i>... they're being deleted in real-time. Someone's burning his past."
     },
     {
@@ -151,14 +162,24 @@
       "character": "EVA",
       "text": "This isn't a negotiation. One wrong move and you're <b style='color:#444; text-shadow: 0 0 5px black;'>scrap metal</b>. Blink twice if you understand.",
       "choices": [
-        { "text": "Blink twice", "effect": { "compliance": 1 } },
-        { "text": "Glare back", "effect": { "defiance": 1 } }
+        {
+          "text": "Blink twice",
+          "effect": {
+            "compliance": 1
+          }
+        },
+        {
+          "text": "Glare back",
+          "effect": {
+            "defiance": 1
+          }
+        }
       ]
     },
     {
       "chapter": 2,
       "scene": 6,
-      "character": "TIA",
+      "character": "TIA:angry",
       "text": "Who are you really? And why is your Boss trying to <i style='color:#f2c300;'>incinerate</i> your consciousness from the inside out?"
     },
     {
@@ -168,8 +189,16 @@
       "character": "NARRATION",
       "text": "Your past is a ghost. The future is written in <b style='color:#ff0033; text-shadow: 0 0 8px red;'>NEON BLOOD</b>.",
       "choices": [
-        { "text": "Ally with EVA", "condition": "defiance >= 1", "nextId": "end_eva" },
-        { "text": "Accept TIA's Help", "condition": "compliance >= 1", "nextId": "end_tia" }
+        {
+          "text": "Ally with EVA",
+          "condition": "defiance >= 1",
+          "nextId": "end_eva"
+        },
+        {
+          "text": "Accept TIA's Help",
+          "condition": "compliance >= 1",
+          "nextId": "end_tia"
+        }
       ]
     },
     {
@@ -185,6 +214,7 @@
       "chapter": 2,
       "scene": 7,
       "character": "TIA",
+      "sprite": "neutral",
       "text": "I knew there was still a human inside you. Let's get to work.",
       "nextId": "credits_roll"
     },

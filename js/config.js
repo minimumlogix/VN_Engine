@@ -18,6 +18,7 @@ const ENGINE_CONFIG = {
         spriteEntryAnimation: 600,              // ms for sprite entry animation
         dialogueQueueCheckInterval: 100,        // ms to check if paused
         effectOverlayFadeDelay: 400,            // ms before truly hiding overlay
+        spriteEntryStagger: 200,                // ms delay before sprites appear after curtain
     },
 
     // ── Audio ─────────────────────────────────────────────────────────────

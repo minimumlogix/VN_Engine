@@ -1,11 +1,12 @@
 {
-  "storyTitle": "CYBER RUNNER: BLACK BOX",
+  "storyTitle": "CYBER RUNNER",
+  "storySubtitle": "CHAPTER 1: THE BLACK BOX",
   "theme": "cyberpunk.css",
-  "loadScreenBackground": "https://images.hdqwalls.com/download/cyberpunk-2077-night-city-2020-4k-7d-3840x2160.jpg",
+  "loadScreenBackground": "stories/demo_cyberpunk1/assets/images/backgrounds/loading.jpg",
   "chapterBackgrounds": {
-    "0": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
+    "0": "general_assets/effects/BlueCode.gif",
     "1": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg",
-    "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins.jpg"
+    "2": "stories/demo_cyberpunk1/assets/images/backgrounds/ancient_ruins2.jpg"
   },
   "chapterNames": {
     "1": "THE UNFAIR FATE",
@@ -26,19 +27,19 @@
       "name": "TIA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/TIA.png",
       "position": "left",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/tia_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
     },
     "EVA": {
       "name": "EVA",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/EVA.png",
       "position": "right",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/eva_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
     },
     "BOSS": {
       "name": "VEIL [HOLO CALL]",
       "sprite": "stories/demo_cyberpunk1/assets/images/characters/VEIL.png",
       "position": "left",
-      "sfx": "stories/demo_cyberpunk1/assets/audio/veil_sfx.mp3"
+      "sfx": "stories/demo_cyberpunk1/assets/audio/female_sfx1"
     },
     "RUNNER": {
       "name": "KANE [HOLO CALL]",

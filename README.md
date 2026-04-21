@@ -17,8 +17,7 @@
 ### ⚡ FUTURISTIC STYLES
 | Identifier | Category | Status | Interface Link |
 | :--- | :--- | :--- | :--- |
-| **Cyberpunk Demo 1** | Neon Noir | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk1) |
-| **Cyberpunk Demo 2** | Dystopian | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk2) |
+| **Cyberpunk Demo 1** | Neon Noir | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_cyberpunk:cyberpunk1) |
 | **Nasapunk Demo** | Hard Sci-Fi | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_nasapunk) |
 
 ---

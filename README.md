@@ -8,8 +8,8 @@
 ### 🌸 ANIME STYLES
 | Identifier | Category | Status | Interface Link |
 | :--- | :--- | :--- | :--- |
-| **My Hero Academia** | Shonen Action | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=MHA) |
-| **Anime Story Demo 1** | Slice of Life | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_anime1) |
+| **My Hero Academia** | Shonen Action | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=MHA:MHA_V1) |
+| **Anime Story Demo 1** | Slice of Life | `BETA` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_anime) |
 | **Warm UI Demo** | Cozy/Aesthetic | `TESTING` | [Launch VN](https://minimumlogix.github.io/VN_Engine/?story=demo_warmui) |
 
 ---

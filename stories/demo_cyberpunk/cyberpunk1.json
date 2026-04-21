@@ -25,9 +25,8 @@
   "characters": {
     "TIA": {
       "name": "TIA",
-      "sprite": "stories/demo_cyberpunk/assets/images/characters/TIA_neutral.png",
       "sprites": {
-        "neutral": "stories/demo_cyberpunk/assets/images/characters/TIA_neutral.png",
+        "neutral": "stories/demo_cyberpunk/assets/images/characters/TIA.png",
         "angry": "stories/demo_cyberpunk/assets/images/characters/TIA_angry.png",
         "thinking": "stories/demo_cyberpunk/assets/images/characters/TIA_thinking.png"
       },

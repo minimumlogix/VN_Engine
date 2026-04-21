@@ -1112,6 +1112,24 @@ async function displayNextDialogue() {
         effectsEngine.playSimpleEffect(node.Effect[0], node.Effect[1], node.Effect[2]);
     }
 
+    // ── Sprite-Specific Effects ──
+    if (node.SpriteEffects) {
+        if (typeof node.SpriteEffects === 'string') {
+            // Apply to primary character(s) of this node
+            const charInput = node.character;
+            let keys = [];
+            if (Array.isArray(charInput)) keys = charInput.map(k => k.split(':')[0]);
+            else if (typeof charInput === 'string') keys = charInput.split(',').map(s => s.trim().split(':')[0]);
+            
+            keys.forEach(k => effectsEngine.applySpriteEffect(k, node.SpriteEffects));
+        } else if (typeof node.SpriteEffects === 'object') {
+            // Targeted application: { "TIA": "Scanlines", "EVA": "Clear" }
+            Object.entries(node.SpriteEffects).forEach(([k, fx]) => {
+                effectsEngine.applySpriteEffect(k, fx);
+            });
+        }
+    }
+
     // Play SFX
     const rawCharKey = Array.isArray(node.character) ? node.character[0] : node.character?.split(',')[0].trim();
     const charKey = rawCharKey?.split(':')[0].trim();
@@ -1140,6 +1158,7 @@ async function displayNextDialogue() {
  */
 function cleanupStoryScreen() {
     effectsEngine.cleanup();
+    effectsEngine.clearAllSpriteEffects();
     if (typeof audioManager !== 'undefined') audioManager.clearSceneSfx();
     _hideAllSprites(document.getElementById('characterSpriteContainer'));
     state.isTyping = false;

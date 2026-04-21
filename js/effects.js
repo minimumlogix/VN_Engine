@@ -104,6 +104,9 @@ class EffectsEngine {
         this._activeSimpleStartTimer = null;
         this._activeSimpleEndTimer = null;
 
+        // ── Sprite Effects (Library loaded from sprite_effects.js) ──────
+        this.spriteEffects = typeof SPRITE_EFFECTS_LIBRARY !== 'undefined' ? SPRITE_EFFECTS_LIBRARY : {};
+        
         if (typeof appLogger !== 'undefined') {
             appLogger.info('EffectsEngine v4.0 initialised — GODMODE');
         }
@@ -274,6 +277,64 @@ class EffectsEngine {
             this.simpleLayer.style.display = 'none';
             this.simpleLayer.innerHTML = '';
         }
+    }
+
+    // ── Sprite-Targeted Effects ─────────────────────────────────────────
+
+    /**
+     * Apply a cinematic effect to a specific character sprite.
+     * @param {string} charKey    - Character identifier
+     * @param {string} effectName - Effect key from library
+     */
+    applySpriteEffect(charKey, effectName) {
+        const cls = this.spriteEffects[effectName];
+        const img = document.getElementById(`sprite-${charKey}`);
+
+        if (!img) {
+            if (typeof appLogger !== 'undefined') appLogger.warn(`[FX] No sprite found for character: ${charKey}`);
+            return;
+        }
+
+        // Handle 'None' or 'Clear'
+        if (cls === 'CLEAR' || effectName.toLowerCase() === 'none' || effectName.toLowerCase() === 'clear') {
+            this.clearSpriteEffects(charKey);
+            return;
+        }
+
+        if (!cls) {
+            if (typeof appLogger !== 'undefined') appLogger.warn(`[FX] Unknown sprite effect: ${effectName}`);
+            return;
+        }
+
+        // Clear existing sprite effects first (only one active at a time to prevent conflicts)
+        this.clearSpriteEffects(charKey);
+        
+        img.classList.add(cls);
+        if (typeof appLogger !== 'undefined') appLogger.debug(`[FX] Applied sprite effect '${effectName}' to ${charKey}`);
+    }
+
+    /**
+     * Remove all sprite-specific effects from a character.
+     * @param {string} charKey 
+     */
+    clearSpriteEffects(charKey) {
+        const img = document.getElementById(`sprite-${charKey}`);
+        if (!img) return;
+
+        // Remove all classes matching the library values
+        Object.values(this.spriteEffects).forEach(cls => {
+            if (cls !== 'CLEAR') img.classList.remove(cls);
+        });
+    }
+
+    /**
+     * Force clear effects from all sprites globally.
+     */
+    clearAllSpriteEffects() {
+        Object.values(this.spriteEffects).forEach(cls => {
+            if (cls === 'CLEAR') return;
+            document.querySelectorAll(`.${cls}`).forEach(el => el.classList.remove(cls));
+        });
     }
 
     /**

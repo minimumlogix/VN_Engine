@@ -75,19 +75,22 @@
       "chapter": 1,
       "scene": 1,
       "character": "BOSS",
-      "text": "Scrape the girls. Harvest the <b style='color:#00ffcc; text-shadow: 0 0 8px #00ffcc;'>Neural-Drive</b> and incinerate the meat. Leave no witnesses."
+      "SpriteEffects": "Holo",
+      "text": "Scrape the girls. Harvest the <b style='color:#00ffcc; text-shadow: 0 0 8px #00ffcc;'>Neural-Drive</b> and incinerate the meat. Total scrub. No footprints, no witnesses."
     },
     {
       "chapter": 1,
       "scene": 2,
       "character": "RUNNER",
-      "text": "Locked in. But something is <i style='color:#f2c300;'>bleeding</i> into the comms. Ghost data is crawling through the net. Watch your six."
+      "SpriteEffects": "Holo",
+      "text": "Locked in. But something is <i style='color:#f2c300;'>bleeding</i> into the comms. Ghost data is crawling. Watch your six, kid. This feels like a setup."
     },
     {
       "chapter": 1,
       "scene": 3,
       "character": "RUNNER:upset",
-      "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC DETECTED.</span> Visual's failing! Runner, do you copy?! Get out of there! [electricuted]"
+      "SpriteEffects": "Holo",
+      "text": "[glitch] <span style='color:#ff0033; letter-spacing: 2px;'>DE-SYNC.</span> Visuals are flatlining! They’re cooking your brain from the inside! Get the fuck out! [electricuted]"
     },
     {
       "chapter": 1,

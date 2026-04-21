@@ -1,0 +1,429 @@
+/* ============================================================
+   anime-academy.css — Part 1: Visual Identity & Loader
+   ============================================================
+   Aesthetics: Clean Academy Tech / Modern Anime UI
+   Palette: Lavender, Sky Blue, Pure White, Deep Slate
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Nunito:wght@400;700&display=swap');
+
+:root {
+    /* Fonts */
+    --font-primary: 'Nunito', sans-serif;
+    --font-display: 'Outfit', sans-serif;
+
+    /* Color Palette - Inspired by Yuuka's Design */
+    --color-bg: #f0f2f9;
+    --color-surface: rgba(255, 255, 255, 0.95);
+    --color-text: #4a4e69;
+    --color-accent: #7b8cf7;
+    /* Signature Blue */
+    --color-accent-alt: #b39df7;
+    /* Signature Lavender */
+    --color-border: #d1d9e6;
+    --color-overlay-bg: rgba(74, 78, 105, 0.4);
+
+    /* UI Shapes */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 24px;
+    --transition-speed: 0.3s;
+
+    /* Theme Specifics */
+    --soft-shadow: 0 8px 30px rgba(123, 140, 247, 0.15);
+    --glass-effect: blur(10px) saturate(180%);
+}
+
+/* ── Reset Overrides ── */
+body {
+    font-family: var(--font-primary);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+/* ── Loading Screen (Academy Style) ── */
+.loading-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    background-image:
+        radial-gradient(var(--color-accent-alt) 0.5px, transparent 0.5px),
+        radial-gradient(var(--color-accent) 0.5px, #ffffff 0.5px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    z-index: 9999;
+    position: fixed;
+    inset: 0;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--color-surface);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--soft-shadow);
+    border: 1px solid var(--color-border);
+    position: relative;
+}
+
+.loader-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.loader-bar-track {
+    width: 300px;
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 100px;
+    overflow: hidden;
+    border: 2px solid #ffffff;
+}
+
+.loader-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-alt));
+    border-radius: 100px;
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.loader-percent {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-accent-alt);
+}
+
+/* ============================================================
+   anime-academy.css — Part 2: Home & Cinematic Menu
+   ============================================================
+   Aesthetics: Soft Glassmorphism / Academy Branding
+   ============================================================ */
+
+/* ── Home Screen Overlay ── */
+.glass-overlay {
+    background: radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(123, 140, 247, 0.1) 100%);
+    backdrop-filter: var(--glass-effect);
+    -webkit-backdrop-filter: var(--glass-effect);
+}
+
+/* ── Main Title Aesthetics ── */
+h1,
+.start-main-title {
+    font-family: var(--font-display);
+    color: var(--color-text);
+    font-weight: 800;
+    letter-spacing: -1px;
+    text-shadow: 0 10px 20px rgba(74, 78, 105, 0.1);
+    animation: titleFloat 4s ease-in-out infinite;
+}
+
+/* ── Academy Styled Buttons ── */
+.button,
+.start-btn {
+    background: var(--color-surface);
+    color: var(--color-accent);
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 0px var(--color-accent);
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: none;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.button:hover,
+.start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px var(--color-accent);
+    background: var(--color-accent);
+    color: #ffffff;
+}
+
+.button:active,
+.start-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0px 0px var(--color-accent);
+}
+
+/* ── Cinematic Start Menu Overhaul ── */
+.start-content {
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(240, 242, 249, 0.95) 80%);
+}
+
+.start-eyebrow {
+    font-family: var(--font-display);
+    color: var(--color-accent-alt);
+    font-weight: 700;
+    letter-spacing: 4px;
+    background: rgba(179, 157, 247, 0.1);
+    padding: 4px 12px;
+    border-radius: 100px;
+}
+
+.start-title-deco {
+    background: linear-gradient(90deg, transparent, var(--color-accent-alt), transparent);
+    height: 3px;
+    box-shadow: 0 0 15px rgba(179, 157, 247, 0.5);
+}
+
+/* ── UI Decorations ── */
+.screen-corner {
+    border-color: var(--color-accent-alt) !important;
+    width: 30px;
+    height: 30px;
+    border-width: 3px !important;
+    opacity: 0.4;
+}
+
+.engine-badge {
+    color: var(--color-accent);
+    font-weight: 700;
+    opacity: 0.5;
+}
+
+/* ── Loader Logo Override ── */
+.loader-logo-svg {
+    color: var(--color-accent-alt);
+    filter: drop-shadow(0 0 10px rgba(179, 157, 247, 0.4));
+}
+
+@keyframes titleFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ============================================================
+   anime-academy.css — Part 3: Dialogue & Sprites
+   ============================================================
+   Aesthetics: Floating UI / Precision Typography
+   ============================================================ */
+
+/* ── Dialogue Container Overhaul ── */
+.dialogue-container {
+    background: var(--color-surface);
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow:
+        0 -10px 40px rgba(74, 78, 105, 0.1),
+        0 0 0 1px rgba(123, 140, 247, 0.1);
+    /* Thin outer ring */
+    width: 94%;
+    bottom: 3%;
+    padding: 10px;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dialogue-header {
+    background: transparent;
+    border-bottom: 2px dashed rgba(37, 99, 235, 0.15);
+    padding: 10px 14px;
+}
+
+/* ── The Floating Name Tag ── */
+#characterName {
+    background: var(--color-accent);
+    color: #ffffff;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(123, 140, 247, 0.3);
+    border: 3px solid #ffffff;
+}
+
+.dialogue-content {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    padding: 25px 30px;
+    line-height: 1.8;
+}
+
+/* ── Navigation & Auto Buttons ── */
+.nav-icon-btn {
+    color: var(--color-accent);
+    filter: drop-shadow(0 2px 4px rgba(123, 140, 247, 0.2));
+}
+
+.auto-btn {
+    background: #ffffff;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 6px 20px;
+}
+
+.auto-btn.auto-active {
+    background: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(123, 140, 247, 0.4);
+}
+
+/* ── Character Sprite Styling ── */
+.character-sprite {
+    /* Soften the sprites to blend with the lighter aesthetic */
+    filter: drop-shadow(0 10px 30px rgba(74, 78, 105, 0.15));
+    bottom: 32% !important;
+    /* Adjusted for larger dialogue box */
+}
+
+/* Multi-sprite specific entry (Soft Scale-in) */
+#characterSpriteContainer.multi-sprite-mode .character-sprite.active:not([data-sprite-settled]) {
+    animation: animeSpriteEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes animeSpriteEnter {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(40px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* ============================================================
+   anime-academy.css — Part 4: Overlays & Transitions
+   ============================================================
+   Aesthetics: Clean Academy / Modern Tactical UI
+   ============================================================ */
+
+/* ── Overlays (Settings & Menus) ── */
+.overlay-content {
+    background: var(--color-surface);
+    border: none;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(74, 78, 105, 0.2);
+    border: 1px solid #ffffff;
+}
+
+.overlay-header {
+    background: #f8f9ff;
+    color: var(--color-accent);
+    padding: 15px 25px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.settings-option {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s ease;
+}
+
+.settings-option:hover {
+    border-color: var(--color-accent-alt);
+}
+
+/* ── Choice Options Overlay ── */
+.choices-overlay {
+    background: rgba(240, 242, 249, 0.6);
+    backdrop-filter: blur(6px);
+}
+
+.choice-btn {
+    background: #ffffff;
+    color: var(--color-text);
+    border: 2px solid #ffffff;
+    padding: 18px 50px;
+    font-size: 1.1rem;
+    border-radius: 100px;
+    /* Capsule shape for anime UI */
+    box-shadow: 0 10px 25px rgba(123, 140, 247, 0.15);
+    text-transform: none;
+    min-width: 350px;
+}
+
+.choice-btn:hover {
+    background: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 15px 30px rgba(123, 140, 247, 0.3);
+}
+
+/* ── Chapter Transitions (Clean Tech Style) ── */
+.chapter-transition {
+    background: #ffffff;
+    /* Clean white transition */
+}
+
+.chapter-number {
+    color: var(--color-accent);
+    font-size: 6rem;
+    text-shadow: 10px 10px 0px rgba(123, 140, 247, 0.05);
+    font-weight: 900;
+}
+
+.chapter-title {
+    color: var(--color-text);
+    font-weight: 300;
+    letter-spacing: 12px;
+    margin-top: -10px;
+    opacity: 0.8;
+}
+
+.chapter-divider {
+    background: linear-gradient(90deg, transparent, var(--color-accent-alt), transparent);
+    height: 4px;
+    border-radius: 100px;
+}
+
+/* ── Sliders (Lavender Accents) ── */
+input[type="range"] {
+    background: var(--color-border);
+    height: 6px;
+    border-radius: 100px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    background: var(--color-accent);
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(123, 140, 247, 0.4);
+    border-radius: 50%;
+}
+
+/* ── End Screen ── */
+.end-glass-panel {
+    background: #ffffff;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 4rem;
+    box-shadow: var(--soft-shadow);
+}
+
+.end-message {
+    color: var(--color-accent);
+    letter-spacing: -2px;
+}

@@ -241,7 +241,7 @@ h1 {
     border-top: 4px solid var(--blue-600);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     box-shadow:
-        -4px -4px 0px var(--blue-700),
+        -4px -4px -4px var(--blue-700),
         0 -8px 30px rgba(37,99,235,0.1);
 }
 
@@ -256,11 +256,14 @@ h1 {
     font-weight: 800;
     color: #fff;
     background: linear-gradient(135deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
-    padding: 6px 20px;
-    border-radius: 999px;
-    font-size: 1.15rem;
-    letter-spacing: 2px;
+    padding: 6px 24px;
+    border-radius: 4px;
+    transform: rotate(-1.5deg);
     display: inline-block;
+    margin-bottom: 15px;
+    box-shadow: 4px 4px 0 rgba(37,99,235,0.25);
+    text-transform: uppercase;
+    letter-spacing: 1px;
     border: 1px solid rgba(37,99,235,0.5);
     box-shadow: 0 10px 30px rgba(37,99,235,0.2);
     text-transform: uppercase;
@@ -285,20 +288,6 @@ h1 {
     letter-spacing: 0.01em;
     padding-bottom: 10px;
 }
-
-.dialogue-container {
-    background:
-        radial-gradient(circle, rgba(37,99,235,0.05) 1px, transparent 1px),
-        repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(37,99,235,0.07) 23px, rgba(37,99,235,0.07) 24px),
-        repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(37,99,235,0.04) 23px, rgba(37,99,235,0.04) 24px),
-        linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(241,245,255,0.92) 100%);
-    border: 2px solid rgba(37,99,235,0.35);
-    border-top: 5px solid rgba(59,130,246,0.8);
-    box-shadow:
-        -4px -4px 0px rgba(37,99,235,0.14),
-        0 -8px 40px rgba(37,99,235,0.08);
-}
-
 
 /* ===== OPTION BUTTONS & NAVIGATION ===== */
 .option-btn, .nav-icon-btn, .auto-btn {
@@ -593,4 +582,3 @@ body::after { display: none; }
     background: linear-gradient(90deg, transparent, #3796eb, transparent);
     box-shadow: 0 0 15px #3796eb, 0 3px 0px rgba(0,0,0,0.3);
 }
-

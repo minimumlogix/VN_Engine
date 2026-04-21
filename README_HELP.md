@@ -2,7 +2,7 @@
 
 **Welcome, storyteller!** This guide will help you create and publish a visual novel in 5 minutes, then show you how to add advanced features.
 
-> **Status:** Engine v1.4 | No coding experience needed | Works with images, audio, and text
+> **Status:** Engine v2.0 | No coding experience needed | Professional Visual Novel Engine
 
 ---
 
@@ -92,6 +92,9 @@ Create a file named `my_first_story.json` inside your story folder. Copy this mi
 1. Open the engine in your browser: `index.html`
 2. Add this to the URL: `?story=my_first_story`
 3. Full URL looks like: `file:///path/to/VN_Engine/index.html?story=my_first_story`
+
+> [!TIP]
+> **Flexible Loading**: You can nest stories in subfolders. For example, to load `stories/SEASON1/Ep1.json`, use `?story=SEASON1/Ep1` in the URL.
 
 **That's it!** Your story is now loading. You should see:
 - Your story title on the start screen
@@ -203,18 +206,26 @@ Every character who speaks or appears on screen must be registered first.
 - `"right"` → Right side of the screen
 - `"center"` → Middle of the screen
 
-### Multiple Characters at Once
+### Character Expressions (Multiple Sprites)
 
-To show 2+ characters on screen together, list them in the dialogue:
+Characters can have multiple facial expressions. Instead of a single `sprite`, use the `sprites` object:
 
 ```json
 {
-  "character": "ALICE, BOB",
-  "text": "We agree on this."
+  "ALICE": {
+    "name": "Alice",
+    "sprites": {
+      "neutral": "stories/my_story/assets/characters/alice_happy.png",
+      "angry": "stories/my_story/assets/characters/alice_angry.png",
+      "sad": "stories/my_story/assets/characters/alice_sad.png"
+    },
+    "position": "left"
+  }
 }
 ```
 
-The engine automatically spaces them out. Their names appear joined with `&` (Alice & Bob).
+- When the character first appears, it uses the `"neutral"` sprite (or the first one found).
+- You can change expressions during dialogue easily (see below).
 
 ---
 
@@ -242,6 +253,41 @@ Your story is made of a `storyDialogue` array — a list of dialogue lines in or
   ]
 }
 ```
+
+### Switching Expressions (Shorthand)
+
+To change a character's face during dialogue, use the `Character:Expression` shorthand:
+
+```json
+{
+  "chapter": 1,
+  "character": "ALICE:angry",
+  "text": "How could you forget my birthday?!"
+}
+```
+
+**How it works:**
+- The engine finds `ALICE` in your registry.
+- It looks for the `"angry"` key in her `sprites` object.
+- The name tag will still correctly show **Alice**.
+
+### Multiple Characters at Once
+
+To show 2+ characters on screen together, list them in the dialogue:
+
+```json
+{
+  "character": "ALICE, BOB",
+  "text": "We agree on this."
+}
+```
+
+The engine uses a **Responsive Slot Grid**:
+- 2 Characters: Split 50/50
+- 3 Characters: Split 33/33/33
+- The characters automatically scale down to fit without overlapping.
+- You can even mix expressions: `"character": "ALICE:happy, BOB:sad"`
+
 
 **What each field means:**
 - **chapter** → Which chapter this line appears in (affects background & music)
@@ -407,6 +453,47 @@ Add cinematic effects inline to dialogue using `[effect_name]`:
 | `[shockwave]` | Radial ripple | Explosions, energy release |
 | `[hologram]` | Flickering scanlines | Holograms, glitchy tech |
 | `[rage]` | Red shake with saturation | Anger, rage, intensity |
+
+### Sprite Effects (Individual Characters)
+
+Unlike Macro effects which shake the whole screen, **Sprite Effects** only affect a specific character. Use the `SpriteEffects` key in your dialogue node.
+
+#### Option A: Apply to the current speaker
+```json
+{
+  "character": "ALICE",
+  "SpriteEffects": "Scanlines",
+  "text": "Receiving a holographic transmission..."
+}
+```
+
+#### Option B: Target specific characters (Multi-Character mode)
+```json
+{
+   "character": "ALICE, BOB",
+   "SpriteEffects": {
+      "ALICE": "Holo",
+      "BOB": "Clear"
+   },
+   "text": "Alice is a projection, but Bob is real."
+}
+```
+
+**Common Sprite Effects:**
+
+| Effect | Visual | Use For |
+|--------|--------|---------|
+| `Scanlines` | Flickering digital lines | Comm-links, monitors |
+| `Holo` | Cyan tint + digital jitter | Holographic calls |
+| `Glow` | Radiant neon aura | Powering up, magic |
+| `Drain` | Desaturates the sprite | Injury, sadness, ghosts |
+| `Ghost` | Semi-transparent + blur | Memories, spirits |
+| `Pulse` | Gentle breathing zoom | Living characters |
+| `None` | (or `Clear`) | Removes all effects |
+
+> [!TIP]
+> **Persistence**: Sprite effects stay on the character until you explicitly clear them or the character leaves the stage.
+
 
 ### Persistent Effects (Looping Backgrounds)
 
@@ -675,7 +762,11 @@ Every story needs this structure (order doesn't matter):
   "characters": {
     "CHARACTER_ID": {
       "name": "Display Name",
-      "sprite": "image URL",
+      "sprite": "Single URL",
+      "sprites": { 
+        "neutral": "URL", 
+        "angry": "URL" 
+      },
       "position": "left | right | center",
       "sfx": "audio URL or empty string"
     }
@@ -684,8 +775,9 @@ Every story needs this structure (order doesn't matter):
     {
       "chapter": 1,
       "scene": 1,
-      "character": "CHARACTER_ID",
-      "text": "What they say",
+      "character": "CHARACTER_ID:expression",
+      "text": "What they say [effect]",
+      "SpriteEffects": "EffectName | Object",
       "persistentEffect": "image/gif URL (optional)"
     }
   ]

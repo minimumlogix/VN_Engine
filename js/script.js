@@ -209,7 +209,7 @@ class ChapterManager {
      */
     _getChapterTitle(chapter, chapterData) {
         if (chapterData?.chapterNames && chapterData.chapterNames[chapter]) {
-            return chapterData.chapterNames[chapter];
+            return processMacros(chapterData.chapterNames[chapter]);
         }
         return `CHAPTER ${chapter}`;
     }
@@ -346,8 +346,19 @@ const state = {
     _initialState: {},
     isEffectPlaying: false,
     currentChapter: 1,
-    currentScene: 1
+    currentScene: 1,
+    playerName: 'Player'
 };
+
+/**
+ * Process text macros (e.g., {{user}}) based on current state.
+ * @param {string} text - The raw text to process
+ * @returns {string} - The processed text with macros replaced
+ */
+function processMacros(text) {
+    if (!text || typeof text !== 'string') return text;
+    return text.replace(/{{user}}/g, state.playerName || 'Player');
+}
 
 // Effects definition moved to effects.js
 
@@ -382,6 +393,11 @@ async function initializeApp() {
     }
 
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Capture player name from URL parameter ?player=Name
+    state.playerName = urlParams.get('player') || 'Player';
+    appLogger.info(`Player initialized as: ${state.playerName}`);
+
     const assetCfg = (typeof ENGINE_CONFIG !== 'undefined') ? ENGINE_CONFIG.assets : {};
     
     // Support both ?story= (new) and legacy ?storytitle= based on config
@@ -679,8 +695,8 @@ function finishLoading() {
     // Inject Dynamic Titles Professionally
     const mainTitleEl = document.getElementById('startMainTitle');
     const subTitleEl = document.getElementById('startSubTitle');
-    if (mainTitleEl) mainTitleEl.textContent = state.storyTitle;
-    if (subTitleEl) subTitleEl.textContent = state.storySubtitle;
+    if (mainTitleEl) mainTitleEl.textContent = processMacros(state.storyTitle);
+    if (subTitleEl) subTitleEl.textContent = processMacros(state.storySubtitle);
 
     // Switch from loading text to start screen securely
     if (loaderContent) loaderContent.style.display = 'none';
@@ -1146,7 +1162,7 @@ async function displayNextDialogue() {
     // 4. Start Typewriter
     if (writer) {
         writer.setSpeed(state.typingSpeed);
-        writer.write(node.text);
+        writer.write(processMacros(node.text));
     }
 
     updateButtonStates();
@@ -1227,7 +1243,7 @@ function updateCharacter(characterInput, expressionOverride = null) {
     state.currentCharacter = validEntries[0].data;
 
     // Character name in dialogue header
-    const combinedNames = validEntries.map(e => e.data.name).join(' & ');
+    const combinedNames = validEntries.map(e => processMacros(e.data.name)).join(' & ');
     elements.characterName.textContent = combinedNames;
     elements.characterName.setAttribute('data-text', combinedNames);
 
@@ -1444,7 +1460,7 @@ function showChoices(choices) {
     validChoices.forEach(choice => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
-        btn.textContent = choice.text;
+        btn.textContent = processMacros(choice.text);
         btn.onclick = () => {
             overlay.style.display = 'none';
             narration.applyEffect(choice.effect);

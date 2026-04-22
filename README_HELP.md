@@ -543,6 +543,30 @@ Make text pop with colors and shadows:
 - `<u>underlined text</u>`
 - `<span style='...'>custom style</span>`
 
+### Dynamic Player Name (Macros)
+
+You can personalize your story by using the `{{user}}` macro. This macro gets replaced with a player's name passed through the URL.
+
+#### Step 1: Use the macro in your JSON
+You can use `{{user}}` in dialogue text, character names, chapter titles, and even story titles.
+
+```json
+{
+  "character": "ALICE",
+  "text": "Hey {{user}}, where have you been?"
+}
+```
+
+#### Step 2: Pass the name in the URL
+Add `?player=Name` to your engine URL:
+
+`index.html?story=my_story&player=Ajay`
+
+**Result:** "Hey Ajay, where have you been?"
+
+> [!TIP]
+> **Default Name**: If no `player` parameter is provided, the engine defaults to "Player".
+
 ---
 
 ## Troubleshooting

@@ -4,368 +4,203 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content: blob:;">
-    <title>Premium Music Control</title>
-    <!-- Premium Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>YouTube Music Control Bar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary: #ff3366;
-            --secondary: #00f2ff;
-            --bg-glass: rgba(10, 10, 15, 0.7);
+            --accent: #ef4444;
+            --accent-glow: rgba(239, 68, 68, 0.4);
+            --bg-glass: rgba(10, 10, 15, 0.45);
             --border-glass: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
-            --text-dim: rgba(255, 255, 255, 0.6);
-            --glow: 0 0 20px rgba(255, 51, 102, 0.4);
-            --height: 80px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --text-dim: rgba(255, 255, 255, 0.5);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-in-out-soft: cubic-bezier(0.42, 0, 0.58, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-drag: none;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: transparent;
-            overflow: hidden;
-            height: var(--height);
-        }
-
-        /* --- Main Container --- */
-        #player-container {
-            position: relative;
-            width: 100%;
-            height: var(--height);
+        /* --- Core Layout --- */
+        .no-select { -webkit-user-select: none; user-select: none; }
+        
+        #control-bar { 
+            position: relative; 
+            overflow: hidden; 
             background: var(--bg-glass);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(24px) saturate(180%); 
+            -webkit-backdrop-filter: blur(24px) saturate(180%); 
             border-top: 1px solid var(--border-glass);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            overflow: hidden;
-            transition: var(--transition);
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.3);
+            font-family: 'Outfit', sans-serif;
         }
 
-        #album-art-bg {
+        /* Premium Grain Overlay */
+        #control-bar::before {
+            content: "";
             position: absolute;
-            inset: -20px;
-            background-size: cover;
-            background-position: center;
-            filter: blur(40px) brightness(0.4);
-            z-index: -1;
-            transition: background-image 1s ease;
-            animation: slowPan 20s infinite alternate linear;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        @keyframes slowPan {
-            from { transform: scale(1.1) translateX(-5%); }
-            to { transform: scale(1.2) translateX(5%); }
+        #album-art-bg { 
+            position: absolute; 
+            inset: 0; 
+            background-size: cover; 
+            background-position: center; 
+            transition: background-image 1.2s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+            filter: blur(40px) brightness(0.4); 
+            transform: scale(1.1); 
+            z-index: -1; 
+            animation: cinematicPan 60s infinite alternate ease-in-out; 
         }
 
-        /* --- Adaptive Layout Modes --- */
-        .mode-nano { padding: 0 10px !important; justify-content: center !important; }
-        .mode-compact { padding: 0 15px !important; }
-
-        /* --- Track Info --- */
-        .track-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-width: 0;
-            flex: 1;
+        @keyframes cinematicPan { 
+            0% { transform: scale(1.1) translate(0, 0); } 
+            100% { transform: scale(1.3) translate(-3%, -2%); } 
         }
-
-        .mode-nano .track-info, .mode-nano .controls-side, .mode-nano .volume-section { display: none; }
-        .mode-compact .volume-section { display: none; }
-
-        .album-art-mini {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            flex-shrink: 0;
+        
+        /* --- Progress Bar --- */
+        .progress-bar-container { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            height: 3px; 
+            background-color: rgba(255,255,255,0.08); 
+            cursor: pointer; 
+            transition: height 0.3s var(--ease-out-expo);
+            z-index: 20;
         }
-
-        .meta {
-            min-width: 0;
-            overflow: hidden;
+        .progress-bar-container:hover { height: 6px; }
+        .progress-bar { 
+            height: 100%; 
+            background: linear-gradient(90deg, #F87171, #EF4444, #F97316, #F43F5E); 
+            background-size: 200% 100%; 
+            transition: width 0.1s linear; 
+            position: relative; 
+            box-shadow: 0 0 15px var(--accent-glow);
+            animation: flowGradient 6s linear infinite;
         }
-
-        .title {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-main);
-            white-space: nowrap;
-            display: block;
-        }
-
-        .artist {
-            font-size: 12px;
-            color: var(--text-dim);
-            white-space: nowrap;
-        }
-
-        /* Scrolling Marquee if text is too long */
-        .marquee {
-            animation: marquee 10s linear infinite;
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* --- Central Controls --- */
-        .controls-main {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            z-index: 10;
-        }
-
-        .btn {
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: var(--transition);
+        @keyframes flowGradient { 0% { background-position: 100% 0%; } 100% { background-position: -100% 0%; } }
+        
+        /* --- Controls --- */
+        .control-btn { 
+            color: var(--text-dim); 
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
         }
-
-        .btn:hover:not(:disabled) {
-            color: var(--text-main);
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+        .control-btn:hover { color: var(--text-main); transform: scale(1.1) translateY(-1px); }
+        .control-btn:active { transform: scale(0.92); }
+        .control-btn:disabled { opacity: 0.2; cursor: not-allowed; transform: none; }
+        .control-btn.active { color: var(--accent); filter: drop-shadow(0 0 8px var(--accent-glow)); }
+        
+        #play-pause-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s var(--ease-out-expo);
         }
-
-        .btn:active { transform: scale(0.9); }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .btn-play {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary), #ff6b6b);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4);
+        #play-pause-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--accent-glow);
+            transform: scale(1.08);
         }
+        #play-pause-btn:active { transform: scale(0.95); }
 
-        .btn-play:hover {
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.6);
-            color: white;
-        }
+        /* --- Animations --- */
+        .buffering { animation: spin 1.2s linear infinite; opacity: 0.7; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .btn.active { color: var(--primary); text-shadow: var(--glow); }
-
-        /* --- Side Sections --- */
-        .controls-side {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 15px;
-        }
-
-        .volume-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 140px;
-            justify-content: flex-end;
-        }
-
-        /* --- Sliders (Progress & Volume) --- */
-        .slider-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            cursor: pointer;
-            transition: height 0.2s ease;
-        }
-
-        .slider-container:hover { height: 8px; }
-
-        .slider-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            position: relative;
-            box-shadow: 0 0 10px var(--primary);
-            transition: width 0.1s linear;
-        }
-
-        .slider-fill::after {
-            content: '';
-            position: absolute;
-            right: -4px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.2s;
-            box-shadow: 0 0 10px rgba(255,255,255,0.8);
-        }
-
-        .slider-container:hover .slider-fill::after { opacity: 1; }
-
-        /* Volume Slider Specific */
-        .vol-slider {
-            width: 80px;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            position: relative;
-            cursor: pointer;
-        }
-        .vol-fill {
-            height: 100%;
-            width: 100%;
-            background: var(--text-main);
-            border-radius: 2px;
-            transition: width 0.1s;
-        }
-
-        /* --- Visualizer --- */
-        .visualizer {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            height: 20px;
-            margin-left: 10px;
-        }
-
-        .viz-bar {
-            width: 3px;
-            height: 20%;
-            background: var(--secondary);
-            border-radius: 1px;
-            transition: height 0.2s ease;
-        }
-
-        .playing .viz-bar {
-            animation: equalize 1s infinite alternate;
-        }
-
-        @keyframes equalize {
-            0% { height: 20%; }
-            50% { height: 100%; }
-            100% { height: 40%; }
-        }
-
-        .viz-bar:nth-child(2) { animation-delay: 0.1s; }
-        .viz-bar:nth-child(3) { animation-delay: 0.2s; }
-        .viz-bar:nth-child(4) { animation-delay: 0.3s; }
-
-        /* --- Player Hide --- */
-        #player { position: absolute; top: -9999px; }
-
-        /* --- Tooltip --- */
-        [title]:hover::after {
-            content: attr(title);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 100;
+        /* --- Mobile Tweaks --- */
+        @media (max-width: 640px) {
+            #track-info-container { max-width: 140px; }
+            .secondary-controls { display: none; }
+            #control-bar { padding-left: 1rem; padding-right: 1rem; }
         }
     </style>
 </head>
-<body class="no-select">
+<body class="font-sans overflow-hidden no-select">
 
-    <div id="player-container">
+    <div id="control-bar" class="fixed bottom-0 left-0 w-full h-20 flex items-center z-50 px-6 sm:px-10">
         <div id="album-art-bg"></div>
 
-        <!-- Track Info -->
-        <div class="track-info">
-            <div id="album-art-mini" class="album-art-mini"></div>
-            <div class="meta">
-                <div id="track-title-container">
-                    <span id="track-title" class="title">Loading...</span>
+        <a href="https://www.joyland.ai/profile/2xYazJ" target="_blank" rel="noopener noreferrer" 
+           class="absolute top-2 right-10 text-[9px] tracking-widest uppercase text-white/30 hover:text-white/80 transition-all z-10 hidden md:block"> 
+           Music Player by 🅷🆄🅼🅰🅽 
+        </a>
+
+        <div class="w-full grid grid-cols-2 sm:grid-cols-3 items-center text-white relative z-10">
+            <!-- Left: Track Info -->
+            <div id="track-info-container" class="flex items-center justify-start gap-x-4 min-w-0 pr-4">
+                <div class="truncate flex flex-col justify-center">
+                    <p id="track-title" class="font-semibold text-sm sm:text-base text-white leading-tight truncate drop-shadow-lg">Loading Player...</p>
+                    <p id="track-artist" class="text-xs text-white/40 truncate font-medium tracking-wide">Please wait</p>
                 </div>
-                <div id="track-artist" class="artist">Please wait</div>
             </div>
-            <!-- Visualizer -->
-            <div id="visualizer" class="visualizer">
-                <div class="viz-bar"></div>
-                <div class="viz-bar"></div>
-                <div class="viz-bar"></div>
-                <div class="viz-bar"></div>
+
+            <!-- Center: Controls -->
+            <div class="flex justify-end sm:justify-center items-center gap-x-4 sm:gap-x-8">
+                <button id="shuffle-btn" class="control-btn hidden sm:flex" title="Shuffle">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 3h5v5M4 21L21 4M21 16v5h-5M4 3l7 7"></path></svg>
+                </button>
+                <button id="prev-btn" class="control-btn" title="Previous" disabled>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M15.25 4.75a.75.75 0 00-1.5 0v10.5a.75.75 0 001.5 0V4.75zM11.873 4.41a.75.75 0 00-1.123.662v10.05c0 .542.604.889 1.123.662l-6.877-4.854a.75.75 0 000-1.324L11.873 4.41z"/></svg>
+                </button>
+                <button id="play-pause-btn" class="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all shadow-2xl flex-shrink-0" title="Play" disabled>
+                    <span id="play-icon"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg></span>
+                    <span id="pause-icon" class="hidden"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></span>
+                </button>
+                <button id="next-btn" class="control-btn" title="Next" disabled>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M4.75 4.75a.75.75 0 00-1.5 0v10.5a.75.75 0 001.5 0V4.75zM8.127 4.41a.75.75 0 00-1.123.662v10.05c0 .542.604.889 1.123.662l6.877-4.854a.75.75 0 000-1.324L8.127 4.41z"/></svg>
+                </button>
+                <button id="repeat-btn" class="control-btn hidden sm:flex" title="Repeat"></button>
             </div>
-        </div>
 
-        <!-- Central Controls -->
-        <div class="controls-main">
-            <button id="shuffle-btn" class="btn" title="Shuffle">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M16 3h5v5M4 21L21 4M21 16v5h-5M4 3l7 7"/></svg>
-            </button>
-            <button id="prev-btn" class="btn" title="Previous" disabled>
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-            </button>
-            <button id="play-pause-btn" class="btn btn-play" title="Play/Pause" disabled>
-                <svg id="play-icon" width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pause-icon" class="hidden" width="28" height="28" fill="currentColor" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
-            <button id="next-btn" class="btn" title="Next" disabled>
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-            </button>
-            <button id="repeat-btn" class="btn" title="Repeat">
-                <svg id="repeat-icon" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-            </button>
-        </div>
-
-        <!-- Side Controls (Extra) -->
-        <div class="controls-side">
-            <button id="open-video-btn" class="btn" title="Watch Video" disabled>
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-            </button>
-        </div>
-
-        <!-- Volume Section -->
-        <div class="volume-section">
-            <button id="volume-btn" class="btn">
-                <svg id="vol-high" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-            </button>
-            <div id="vol-container" class="vol-slider">
-                <div id="vol-fill" class="vol-fill"></div>
+            <!-- Right: Secondary Controls -->
+            <div class="secondary-controls hidden sm:flex items-center justify-end gap-x-6">
+                <button id="open-video-btn" class="control-btn" title="Open Video" disabled>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </button>
+                <div class="flex items-center gap-x-4 group">
+                    <button id="volume-icon-btn" class="control-btn" title="Mute/Unmute"></button>
+                    <div id="volume-bar-container" class="w-24 h-1 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group-hover:h-1.5 transition-all duration-300">
+                        <div id="volume-bar-fill" class="h-full bg-white rounded-full transition-all duration-150" style="width: 100%"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Progress Bar -->
-        <div id="progress-container" class="slider-container">
-            <div id="progress-fill" class="slider-fill"></div>
+        <div id="progress-bar-container" class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
         </div>
     </div>
 
     <div id="player"></div>
 
     <script>
+        /* =========================================
+           1. CONSTANTS & UI
+           ========================================= */
         const FALLBACK_VIDEO_ID = 'OyFcQ909OYc';
-        
+        const SVG_ICONS = {
+            volumeHigh: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3zM14 7a5 5 0 010 6M14 4a8 8 0 010 12"/></svg>`,
+            volumeMedium: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3zM14 7a5 5 0 010 6"/></svg>`,
+            volumeLow: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3z"/></svg>`,
+            volumeOff: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 8h3l4-3v10l-4-3H3zM16 4l-2 2m0 0l-2 2m2-2l2 2m-2-2l-2-2"/></svg>`,
+            repeatOff: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 2l4 4-4 4M3 11v-1a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 01-4 4H3"></path></svg>`,
+            repeatOne: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 2l4 4-4 4M3 11v-1a4 4 0 014-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 01-4 4H3"></path><path d="M11.5 10.5h1V14h-1z" stroke-width="1" fill="currentColor"></path></svg>`
+        };
+
         const els = {
-            container: document.getElementById('player-container'),
             playPauseBtn: document.getElementById('play-pause-btn'),
             playIcon: document.getElementById('play-icon'),
             pauseIcon: document.getElementById('pause-icon'),
@@ -374,189 +209,308 @@
             shuffleBtn: document.getElementById('shuffle-btn'),
             repeatBtn: document.getElementById('repeat-btn'),
             openVideoBtn: document.getElementById('open-video-btn'),
-            progressFill: document.getElementById('progress-fill'),
-            progressContainer: document.getElementById('progress-container'),
-            albumArtBg: document.getElementById('album-art-bg'),
-            albumArtMini: document.getElementById('album-art-mini'),
+            progressBar: document.getElementById('progress-bar'),
+            progressContainer: document.getElementById('progress-bar-container'),
+            albumArt: document.getElementById('album-art-bg'),
             title: document.getElementById('track-title'),
             artist: document.getElementById('track-artist'),
-            volumeBtn: document.getElementById('volume-btn'),
-            volFill: document.getElementById('vol-fill'),
-            volContainer: document.getElementById('vol-container'),
-            visualizer: document.getElementById('visualizer')
+            volumeBtn: document.getElementById('volume-icon-btn'),
+            volumeContainer: document.getElementById('volume-bar-container'),
+            volumeFill: document.getElementById('volume-bar-fill')
         };
-
+        
+        els.volumeBtn.innerHTML = SVG_ICONS.volumeHigh;
+        
+        /* =========================================
+           2. STATE
+           ========================================= */
         let player;
-        let isPlaylistMode = false;
-        let repeatMode = 'none'; // 'none', 'all', 'one'
+        let playlist = [];
+        let currentTrackIndex = -1;
+        let currentPlaylistIndex = -1; 
         let isShuffle = false;
-        let lastVolume = 100;
+        let repeatMode = 'none'; // 'none', 'all', 'one'
         let progressInterval;
+        let isVolumeDragging = false;
+        let isSeekDragging = false; 
+        let lastVolume = 100;
+        let isPlaylistMode = false;
 
-        // --- YouTube API ---
+        /* =========================================
+           3. API SETUP
+           ========================================= */
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         function onYouTubeIframeAPIReady() {
-            const listId = getParam('list');
-            const videoId = getParam('videoId') || (listId ? '' : FALLBACK_VIDEO_ID);
+            const playlistIdParam = getUrlParameter('list');
+            let initialVideoId = getUrlParameter('videoId');
             
             const playerVars = { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0 };
-            if (listId) { 
-                isPlaylistMode = true; 
-                playerVars.listType = 'playlist'; 
-                playerVars.list = listId; 
+
+            if (playlistIdParam) {
+                isPlaylistMode = true;
+                playerVars.listType = 'playlist';
+                playerVars.list = playlistIdParam;
+            } else if (!initialVideoId) { 
+                initialVideoId = FALLBACK_VIDEO_ID; 
             }
 
             player = new YT.Player('player', {
                 height: '1', width: '1', playerVars: playerVars,
-                events: { 
-                    'onReady': onPlayerReady, 
-                    'onStateChange': onPlayerStateChange,
-                    'onError': () => nextTrack()
-                }
+                events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange, 'onError': onPlayerError }
             });
         }
 
-        function onPlayerReady() {
-            updateVolumeUI(player.getVolume());
-            updateControlStates();
-            checkLayout();
-        }
+        /* =========================================
+           4. CRITICAL LOGIC: STATE CHANGE & LOOP
+           ========================================= */
+        function onPlayerStateChange(event) {
+            updatePlayPauseIcon(event.data);
+            els.playPauseBtn.classList.toggle('buffering', event.data === YT.PlayerState.BUFFERING);
 
-        function onPlayerStateChange(e) {
-            const isPlaying = e.data === YT.PlayerState.PLAYING;
-            els.playIcon.style.display = isPlaying ? 'none' : 'block';
-            els.pauseIcon.style.display = isPlaying ? 'block' : 'none';
-            els.visualizer.classList.toggle('playing', isPlaying);
-
-            if (isPlaying) {
-                const data = player.getVideoData();
-                updateMeta(data);
-                startProgress();
-            } else {
-                stopProgress();
+            if (event.data === YT.PlayerState.PLAYING && isPlaylistMode) {
+                currentPlaylistIndex = player.getPlaylistIndex();
             }
 
-            if (e.data === YT.PlayerState.ENDED) {
-                if (repeatMode === 'one') { player.playVideo(); }
-                else { nextTrack(); }
+            // --- END OF TRACK LOGIC (Excludes Repeat One) ---
+            if (event.data === YT.PlayerState.ENDED) {
+                // If Repeat One is active, it's handled in startProgressUpdater (pre-emptive).
+                // If NOT Repeat One, handle normal progression
+                if (repeatMode !== 'one' && !isPlaylistMode) {
+                    playNextSong();
+                }
             }
-        }
-
-        function updateMeta(data) {
-            if (!data) return;
-            els.title.textContent = data.title;
-            els.artist.textContent = data.author;
-            const thumb = `https://i.ytimg.com/vi/${data.video_id}/mqdefault.jpg`;
-            els.albumArtBg.style.backgroundImage = `url(${thumb})`;
-            els.albumArtMini.style.backgroundImage = `url(${thumb})`;
             
-            // Check for title overflow
-            const containerWidth = document.getElementById('track-title-container').offsetWidth;
-            if (els.title.scrollWidth > containerWidth) {
-                els.title.classList.add('marquee');
-                els.title.innerHTML = `<span>${data.title}</span><span>${data.title}</span>`;
+            if (event.data === YT.PlayerState.PLAYING) {
+                const videoData = player.getVideoData();
+                updateTrackInfo(videoData);
+                setAlbumArt(videoData.video_id);
+                startProgressUpdater();
             } else {
-                els.title.classList.remove('marquee');
-                els.title.innerHTML = data.title;
+                stopProgressUpdater();
             }
         }
 
-        function startProgress() {
-            stopProgress();
+        /* =========================================
+           5. UPDATED PROGRESS & REPEAT ONE LOGIC
+           ========================================= */
+        const startProgressUpdater = () => {
+            stopProgressUpdater();
+            // Interval sped up to 50ms for ultra-smoothness
             progressInterval = setInterval(() => {
-                const cur = player.getCurrentTime();
-                const dur = player.getDuration();
-                if (dur > 0) els.progressFill.style.width = `${(cur / dur) * 100}%`;
-            }, 500);
-        }
-        function stopProgress() { clearInterval(progressInterval); }
+                if (player && player.getCurrentTime) {
+                    const ct = player.getCurrentTime();
+                    const dur = player.getDuration();
+                    
+                    // --- PRE-EMPTIVE REPEAT ONE LOGIC ---
+                    // If we are within 0.5s of the end, seek back to 0.
+                    if (repeatMode === 'one' && dur > 0 && ct >= (dur - 0.5)) {
+                        player.seekTo(0);
+                        return;
+                    }
+                    // ------------------------------------
 
-        function nextTrack() { isPlaylistMode ? player.nextVideo() : player.stopVideo(); }
-        function prevTrack() { player.getCurrentTime() > 3 ? player.seekTo(0) : (isPlaylistMode ? player.previousVideo() : player.seekTo(0)); }
-
-        function updateVolumeUI(v) {
-            els.volFill.style.width = `${v}%`;
-            player.setVolume(v);
-        }
-
-        function updateControlStates() {
-            const active = isPlaylistMode || player.getVideoData().video_id;
-            els.playPauseBtn.disabled = !active;
-            els.nextBtn.disabled = !active;
-            els.prevBtn.disabled = !active;
-            els.openVideoBtn.disabled = !active;
-        }
-
-        // --- Interaction ---
-        els.playPauseBtn.onclick = () => player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
-        els.nextBtn.onclick = nextTrack;
-        els.prevBtn.onclick = prevTrack;
-        
-        els.shuffleBtn.onclick = () => {
-            isShuffle = !isShuffle;
-            els.shuffleBtn.classList.toggle('active', isShuffle);
-            if (isPlaylistMode) player.setShuffle(isShuffle);
+                    if (dur > 0) els.progressBar.style.width = `${(ct / dur) * 100}%`;
+                }
+            }, 50); 
         };
+        const stopProgressUpdater = () => clearInterval(progressInterval);
 
-        els.repeatBtn.onclick = () => {
+
+        /* =========================================
+           6. HELPERS & EVENT LISTENERS
+           ========================================= */
+        function toggleRepeat() {
+            // Cycle: none -> all -> one -> none
             if (repeatMode === 'none') repeatMode = 'all';
             else if (repeatMode === 'all') repeatMode = 'one';
             else repeatMode = 'none';
             
-            els.repeatBtn.classList.toggle('active', repeatMode !== 'none');
-            // Simplified: Repeat one handled in onPlayerStateChange
-        };
+            console.log("Repeat Mode set to:", repeatMode);
 
-        els.volumeBtn.onclick = () => {
-            if (player.getVolume() > 0) {
-                lastVolume = player.getVolume();
-                updateVolumeUI(0);
-            } else {
-                updateVolumeUI(lastVolume);
+            if (isPlaylistMode && player && typeof player.setLoop === 'function') {
+                if (repeatMode === 'all') {
+                    player.setLoop(true); 
+                } else {
+                    player.setLoop(false);
+                }
             }
+            updateRepeatUI();
+        }
+
+        function playNextSong() {
+            if (!player) return;
+            if (isPlaylistMode) { player.nextVideo(); return; }
+
+            // Manual Mode Calculation
+            let nextIndex = isShuffle ? getNextRandomIndex() : currentTrackIndex + 1;
+
+            if (nextIndex >= playlist.length) {
+                if (repeatMode === 'all') {
+                    nextIndex = 0; 
+                } else {
+                    player.stopVideo();
+                    return;
+                }
+            }
+            loadTrack(nextIndex);
+        }
+
+        function playPrevSong() {
+            if (!player) return;
+            if (isPlaylistMode) { player.previousVideo(); return; }
+            if (player.getCurrentTime() > 3) { player.seekTo(0); return; }
+            
+            let prevIndex = currentTrackIndex - 1;
+            if (prevIndex < 0) prevIndex = playlist.length - 1;
+            loadTrack(prevIndex);
+        }
+
+        function onPlayerReady(event) {
+            if (isPlaylistMode) {
+                currentPlaylistIndex = player.getPlaylistIndex();
+            } else {
+                let initialVideoId = getUrlParameter('videoId') || FALLBACK_VIDEO_ID;
+                addTrackById(initialVideoId, false);
+            }
+            updateVolumeUI(player.getVolume());
+            updateRepeatUI();
+            updateControlStates();
+        }
+
+        function onPlayerError(event) {
+            console.error("YouTube Error:", event.data);
+            if (isPlaylistMode) setTimeout(() => player.nextVideo(), 2000);
+            else { showTemporaryMessage("Error. Skipping..."); setTimeout(playNextSong, 2000); }
+        }
+
+        function loadTrack(index) {
+            if (index >= 0 && index < playlist.length) {
+                currentTrackIndex = index;
+                player.loadVideoById(playlist[currentTrackIndex].id);
+                updateControlStates();
+            }
+        }
+
+        function getNextRandomIndex() {
+            if (playlist.length <= 1) return 0;
+            let nextIndex;
+            do { nextIndex = Math.floor(Math.random() * playlist.length); } 
+            while (nextIndex === currentTrackIndex);
+            return nextIndex;
+        }
+
+        function updateRepeatUI() {
+            els.repeatBtn.classList.toggle('active', repeatMode !== 'none');
+            els.repeatBtn.innerHTML = repeatMode === 'one' ? SVG_ICONS.repeatOne : SVG_ICONS.repeatOff;
+        }
+
+        function updateControlStates() {
+            const hasTrack = currentTrackIndex !== -1 || isPlaylistMode;
+            els.playPauseBtn.disabled = !hasTrack;
+            els.openVideoBtn.disabled = !hasTrack;
+            els.prevBtn.disabled = !hasTrack && !isPlaylistMode; 
+            els.nextBtn.disabled = !hasTrack && !isPlaylistMode;
+        }
+
+        function updateTrackInfo(videoData) {
+            if (videoData && videoData.title) {
+                els.title.textContent = videoData.title;
+                els.artist.textContent = videoData.author;
+            }
+        }
+
+        function setAlbumArt(videoId) {
+            if (!videoId) return;
+            const highRes = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+            els.albumArt.style.backgroundImage = `url(${highRes})`;
+        }
+
+        function updatePlayPauseIcon(state) {
+            els.playIcon.classList.toggle('hidden', state === YT.PlayerState.PLAYING);
+            els.pauseIcon.classList.toggle('hidden', state !== YT.PlayerState.PLAYING);
+        }
+
+        function updateVolumeUI(volume) {
+            els.volumeFill.style.width = `${volume}%`;
+            let icon = SVG_ICONS.volumeHigh;
+            if (volume === 0 || (player.isMuted && player.isMuted())) icon = SVG_ICONS.volumeOff;
+            else if (volume < 33) icon = SVG_ICONS.volumeLow;
+            else if (volume < 66) icon = SVG_ICONS.volumeMedium;
+            els.volumeBtn.innerHTML = icon;
+        }
+        
+        function updateShuffleUI() { els.shuffleBtn.classList.toggle('active', isShuffle); }
+
+        function showTemporaryMessage(msg) {
+            const oldTitle = els.title.textContent;
+            els.title.textContent = msg;
+            setTimeout(() => { if (els.title.textContent === msg) els.title.textContent = oldTitle; }, 2000);
+        }
+
+        function addTrackById(videoId, playNow) {
+            if (playlist.some(t => t.id === videoId)) return;
+            playlist.push({ id: videoId });
+            if (playNow || currentTrackIndex === -1) loadTrack(playlist.length - 1);
+        }
+
+        const getUrlParameter = (name) => {
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         };
 
+        // --- Listeners ---
+        els.playPauseBtn.onclick = () => player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
+        els.nextBtn.onclick = () => playNextSong();
+        els.prevBtn.onclick = () => playPrevSong();
+        els.shuffleBtn.onclick = () => {
+            isShuffle = !isShuffle; 
+            if (isPlaylistMode && player && player.setShuffle) {
+                player.setShuffle(isShuffle);
+                showTemporaryMessage(isShuffle ? "Shuffle On" : "Shuffle Off");
+            }
+            updateShuffleUI();
+        };
+        els.repeatBtn.onclick = toggleRepeat;
+        els.volumeBtn.onclick = () => {
+            if (player.isMuted()) { player.unMute(); player.setVolume(lastVolume); }
+            else { lastVolume = player.getVolume(); player.mute(); updateVolumeUI(0); }
+        };
         els.openVideoBtn.onclick = () => {
             const id = player.getVideoData().video_id;
             if (id) window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
         };
 
-        // --- Sliders ---
-        function setupSlider(container, fill, callback) {
-            let isDragging = false;
-            const handle = (e) => {
-                const rect = container.getBoundingClientRect();
-                let p = (e.clientX - rect.left) / rect.width;
-                p = Math.max(0, Math.min(1, p));
-                fill.style.width = `${p * 100}%`;
-                callback(p);
-            };
-            container.onmousedown = (e) => { isDragging = true; handle(e); };
-            window.addEventListener('mousemove', (e) => { if (isDragging) handle(e); });
-            window.addEventListener('mouseup', () => { isDragging = false; });
+        // --- Drag ---
+        els.volumeContainer.onmousedown = (e) => { isVolumeDragging = true; handleVolDrag(e); };
+        els.progressContainer.onmousedown = (e) => { isSeekDragging = true; handleSeek(e); };
+        window.onmouseup = () => { 
+            isVolumeDragging = false; 
+            isSeekDragging = false; 
+            if(player && player.getPlayerState() === 1) startProgressUpdater(); 
+        };
+        window.onmousemove = (e) => {
+            if (isVolumeDragging) handleVolDrag(e);
+            if (isSeekDragging) handleSeek(e);
+        };
+
+        function handleVolDrag(e) {
+            const rect = els.volumeContainer.getBoundingClientRect();
+            let p = ((e.clientX - rect.left) / rect.width) * 100;
+            p = Math.max(0, Math.min(100, p));
+            if (player && player.setVolume) { player.setVolume(p); updateVolumeUI(p); }
         }
 
-        setupSlider(els.progressContainer, els.progressFill, (p) => player.seekTo(player.getDuration() * p));
-        setupSlider(els.volContainer, els.volFill, (p) => updateVolumeUI(p * 100));
-
-        // --- Layout Engine ---
-        function checkLayout() {
-            const w = window.innerWidth;
-            els.container.classList.remove('mode-nano', 'mode-compact');
-            
-            if (w < 150) {
-                els.container.classList.add('mode-nano');
-            } else if (w < 450) {
-                els.container.classList.add('mode-compact');
-            }
+        function handleSeek(e) {
+            const rect = els.progressContainer.getBoundingClientRect();
+            const p = (e.clientX - rect.left) / rect.width;
+            els.progressBar.style.width = `${p * 100}%`;
+            if (player && player.seekTo) player.seekTo(player.getDuration() * p);
         }
-
-        window.onresize = checkLayout;
-        const getParam = (n) => new URLSearchParams(window.location.search).get(n);
-
     </script>
 </body>
 </html>

@@ -427,3 +427,9 @@ input[type="range"]::-webkit-slider-thumb {
     color: var(--color-accent);
     letter-spacing: -2px;
 }
+
+.end-subtext {
+    color: rgba(0,255,255,0.5);
+    font-family: var(--font-primary);
+    letter-spacing: 2px;
+}

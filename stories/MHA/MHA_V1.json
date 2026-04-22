@@ -100,7 +100,8 @@
       "chapter": 0,
       "scene": 1,
       "character": "NARRATION",
-      "text": "Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon."
+      "text": "Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon.",
+      "SpriteEffects": "Scanlines"
     },
     {
       "chapter": 0,
@@ -238,7 +239,7 @@
       "chapter": 3,
       "scene": 2,
       "character": "DEKU",
-      "text": "[shake] <b style=\"color:#00ff88; font-size:1.1em;\">WAIT! IT'S YOU!</b> You were a hero! I watched you save that city! Why are you with THEM?!"
+      "text": "[shake] <b style=\"color:#00ff88; font-size:1.1em;\">WAIT! IT'S YOU! {{user}}!!</b> You were a hero! I watched you save that city! Why are you with THEM?!"
     },
     {
       "chapter": 3,

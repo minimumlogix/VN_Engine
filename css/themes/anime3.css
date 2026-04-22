@@ -9,7 +9,7 @@
     --color-bg: #0d0d0f;
     --color-surface: rgba(18, 18, 22, .96);
     --color-text: #d1d1d6;
-    --color-accent: #4cc9f0;
+    --color-accent: #ff2a1b;
     --color-accent-alt: #9d0000;
     --color-border: #2a2a30;
     --color-overlay: rgba(5, 5, 7, .98);
@@ -165,6 +165,7 @@ body {
 }
 
 /* Icon Buttons */
+.option-btn, 
 .menu-icon,
 .mute-icon,
 .nav-icon-btn {
@@ -174,6 +175,7 @@ body {
     border-radius: 0;
 }
 
+.option-btn:hover,
 .menu-icon:hover,
 .mute-icon:hover,
 .nav-icon-btn:hover {
@@ -260,18 +262,32 @@ body {
 }
 
 input[type="range"] {
+    appearance: none;
     -webkit-appearance: none;
     background: #141416;
     height: 4px;
+    width: 100%;
 }
 
 input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
     background: var(--color-accent-alt);
     cursor: pointer;
     clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--color-accent-alt);
+    cursor: pointer;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    border: none;
 }
 
 /* Chapter Transition */

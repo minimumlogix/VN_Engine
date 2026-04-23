@@ -7,17 +7,19 @@
     <title>YouTube Music Control Bar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
         
         :root {
             --accent: #EF4444;
-            --accent-glow: rgba(239, 68, 68, 0.4);
-            --glass-bg: rgba(0, 0, 0, 0.15); 
+            --accent-glow: rgba(239, 68, 68, 0.5);
+            --glass-bg: rgba(0, 0, 0, 0.12); 
             --glass-border: rgba(255, 255, 255, 0.08);
-            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            /* Ultra-smooth cubic-bezier for a premium feel */
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --transition-main: all 0.5s var(--ease-out-expo);
         }
 
-        body { font-family: 'Inter', sans-serif; background: transparent; margin: 0; overflow: hidden; }
+        body { font-family: 'Outfit', sans-serif; background: transparent; margin: 0; overflow: hidden; color: #fff; }
         .no-select { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
 
         /* --- Core Layout --- */
@@ -28,15 +30,16 @@
             width: 100%;
             height: 80px;
             background: var(--glass-bg);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
             border-bottom: 1px solid var(--glass-border);
             z-index: 50;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 1.5rem;
-            transition: var(--transition-smooth);
+            padding: 0 2rem;
+            transition: var(--transition-main);
+            will-change: transform, opacity;
         }
 
         #album-art-bg { 
@@ -44,105 +47,146 @@
             inset: 0; 
             background-size: cover; 
             background-position: center; 
-            transition: background-image 1.5s ease; 
-            filter: blur(40px) brightness(0.2); 
-            transform: scale(1.1); 
+            transition: background-image 2s var(--ease-out-expo); 
+            filter: blur(50px) brightness(0.18); 
+            transform: scale(1.15); 
             z-index: -1; 
-            animation: atmosphericDrift 30s infinite alternate ease-in-out; 
+            animation: atmosphericDrift 40s infinite alternate ease-in-out; 
+            will-change: transform;
         }
         @keyframes atmosphericDrift { 
-            0% { transform: scale(1.1) translate(0, 0); } 
-            100% { transform: scale(1.2) translate(-1%, -1%); } 
+            0% { transform: scale(1.15) rotate(0deg); } 
+            100% { transform: scale(1.25) rotate(1deg) translate(-1%, -1%); } 
         }
 
-        /* --- Progress Bar (Pinned to Bottom) --- */
+        /* --- Progress Bar --- */
         .progress-bar-container { 
             position: absolute; 
             bottom: 0; 
             left: 0; 
             right: 0; 
             height: 3px; 
-            background-color: rgba(255,255,255,0.1); 
+            background-color: rgba(255,255,255,0.08); 
             cursor: pointer; 
-            transition: height 0.3s ease; 
+            transition: height 0.3s var(--ease-out-expo), bottom 0.3s var(--ease-out-expo);
             z-index: 60;
         }
         .progress-bar-container:hover { height: 6px; }
         .progress-bar { 
             height: 100%; 
             background: linear-gradient(90deg, #F87171, #EF4444, #F43F5E); 
-            transition: width 0.1s linear; 
+            /* Width transition removed for RAF smoothing */
             position: relative;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%) scale(0);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fff;
+            transition: transform 0.2s var(--ease-out-expo);
+        }
+        .progress-bar-container:hover .progress-bar::after { transform: translateY(-50%) scale(1); }
 
         /* --- Credits --- */
         .credits-container {
             position: absolute;
-            bottom: 6px;
+            bottom: 8px;
             left: 0;
             width: 100%;
             display: flex;
             justify-content: center;
             pointer-events: none;
             z-index: 55;
+            opacity: 0.4;
+            transition: opacity 0.3s var(--ease-out-expo);
         }
+        #control-bar:hover .credits-container { opacity: 0.7; }
         .credits-text {
-            font-size: 8px;
-            letter-spacing: 0.12em;
+            font-size: 7.5px;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.3);
-            font-weight: 600;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
         }
 
-        /* --- Controls & UI --- */
+        /* --- Controls --- */
         .control-btn { 
-            color: rgba(255,255,255,0.6); 
-            transition: var(--transition-smooth); 
+            color: rgba(255,255,255,0.5); 
+            transition: var(--transition-main); 
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transform: translateZ(0); /* Force GPU */
         }
-        .control-btn:hover:not(:disabled) { color: #fff; transform: scale(1.1); }
-        .control-btn:disabled { opacity: 0.2; cursor: not-allowed; }
-        .control-btn.active { color: var(--accent); filter: drop-shadow(0 0 8px var(--accent-glow)); }
+        .control-btn:hover:not(:disabled) { 
+            color: #fff; 
+            transform: scale(1.18) translateY(-2px); 
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+        .control-btn:active:not(:disabled) { transform: scale(0.9) translateY(0); }
+        .control-btn:disabled { opacity: 0.15; cursor: not-allowed; filter: grayscale(1); }
+        .control-btn.active { color: var(--accent); filter: drop-shadow(0 0 12px var(--accent-glow)); }
 
         .play-pause-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.08);
+            width: 54px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            transition: var(--transition-smooth);
+            transition: var(--transition-main);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .play-pause-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.2); }
+        .play-pause-btn:hover:not(:disabled) { 
+            background: rgba(255, 255, 255, 0.12); 
+            border-color: rgba(255, 255, 255, 0.2); 
+            transform: scale(1.12);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
 
-        /* --- Horizontal Volume Popup (Inside Bar) --- */
+        /* Buffering State - Smoother */
+        .play-pause-btn.buffering::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 2px solid transparent;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Volume Group --- */
         .volume-group {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.05);
-            border-radius: 25px;
-            padding: 4px;
-            transition: var(--transition-smooth);
+            background: rgba(255,255,255,0.04);
+            border-radius: 30px;
+            padding: 2px;
+            transition: width 0.6s var(--ease-out-expo), background 0.3s var(--ease-out-expo), padding 0.6s var(--ease-out-expo);
             overflow: hidden;
-            width: 40px; /* Icon width only initially */
-            max-width: 40px;
-            border: 1px solid transparent;
+            width: 44px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .volume-group:hover, .volume-group.active {
-            width: 160px;
-            max-width: 160px;
+            width: 170px;
             background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.1);
-            padding: 4px 12px;
+            padding: 2px 14px;
+            border-color: rgba(255,255,255,0.15);
         }
         .volume-slider-wrapper {
             flex: 1;
-            margin-left: 10px;
+            margin-left: 12px;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.4s var(--ease-out-expo), visibility 0.4s var(--ease-out-expo);
             height: 4px;
             display: flex;
             align-items: center;
@@ -155,7 +199,7 @@
         #volume-slider-track {
             width: 100%;
             height: 4px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.12);
             border-radius: 2px;
             cursor: pointer;
             position: relative;
@@ -166,6 +210,8 @@
             border-radius: 2px;
             width: 100%;
             position: relative;
+            /* Smoothed width update */
+            transition: width 0.15s var(--ease-out-expo);
         }
         #volume-slider-fill::after {
             content: '';
@@ -184,15 +230,17 @@
         .track-info {
             display: flex;
             flex-direction: column;
-            max-width: 280px;
+            max-width: 300px;
+            gap: 2px;
         }
-        #track-title { font-weight: 700; font-size: 0.9rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #track-artist { font-size: 0.75rem; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #track-title { font-weight: 700; font-size: 0.95rem; color: #fff; letter-spacing: -0.01em; }
+        #track-artist { font-size: 0.8rem; color: rgba(255,255,255,0.45); font-weight: 500; }
 
         @media (max-width: 640px) {
             .track-info { display: none; }
-            #control-bar { padding: 0 0.75rem; justify-content: center; gap: 1rem; }
-            .volume-group:hover { width: 140px; }
+            #control-bar { padding: 0 1rem; justify-content: center; gap: 1.5rem; }
+            .volume-group:hover { width: 150px; }
+            .flex-1 { flex: none; }
         }
     </style>
 </head>
@@ -201,40 +249,40 @@
     <div id="control-bar">
         <div id="album-art-bg"></div>
 
-        <!-- Progress Bar (Pinned to Bottom Edge) -->
+        <!-- Progress Bar -->
         <div id="progress-bar-container" class="progress-bar-container">
             <div id="progress-bar" class="progress-bar"></div>
         </div>
 
-        <!-- Credits (Inside Bar, Above Progress) -->
+        <!-- Credits -->
         <div class="credits-container">
             <span class="credits-text">Music Player by 🅷🆄🅼🅰🅽</span>
         </div>
 
-        <!-- Section: Track Info -->
+        <!-- Left: Track Info -->
         <div class="flex items-center flex-1 min-w-0">
             <div class="track-info">
-                <p id="track-title">Loading Player...</p>
-                <p id="track-artist">Please wait</p>
+                <p id="track-title" class="truncate">Loading Player...</p>
+                <p id="track-artist" class="truncate">Please wait</p>
             </div>
         </div>
 
-        <!-- Section: Controls -->
-        <div class="flex items-center justify-center gap-6 flex-1">
+        <!-- Center: Playback Controls -->
+        <div class="flex items-center justify-center gap-7 flex-1">
             <button id="shuffle-btn" class="control-btn" title="Shuffle"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 3h5v5M4 21L21 4M21 16v5h-5M4 3l7 7"></path></svg></button>
             <button id="prev-btn" class="control-btn" title="Previous" disabled><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M15.25 4.75a.75.75 0 00-1.5 0v10.5a.75.75 0 001.5 0V4.75zM11.873 4.41a.75.75 0 00-1.123.662v10.05c0 .542.604.889 1.123.662l-6.877-4.854a.75.75 0 000-1.324L11.873 4.41z"/></svg></button>
             
             <button id="play-pause-btn" class="play-pause-btn control-btn" title="Play" disabled>
-                <span id="play-icon"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg></span>
-                <span id="pause-icon" class="hidden"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></span>
+                <span id="play-icon"><svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg></span>
+                <span id="pause-icon" class="hidden"><svg class="w-9 h-9" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></span>
             </button>
 
             <button id="next-btn" class="control-btn" title="Next" disabled><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4.75 4.75a.75.75 0 00-1.5 0v10.5a.75.75 0 001.5 0V4.75zM8.127 4.41a.75.75 0 00-1.123.662v10.05c0 .542.604.889 1.123.662l6.877-4.854a.75.75 0 000-1.324L8.127 4.41z"/></svg></button>
             <button id="repeat-btn" class="control-btn" title="Repeat"></button>
         </div>
 
-        <!-- Section: Volume & More -->
-        <div class="flex items-center justify-end gap-6 flex-1">
+        <!-- Right: Volume & Open -->
+        <div class="flex items-center justify-end gap-7 flex-1">
             <button id="open-video-btn" class="control-btn sm:flex hidden" title="Open Video" disabled><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></button>
             
             <div class="volume-group" id="volume-group">
@@ -282,70 +330,90 @@
         };
 
         let player, playlist = [], currentTrackIndex = -1, isShuffle = false, repeatMode = 'none';
-        let progressInterval, isVolumeDragging = false, isSeekDragging = false, lastVolume = 100, isPlaylistMode = false;
+        let isVolumeDragging = false, isSeekDragging = false, lastVolume = 100, isPlaylistMode = false;
+        let isReady = false;
+        let rafId = null;
 
+        // Initialize YouTube API
         const tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api";
         document.getElementsByTagName('script')[0].parentNode.insertBefore(tag, document.getElementsByTagName('script')[0]);
 
         function onYouTubeIframeAPIReady() {
             const list = getUrlParameter('list'), videoId = getUrlParameter('videoId');
-            const vars = { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0 };
+            const vars = { 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0, 'origin': window.location.origin };
             if (list) { isPlaylistMode = true; vars.listType = 'playlist'; vars.list = list; }
-            else if (!videoId) { }
-            player = new YT.Player('player', { height: '1', width: '1', playerVars: vars, events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange, 'onError': onPlayerError } });
+            player = new YT.Player('player', { 
+                height: '1', width: '1', playerVars: vars, 
+                events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange, 'onError': onPlayerError } 
+            });
         }
 
         function onPlayerStateChange(e) {
             updatePlayPauseIcon(e.data);
+            els.playPauseBtn.classList.toggle('buffering', e.data === YT.PlayerState.BUFFERING);
             if (e.data === YT.PlayerState.PLAYING) {
-                const vd = player.getVideoData(); updateTrackInfo(vd); setAlbumArt(vd.video_id); startProgressUpdater();
-            } else stopProgressUpdater();
-            if (e.data === YT.PlayerState.ENDED && repeatMode !== 'one' && !isPlaylistMode) playNextSong();
+                const vd = player.getVideoData(); 
+                if (vd) { updateTrackInfo(vd); setAlbumArt(vd.video_id); }
+                startSmoothProgress();
+            } else {
+                stopSmoothProgress();
+            }
+            if (e.data === YT.PlayerState.ENDED) {
+                if (repeatMode === 'one') player.playVideo(); else if (!isPlaylistMode) playNextSong();
+            }
         }
 
-        const startProgressUpdater = () => {
-            stopProgressUpdater();
-            progressInterval = setInterval(() => {
-                if (player && player.getCurrentTime) {
+        // --- SILKY SMOOTH PROGRESS (RAF) ---
+        const startSmoothProgress = () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            const update = () => {
+                if (isReady && player && player.getCurrentTime) {
                     const ct = player.getCurrentTime(), dur = player.getDuration();
-                    if (repeatMode === 'one' && dur > 0 && ct >= (dur - 0.5)) { player.seekTo(0); return; }
-                    if (dur > 0) els.progressBar.style.width = `${(ct / dur) * 100}%`;
+                    if (repeatMode === 'one' && dur > 0 && ct >= (dur - 0.5)) { player.seekTo(0); }
+                    if (dur > 0 && !isSeekDragging) {
+                        const p = (ct / dur) * 100;
+                        els.progressBar.style.width = `${p}%`;
+                    }
                 }
-            }, 100);
+                rafId = requestAnimationFrame(update);
+            };
+            rafId = requestAnimationFrame(update);
         };
-        const stopProgressUpdater = () => clearInterval(progressInterval);
+        const stopSmoothProgress = () => { if (rafId) cancelAnimationFrame(rafId); rafId = null; };
 
-        function toggleRepeat() {
-            if (repeatMode === 'none') repeatMode = 'all'; else if (repeatMode === 'all') repeatMode = 'one'; else repeatMode = 'none';
-            if (isPlaylistMode && player.setLoop) player.setLoop(repeatMode === 'all');
-            updateRepeatUI();
+        function onPlayerReady() {
+            isReady = true;
+            if (!isPlaylistMode) {
+                const vid = getUrlParameter('videoId') || FALLBACK_VIDEO_ID;
+                addTrackById(vid, true);
+            }
+            try { updateVolumeUI(player.getVolume()); } catch(e) { updateVolumeUI(100); }
+            updateRepeatUI(); updateControlStates();
+        }
+
+        function onPlayerError(e) {
+            console.error("YT Error:", e.data);
+            showTemporaryMessage(e.data === 100 || e.data === 101 || e.data === 150 ? "Restricted Content" : "Error Occurred");
+            setTimeout(() => { if (isPlaylistMode) try { player.nextVideo(); } catch(err){} else playNextSong(); }, 3000);
         }
 
         function playNextSong() {
-            if (!player) return; if (isPlaylistMode) { player.nextVideo(); return; }
+            if (!isReady || !player) return; 
+            if (isPlaylistMode) { try { player.nextVideo(); } catch(e){} return; }
             let ni = isShuffle ? getNextRandomIndex() : currentTrackIndex + 1;
-            if (ni >= playlist.length) { if (repeatMode === 'all') ni = 0; else { player.stopVideo(); return; } }
+            if (ni >= playlist.length) { if (repeatMode === 'all' && playlist.length > 0) ni = 0; else { try { player.stopVideo(); } catch(e){} return; } }
             loadTrack(ni);
         }
 
         function playPrevSong() {
-            if (!player) return; if (isPlaylistMode) { player.previousVideo(); return; }
+            if (!isReady || !player) return; 
+            if (isPlaylistMode) { try { player.previousVideo(); } catch(e){} return; }
             if (player.getCurrentTime() > 3) { player.seekTo(0); return; }
             let pi = currentTrackIndex - 1; if (pi < 0) pi = playlist.length - 1; loadTrack(pi);
         }
 
-        function onPlayerReady() {
-            if (!isPlaylistMode) addTrackById(getUrlParameter('videoId') || FALLBACK_VIDEO_ID, false);
-            updateVolumeUI(player.getVolume()); updateRepeatUI(); updateControlStates();
-        }
-
-        function onPlayerError() {
-            if (isPlaylistMode) setTimeout(() => player.nextVideo(), 2000);
-            else { showTemporaryMessage("Error. Skipping..."); setTimeout(playNextSong, 2000); }
-        }
-
         function loadTrack(i) {
-            if (i >= 0 && i < playlist.length) { currentTrackIndex = i; player.loadVideoById(playlist[i].id); updateControlStates(); }
+            if (i >= 0 && i < playlist.length) { currentTrackIndex = i; try { player.loadVideoById(playlist[i].id); updateControlStates(); } catch(e){} }
         }
 
         function getNextRandomIndex() {
@@ -353,57 +421,70 @@
             let ni; do { ni = Math.floor(Math.random() * playlist.length); } while (ni === currentTrackIndex); return ni;
         }
 
-        function updateRepeatUI() { els.repeatBtn.classList.toggle('active', repeatMode !== 'none'); els.repeatBtn.innerHTML = repeatMode === 'one' ? SVG_ICONS.repeatOne : SVG_ICONS.repeatOff; }
+        function updateRepeatUI() { 
+            els.repeatBtn.classList.toggle('active', repeatMode !== 'none'); 
+            els.repeatBtn.innerHTML = repeatMode === 'one' ? SVG_ICONS.repeatOne : SVG_ICONS.repeatOff; 
+        }
 
         function updateControlStates() {
-            const ht = currentTrackIndex !== -1 || isPlaylistMode;
+            const ht = (currentTrackIndex !== -1 && playlist.length > 0) || isPlaylistMode;
             els.playPauseBtn.disabled = !ht; els.openVideoBtn.disabled = !ht;
             els.prevBtn.disabled = !ht && !isPlaylistMode; els.nextBtn.disabled = !ht && !isPlaylistMode;
         }
 
-        function updateTrackInfo(vd) { if (vd && vd.title) { els.title.textContent = vd.title; els.artist.textContent = vd.author; } }
+        function updateTrackInfo(vd) { if (vd && vd.title) { els.title.textContent = vd.title; els.artist.textContent = vd.author || "Unknown Artist"; } }
 
         function setAlbumArt(vid) { if (vid) els.albumArt.style.backgroundImage = `url(https://i.ytimg.com/vi/${vid}/maxresdefault.jpg)`; }
 
-        function updatePlayPauseIcon(st) { els.playIcon.classList.toggle('hidden', st === YT.PlayerState.PLAYING); els.pauseIcon.classList.toggle('hidden', st !== YT.PlayerState.PLAYING); }
+        function updatePlayPauseIcon(st) { 
+            const isPlaying = st === YT.PlayerState.PLAYING;
+            els.playIcon.classList.toggle('hidden', isPlaying); els.pauseIcon.classList.toggle('hidden', !isPlaying); 
+        }
 
         function updateVolumeUI(v) {
             els.volumeFill.style.width = `${v}%`;
             let icon = SVG_ICONS.volumeHigh;
-            if (v === 0 || (player.isMuted && player.isMuted())) icon = SVG_ICONS.volumeOff;
+            const isMuted = player && player.isMuted ? player.isMuted() : false;
+            if (v === 0 || isMuted) icon = SVG_ICONS.volumeOff;
             else if (v < 33) icon = SVG_ICONS.volumeLow; else if (v < 66) icon = SVG_ICONS.volumeMedium;
             els.volumeBtn.innerHTML = icon;
         }
 
-        function addTrackById(vid, p) { if (playlist.some(t => t.id === vid)) return; playlist.push({ id: vid }); if (p || currentTrackIndex === -1) loadTrack(playlist.length - 1); }
+        function addTrackById(vid, p) { if (!vid || playlist.some(t => t.id === vid)) return; playlist.push({ id: vid }); if (p || currentTrackIndex === -1) loadTrack(playlist.length - 1); }
 
-        function showTemporaryMessage(m) { const ot = els.title.textContent; els.title.textContent = m; setTimeout(() => { if (els.title.textContent === m) els.title.textContent = ot; }, 2000); }
+        function showTemporaryMessage(m) { const ot = els.title.textContent; els.title.textContent = m; setTimeout(() => { if (els.title.textContent === m) els.title.textContent = ot; }, 3000); }
 
         const getUrlParameter = (n) => { const r = new RegExp('[\\?&]' + n + '=([^&#]*)').exec(location.search); return r === null ? '' : decodeURIComponent(r[1].replace(/\+/g, ' ')); };
 
-        els.playPauseBtn.onclick = () => player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
+        // --- Interactions ---
+        els.playPauseBtn.onclick = () => { if (!isReady) return; const st = player.getPlayerState(); st === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo(); };
         els.nextBtn.onclick = playNextSong; els.prevBtn.onclick = playPrevSong;
-        els.shuffleBtn.onclick = () => { isShuffle = !isShuffle; els.shuffleBtn.classList.toggle('active', isShuffle); };
-        els.repeatBtn.onclick = toggleRepeat;
-        els.volumeBtn.onclick = () => { if (player.isMuted()) { player.unMute(); player.setVolume(lastVolume); updateVolumeUI(lastVolume); } else { lastVolume = player.getVolume(); player.mute(); updateVolumeUI(0); } };
-        els.openVideoBtn.onclick = () => { const id = player.getVideoData().video_id; if (id) window.open(`https://www.youtube.com/watch?v=${id}`, '_blank'); };
+        els.shuffleBtn.onclick = () => { isShuffle = !isShuffle; els.shuffleBtn.classList.toggle('active', isShuffle); if (isPlaylistMode && player.setShuffle) player.setShuffle(isShuffle); };
+        els.repeatBtn.onclick = () => { if (repeatMode === 'none') repeatMode = 'all'; else if (repeatMode === 'all') repeatMode = 'one'; else repeatMode = 'none'; updateRepeatUI(); };
+        els.volumeBtn.onclick = () => { if (!isReady) return; if (player.isMuted()) { player.unMute(); player.setVolume(lastVolume); updateVolumeUI(lastVolume); } else { lastVolume = player.getVolume(); player.mute(); updateVolumeUI(0); } };
+        els.openVideoBtn.onclick = () => { const id = player.getVideoData()?.video_id; if (id) window.open(`https://www.youtube.com/watch?v=${id}`, '_blank'); };
 
+        // --- Smooth Dragging ---
         els.volumeTrack.onmousedown = (e) => { isVolumeDragging = true; els.volumeGroup.classList.add('active'); handleVolDrag(e); };
         els.progressContainer.onmousedown = (e) => { isSeekDragging = true; handleSeek(e); };
-        window.onmouseup = () => { isVolumeDragging = isSeekDragging = false; els.volumeGroup.classList.remove('active'); if(player && player.getPlayerState() === 1) startProgressUpdater(); };
+        window.onmouseup = () => { isVolumeDragging = isSeekDragging = false; els.volumeGroup.classList.remove('active'); if(isReady && player.getPlayerState() === 1) startSmoothProgress(); };
         window.onmousemove = (e) => { if (isVolumeDragging) handleVolDrag(e); if (isSeekDragging) handleSeek(e); };
 
         function handleVolDrag(e) {
+            if (!isReady) return;
             const rect = els.volumeTrack.getBoundingClientRect();
             let p = ((e.clientX - rect.left) / rect.width) * 100;
             p = Math.max(0, Math.min(100, p));
-            if (player && player.setVolume) { player.setVolume(p); updateVolumeUI(p); }
+            player.setVolume(p); updateVolumeUI(p);
         }
 
         function handleSeek(e) {
+            if (!isReady) return;
             const rect = els.progressContainer.getBoundingClientRect();
-            const p = (e.clientX - rect.left) / rect.width;
-            els.progressBar.style.width = `${p * 100}%`; if (player && player.seekTo) player.seekTo(player.getDuration() * p);
+            const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            els.progressBar.style.width = `${p * 100}%`;
+            const dur = player.getDuration();
+            if (dur > 0) player.seekTo(dur * p);
         }
     </script>
 </body>

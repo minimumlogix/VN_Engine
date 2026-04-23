@@ -73,6 +73,33 @@
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 5;
+            display: none;
+            opacity: 0.6;
+        }
+        
+        #nexus-player-bar.error-active .scanline {
+            display: block;
+            animation: glitch 0.2s infinite;
+        }
+
+        #dynamic-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+            filter: blur(15px) saturate(140%);
+            z-index: -2;
+            transition: background-image 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(2px, -1px); }
+            60% { transform: translate(-1px, 2px); }
+            80% { transform: translate(1px, -2px); }
+            100% { transform: translate(0); }
         }
 
         /* Hidden YT Engine */
@@ -417,6 +444,7 @@
     <div id="youtube-frame"></div>
 
     <div id="nexus-player-bar">
+        <div id="dynamic-bg"></div>
         <div class="scanline"></div>
 
         <!-- LEFT: Telemetry -->
@@ -427,7 +455,7 @@
             </div>
             <div class="track-info">
                 <div class="track-title" id="track-name">ESTABLISHING LINK...</div>
-                <div class="credit">MUSIC PLAYER BY 🅷🆄🅼🅰🅽</div>
+                <div class="credit" id="credit-label">MUSIC PLAYER BY 🅷🆄🅼🅰🅽</div>
             </div>
         </div>
 
@@ -491,10 +519,16 @@
         let isDraggingProgress = false;
         let isErrorMode = false;
         let preMuteVolume = 100;
+        let listId = null;
+        let listType = 'playlist';
 
         // Parse Uplink Parameters
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.has('v')) videoId = urlParams.get('v');
+        if(urlParams.has('list')) {
+            listId = urlParams.get('list');
+            if(urlParams.has('listType')) listType = urlParams.get('listType');
+        }
         if(urlParams.has('c')) {
             let color = urlParams.get('c');
             if(!color.startsWith('#')) color = '#' + color;
@@ -503,29 +537,71 @@
 
         // Initialize Embedded System (YT API)
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('youtube-frame', {
+            const playerConfig = {
                 height: '0',
                 width: '0',
-                videoId: videoId,
                 playerVars: {
                     'playsinline': 1,
                     'controls': 0,
                     'disablekb': 1,
                     'modestbranding': 1,
-                    'rel': 0
+                    'rel': 0,
+                    'autoplay': (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') ? 1 : 0
                 },
                 events: {
                     'onReady': onSystemReady,
                     'onStateChange': onSystemStateChange,
                     'onError': onSystemError
                 }
-            });
+            };
+
+            if (listId) {
+                playerConfig.playerVars.listType = listType;
+                playerConfig.playerVars.list = listId;
+                if(urlParams.has('index')) playerConfig.playerVars.index = parseInt(urlParams.get('index'));
+                if(urlParams.get('shuffle') === '1') playerConfig.playerVars.shuffle = 1;
+            } else {
+                playerConfig.videoId = videoId;
+            }
+
+            player = new YT.Player('youtube-frame', playerConfig);
         }
 
         function onSystemReady(event) {
             updateTelemetry();
+            
+            // Apply URL Parameters
+            if(urlParams.has('title')) {
+                document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
+            }
+            if(urlParams.has('author')) {
+                document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
+            }
+            if(urlParams.has('vol')) {
+                const v = parseInt(urlParams.get('vol'));
+                if(!isNaN(v)) {
+                    player.setVolume(v);
+                    document.getElementById('volume-slider').value = v;
+                }
+            }
+            if(urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
+                player.mute();
+            }
+            if(urlParams.has('repeat')) {
+                const r = parseInt(urlParams.get('repeat'));
+                if(!isNaN(r) && r >= 0 && r <= 2) {
+                    repeatState = r;
+                    updateRepeatUI();
+                }
+            }
+            
             syncVolumeUI();
             setStatus("SYS.OK", "var(--accent)", "4s");
+
+            // Auto-Sequence Engagement
+            if(urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
+                player.playVideo();
+            }
         }
 
         function onSystemStateChange(event) {
@@ -549,9 +625,16 @@
 
             // Loop Directives
             if (event.data === YT.PlayerState.ENDED) {
-                if (repeatState === 2 || repeatState === 1) {
+                if (repeatState === 2) {
                     player.seekTo(0);
                     player.playVideo();
+                } else if (repeatState === 1) {
+                    const playlist = player.getPlaylist();
+                    if (!playlist || playlist.length === 0) {
+                        player.seekTo(0);
+                        player.playVideo();
+                    }
+                    // Playlist naturally continues; Loop All is handled via setLoop(true)
                 } else {
                     document.getElementById('progress-bar').style.width = '100%';
                 }
@@ -561,6 +644,7 @@
         function onSystemError(event) {
             console.warn("Nexus Error Caught. Code:", event.data);
             isErrorMode = true;
+            document.getElementById('nexus-player-bar').classList.add('error-active');
             setStatus("ERR: FALLBACK", "#ff3333", "0.5s");
             document.getElementById('track-name').innerText = "FATAL ERROR. ENGAGING FAILSAFE.";
             document.getElementById('track-name').style.color = "#ff3333";
@@ -570,6 +654,7 @@
                     videoId = FALLBACK_ID;
                     player.loadVideoById(videoId);
                     document.getElementById('track-name').style.color = "var(--text-main)";
+                    document.getElementById('nexus-player-bar').classList.remove('error-active');
                     isErrorMode = false;
                 }, 2000); 
             }
@@ -598,14 +683,24 @@
         }
 
         function triggerPrev() {
-            if(!player || !player.seekTo) return;
-            player.seekTo(0); 
+            if(!player) return;
+            const playlist = player.getPlaylist();
+            if(playlist && playlist.length > 0) {
+                player.previousVideo();
+            } else {
+                player.seekTo(0);
+            }
             flashVisualFeedback();
         }
 
         function triggerNext() {
-            if(!player || !player.getDuration) return;
-            player.seekTo(player.getDuration() - 1); 
+            if(!player) return;
+            const playlist = player.getPlaylist();
+            if(playlist && playlist.length > 0) {
+                player.nextVideo();
+            } else {
+                player.seekTo(player.getDuration() - 1);
+            }
             flashVisualFeedback();
         }
 
@@ -697,8 +792,7 @@
 
         // --- REPEAT & UI ---
 
-        function toggleRepeat() {
-            repeatState = (repeatState + 1) % 3;
+        function updateRepeatUI() {
             const btn = document.getElementById('repeat-btn');
             const badge = document.getElementById('repeat-badge');
             
@@ -707,11 +801,20 @@
 
             if (repeatState === 1) { 
                 btn.classList.add('btn-state-active');
+                if(player && player.setLoop) player.setLoop(true);
             } else if (repeatState === 2) { 
                 btn.classList.add('btn-state-active');
                 badge.style.display = 'block';
                 badge.innerText = '1';
+                if(player && player.setLoop) player.setLoop(false);
+            } else {
+                if(player && player.setLoop) player.setLoop(false);
             }
+        }
+
+        function toggleRepeat() {
+            repeatState = (repeatState + 1) % 3;
+            updateRepeatUI();
         }
 
         function openYouTube() {
@@ -755,7 +858,16 @@
             if(isErrorMode) return;
             const data = player.getVideoData();
             if (data && data.title) {
-                document.getElementById('track-name').innerText = data.title;
+                if(!urlParams.has('title')) {
+                    document.getElementById('track-name').innerText = data.title;
+                }
+                
+                // Dynamic Background Update
+                const id = data.video_id || videoId;
+                const bg = document.getElementById('dynamic-bg');
+                if(id) {
+                    bg.style.backgroundImage = `url('https://img.youtube.com/vi/${id}/hqdefault.jpg')`;
+                }
             }
         }
 

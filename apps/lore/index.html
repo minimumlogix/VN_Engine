@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Information</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollToPlugin.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="core/styles/main.css">
+</head>
+
+<body>
+    <div id="container">
+        <div id="page1" class="page">
+            <div class="gradient-overlay"></div>
+            <h1 id="animated-text"></h1>
+        </div>
+        <div id="page2" class="page">
+            <div class="spoiler-warning">
+                <h2>Spoiler Warning!</h2>
+                <p>The following content contains deep lore and potential spoilers.</p>
+                <button onclick="revealContent()">I Understand, Show Me</button>
+            </div>
+            <div id="biography-content" style="display: none;">
+                <div class="tab" id="main-tabs"></div>
+                <div class="tabcontent-wrapper" id="main-tab-content"></div>
+            </div>
+        </div>
+        <div id="page3" class="page"></div>
+        <div id="page4" class="page"></div>
+    </div>
+
+    <div id="error-message">
+        <h1>Oops! World Not Found</h1>
+        <p>We couldn't load the data for the requested world.</p>
+        <p>Please check the 'world' parameter in the URL and make sure a corresponding JSON file exists.</p>
+    </div>
+
+    <div class="nav-arrow" onclick="togglePage()">
+        <svg id="nav-icon" viewBox="0 0 24 24">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+        </svg>
+    </div>
+
+    <div id="image-modal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modal-img">
+    </div>
+
+    <!-- External Scripts -->
+    <script src="core/scripts/components/ui.js" defer></script>
+    <script src="core/scripts/components/renderer.js" defer></script>
+    <script src="core/scripts/services/dataService.js" defer></script>
+    <script src="core/scripts/main.js" defer></script>
+</body>
+
+</html>

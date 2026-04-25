@@ -8,18 +8,6 @@
 </head>
 <body>
 
-    <div id="toolbar" class="panel">
-        <div id="panel-toggle" onclick="toggleConfigPanel()">☰</div>
-        <button class="btn" onclick="addNode('dialogue')">＋ DIALOGUE</button>
-        <button class="btn" onclick="addNode('choice')">＋ CHOICE</button>
-        <button class="btn" onclick="addNode('condition')">＋ LOGIC</button>
-        <button class="btn" onclick="addNode('effect')">＋ EFFECT</button>
-        <div style="flex: 1;"></div>
-        <button class="btn btn-outline" onclick="exportJSON()">EXPORT JSON</button>
-        <button class="btn btn-outline" onclick="document.getElementById('import-input').click()">IMPORT</button>
-        <input type="file" id="import-input" style="display:none" onchange="importJSON(event)">
-    </div>
-
     <div id="config-panel" class="panel">
         <h2>🛰️ NEXUS CONFIG</h2>
         
@@ -57,6 +45,19 @@
         <div class="section-title">CHAPTERS</div>
         <div id="chapter-list" class="config-section"></div>
         <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addChapter()">＋ ADD CHAPTER</button>
+    </div>
+
+    <div id="toolbar" class="panel">
+        <div id="panel-toggle" onclick="toggleConfigPanel()">☰</div>
+        <button class="btn" onclick="addNode('dialogue')">＋ DIALOGUE</button>
+        <button class="btn" onclick="addNode('choice')">＋ CHOICE</button>
+        <button class="btn" onclick="addNode('condition')">＋ LOGIC</button>
+        <button class="btn" onclick="addNode('effect')">＋ EFFECT</button>
+        <div style="flex: 1;"></div>
+        <button class="btn btn-outline" onclick="exportJSON()">💾 EXPORT</button>
+        <button class="btn btn-outline" onclick="document.getElementById('import-input').click()">📂 IMPORT</button>
+        <button class="btn btn-outline" style="color:var(--danger)" onclick="if(confirm('Clear all data and reset to default?')) store.clearAutosave()">🧹 CLEAR CACHE</button>
+        <input type="file" id="import-input" style="display:none" onchange="importJSON(event)">
     </div>
 
     <div id="editor-container">

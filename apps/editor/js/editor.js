@@ -2,8 +2,177 @@ const editorContainer = document.getElementById('editor-container');
 const workspace = document.getElementById('workspace');
 const svg = document.getElementById('connections-svg');
 
-let nodes = [];
-let links = [];
+// --- DATA MANAGEMENT (AAA STORE) ---
+
+class NexusDataStore {
+    constructor() {
+        this.nodes = [];
+        this.links = [];
+        this.config = JSON.parse(JSON.stringify(DEFAULT_STORY_DATA)); // Deep clone
+        this.listeners = [];
+        this.autoSaveKey = 'nexus_editor_autosave';
+    }
+
+    // Observer Pattern
+    subscribe(callback) {
+        this.listeners.push(callback);
+    }
+
+    emit(event, data) {
+        console.log(`[DataStore] ${event}`, data);
+        this.listeners.forEach(cb => cb(event, data));
+        this.save();
+    }
+
+    // --- Persistence ---
+    save() {
+        const payload = {
+            nodes: this.nodes,
+            links: this.links,
+            config: this.config
+        };
+        localStorage.setItem(this.autoSaveKey, JSON.stringify(payload));
+    }
+
+    load() {
+        const saved = localStorage.getItem(this.autoSaveKey);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                this.nodes = data.nodes || [];
+                this.links = data.links || [];
+                this.config = data.config || this.config;
+                return true;
+            } catch (e) {
+                console.error("Failed to load autosave", e);
+            }
+        }
+        return false;
+    }
+
+    clearAutosave() {
+        localStorage.removeItem(this.autoSaveKey);
+        location.reload();
+    }
+
+    // --- Node Operations ---
+    addNode(type, x, y) {
+        const id = 'node_' + Date.now();
+        const node = {
+            id, type,
+            x: (x - offset.x) / zoom,
+            y: (y - offset.y) / zoom,
+            data: {},
+            choices: type === 'choice' ? [{ text: 'Option 1', target: null }] : []
+        };
+        this.nodes.push(node);
+        this.emit('nodes_changed');
+        return node;
+    }
+
+    deleteNode(id) {
+        this.nodes = this.nodes.filter(n => n.id !== id);
+        this.links = this.links.filter(l => l.fromNode !== id && l.toNode !== id);
+        this.emit('nodes_changed');
+    }
+
+    updateNodeData(id, field, value) {
+        const node = this.nodes.find(n => n.id === id);
+        if (node) {
+            node.data[field] = value;
+            this.emit('node_data_updated', { id, field });
+        }
+    }
+
+    updateNodePos(id, x, y) {
+        const node = this.nodes.find(n => n.id === id);
+        if (node) {
+            node.x = x;
+            node.y = y;
+            // No emit here to prevent render loop during drag, 
+            // but we save on drag end via other means if needed
+        }
+    }
+
+    // --- Choice Logic ---
+    addChoice(nodeId) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node && node.type === 'choice') {
+            node.choices.push({ text: 'New Choice', target: null });
+            this.emit('node_refresh', nodeId);
+        }
+    }
+
+    updateChoice(nodeId, idx, text) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node && node.choices[idx]) {
+            node.choices[idx].text = text;
+            this.emit('data_updated');
+        }
+    }
+
+    // --- Link Operations ---
+    createLink(fromNode, fromPort, toNode, toPort) {
+        this.links = this.links.filter(l => !(l.fromNode === fromNode && l.fromPort === fromPort));
+        this.links.push({ fromNode, fromPort, toNode, toPort });
+        this.emit('links_changed');
+    }
+
+    // --- Global Config Operations ---
+    updateConfig(field, value) {
+        this.config[field] = value;
+        this.emit('config_updated');
+    }
+
+    addStateVar(key = "new_var", val = 0) {
+        this.config.initialState[key] = val;
+        this.emit('config_refresh');
+    }
+
+    deleteStateVar(key) {
+        delete this.config.initialState[key];
+        this.emit('config_refresh');
+    }
+
+    updateStateVar(oldKey, newKey, value) {
+        if (oldKey !== newKey) {
+            delete this.config.initialState[oldKey];
+        }
+        this.config.initialState[newKey] = value;
+        this.emit('config_refresh');
+    }
+
+    addCharacter() {
+        const id = "NEW_CHAR_" + Object.keys(this.config.characters).length;
+        this.config.characters[id] = {
+            name: "New Character",
+            sprites: { neutral: "" },
+            position: "center",
+            sfx: "",
+            description: ""
+        };
+        this.emit('config_refresh');
+    }
+
+    updateCharacter(id, field, value) {
+        if (field === 'id') {
+            const char = this.config.characters[id];
+            delete this.config.characters[id];
+            this.config.characters[value] = char;
+        } else {
+            this.config.characters[id][field] = value;
+        }
+        this.emit('config_refresh');
+    }
+
+    deleteCharacter(id) {
+        delete this.config.characters[id];
+        this.emit('config_refresh');
+    }
+}
+
+const store = new NexusDataStore();
+
 let offset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 let zoom = 1;
 let isDragging = false;
@@ -13,17 +182,6 @@ let selectedNode = null;
 
 let needsRender = true;
 let mouseEvent = null;
-
-let globalConfig = {
-    storyTitle: "NEXUS STORY",
-    storySubtitle: "CHAPTER 1: INITIALIZATION",
-    theme: "nasapunk.css",
-    characters: {},
-    backgrounds: {},
-    chapterNames: {},
-    chapterMusic: {},
-    initialState: { sanity: 10 }
-};
 
 // --- NODE DEFINITIONS ---
 const NODE_TYPES = {
@@ -77,19 +235,31 @@ function init() {
     window.addEventListener('mouseup', handleMouseUp);
     editorContainer.addEventListener('wheel', handleWheel);
     
-    // Initial data load from template
-    globalConfig = { ...globalConfig, ...DEFAULT_STORY_DATA };
-    nodes = [];
-    links = [];
-    
-    if (DEFAULT_STORY_DATA.storyDialogue) {
-        DEFAULT_STORY_DATA.storyDialogue.forEach(d => {
-            const node = { ...d };
-            nodes.push(node);
-            renderNode(node);
-        });
+    // Subscribe UI to Data Changes
+    store.subscribe((event, data) => {
+        if (event === 'nodes_changed') {
+            renderAllNodes();
+        } else if (event === 'node_refresh') {
+            refreshNode(data);
+        } else if (event === 'config_refresh' || event === 'config_updated') {
+            renderConfig();
+            refreshAllNodes(); // Character selects etc
+        } else if (event === 'links_changed') {
+            needsRender = true;
+        }
+        needsRender = true;
+    });
+
+    // Try load autosave or use template
+    if (!store.load()) {
+        if (DEFAULT_STORY_DATA.storyDialogue) {
+            DEFAULT_STORY_DATA.storyDialogue.forEach(d => {
+                store.nodes.push({ ...d });
+            });
+        }
     }
 
+    renderAllNodes();
     renderConfig();
     requestAnimationFrame(tick);
 
@@ -97,6 +267,11 @@ function init() {
     if (window.innerWidth < 1200) {
         toggleConfigPanel();
     }
+}
+
+function renderAllNodes() {
+    workspace.innerHTML = '';
+    store.nodes.forEach(n => renderNode(n));
 }
 
 function toggleConfigPanel() {
@@ -166,18 +341,7 @@ function handleWheel(e) {
 // --- NODE LOGIC ---
 
 function addNode(type, x = 0, y = 0) {
-    const id = 'node_' + Date.now();
-    const node = {
-        id,
-        type,
-        x: (x - offset.x) / zoom,
-        y: (y - offset.y) / zoom,
-        data: {},
-        choices: type === 'choice' ? [{ text: 'Option 1', target: null }] : []
-    };
-    
-    nodes.push(node);
-    renderNode(node);
+    store.addNode(type, x, y);
 }
 
 function renderNode(node) {
@@ -193,12 +357,12 @@ function renderNode(node) {
     typeDef.fields.forEach(f => {
         fieldsHtml += `<label>${f.label}</label>`;
         if (f.type === 'textarea') {
-            fieldsHtml += `<textarea onchange="updateNodeData('${node.id}', '${f.name}', this.value)">${node.data[f.name] || ''}</textarea>`;
+            fieldsHtml += `<textarea oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">${node.data[f.name] || ''}</textarea>`;
         } else if (f.type === 'select') {
-            fieldsHtml += `<select onchange="updateNodeData('${node.id}', '${f.name}', this.value)">`;
+            fieldsHtml += `<select onchange="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
             let options = f.options;
-            if (f.options === 'chars') options = Object.keys(globalConfig.characters);
-            if (f.options === 'state') options = Object.keys(globalConfig.initialState);
+            if (f.options === 'chars') options = Object.keys(store.config.characters);
+            if (f.options === 'state') options = Object.keys(store.config.initialState);
             
             options.forEach(opt => {
                 const selected = node.data[f.name] === opt ? 'selected' : '';
@@ -206,7 +370,7 @@ function renderNode(node) {
             });
             fieldsHtml += `</select>`;
         } else {
-            fieldsHtml += `<input type="${f.type}" value="${node.data[f.name] || ''}" onchange="updateNodeData('${node.id}', '${f.name}', this.value)">`;
+            fieldsHtml += `<input type="${f.type}" value="${node.data[f.name] || ''}" oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
         }
     });
 
@@ -215,12 +379,12 @@ function renderNode(node) {
         node.choices.forEach((c, idx) => {
             fieldsHtml += `
                 <div class="choice-row">
-                    <input type="text" value="${c.text}" onchange="updateChoice('${node.id}', ${idx}, this.value)" style="flex:1">
+                    <input type="text" value="${c.text}" oninput="store.updateChoice('${node.id}', ${idx}, this.value)" style="flex:1">
                     <div class="port port-choice" data-idx="${idx}" onmousedown="startLink(event, '${node.id}', 'choice_${idx}')"></div>
                 </div>
             `;
         });
-        fieldsHtml += `<button class="btn btn-outline" style="width:100%; margin-top:5px; font-size:10px;" onclick="addChoice('${node.id}')">＋ ADD CHOICE</button>`;
+        fieldsHtml += `<button class="btn btn-outline" style="width:100%; margin-top:5px; font-size:10px;" onclick="store.addChoice('${node.id}')">＋ ADD CHOICE</button>`;
     }
 
     div.innerHTML = `
@@ -274,16 +438,11 @@ function renderNode(node) {
 }
 
 function updateNodeData(nodeId, field, value) {
-    const node = nodes.find(n => n.id === nodeId);
-    node.data[field] = value;
+    store.updateNodeData(nodeId, field, value);
 }
 
 function deleteNode(id) {
-    nodes = nodes.filter(n => n.id !== id);
-    links = links.filter(l => l.fromNode !== id && l.toNode !== id);
-    const el = document.getElementById(id);
-    if (el) el.remove();
-    needsRender = true;
+    store.deleteNode(id);
 }
 
 function selectNode(id) {
@@ -303,15 +462,12 @@ function startLink(e, nodeId, portType) {
 }
 
 function createLink(fromNode, fromPort, toNode, toPort) {
-    // Remove existing link from this port
-    links = links.filter(l => !(l.fromNode === fromNode && l.fromPort === fromPort));
-    links.push({ fromNode, fromPort, toNode, toPort });
-    needsRender = true;
+    store.createLink(fromNode, fromPort, toNode, toPort);
 }
 
 function renderLinks(mouseEvent = null) {
     svg.innerHTML = '';
-    links.forEach(link => {
+    store.links.forEach(link => {
         const fromPos = getPortPos(link.fromNode, link.fromPort);
         const toPos = getPortPos(link.toNode, link.toPort);
         if (fromPos && toPos) drawLink(fromPos, toPos);
@@ -356,72 +512,46 @@ function drawLink(start, end) {
 
 // --- CHOICE LOGIC ---
 
-function addChoice(nodeId) {
-    const node = nodes.find(n => n.id === nodeId);
-    node.choices.push({ text: 'New Choice', target: null });
-    refreshNode(nodeId);
-}
-
 function updateChoice(nodeId, idx, text) {
-    const node = nodes.find(n => n.id === nodeId);
-    node.choices[idx].text = text;
+    store.updateChoice(nodeId, idx, text);
 }
 
 function refreshNode(id) {
     const el = document.getElementById(id);
     if (el) el.remove();
-    renderNode(nodes.find(n => n.id === id));
+    const node = store.nodes.find(n => n.id === id);
+    if (node) renderNode(node);
     needsRender = true;
 }
 
 // --- GLOBAL CONFIG LOGIC ---
 
 function addBackground(id = "1", url = "") {
-    globalConfig.backgrounds[id] = url;
-    renderConfig();
+    store.config.backgrounds[id] = url;
+    store.emit('config_refresh');
 }
 
 function addCharacter() {
-    const id = "NEW_CHAR_" + Object.keys(globalConfig.characters).length;
-    globalConfig.characters[id] = {
-        name: "New Character",
-        sprites: { neutral: "" },
-        position: "center",
-        sfx: "",
-        description: ""
-    };
-    renderConfig();
-    refreshAllNodes();
+    store.addCharacter();
 }
 
 function deleteCharacter(id) {
-    delete globalConfig.characters[id];
-    renderConfig();
-    refreshAllNodes();
+    store.deleteCharacter(id);
 }
 
 function updateCharacter(id, field, value) {
-    if (field === 'id') {
-        const char = globalConfig.characters[id];
-        delete globalConfig.characters[id];
-        globalConfig.characters[value] = char;
-        id = value;
-    } else {
-        globalConfig.characters[id][field] = value;
-    }
-    renderConfig();
-    refreshAllNodes();
+    store.updateCharacter(id, field, value);
 }
 
 function editSprites(id) {
-    const char = globalConfig.characters[id];
+    const char = store.config.characters[id];
     let spriteHtml = '';
     Object.entries(char.sprites || {}).forEach(([key, url]) => {
         spriteHtml += `
             <div class="list-item" style="margin-bottom: 5px;">
-                <input value="${key}" style="width:70px" onchange="const v=globalConfig.characters['${id}'].sprites['${key}']; delete globalConfig.characters['${id}'].sprites['${key}']; globalConfig.characters['${id}'].sprites[this.value]=v; editSprites('${id}')">
-                <input value="${url}" placeholder="Sprite URL" style="flex:1" onchange="globalConfig.characters['${id}'].sprites['${key}'] = this.value">
-                <span style="cursor:pointer" onclick="delete globalConfig.characters['${id}'].sprites['${key}']; editSprites('${id}')">✕</span>
+                <input value="${key}" style="width:70px" onchange="const v=store.config.characters['${id}'].sprites['${key}']; delete store.config.characters['${id}'].sprites['${key}']; store.config.characters['${id}'].sprites[this.value]=v; editSprites('${id}')">
+                <input value="${url}" placeholder="Sprite URL" style="flex:1" onchange="store.config.characters['${id}'].sprites['${key}'] = this.value">
+                <span style="cursor:pointer" onclick="delete store.config.characters['${id}'].sprites['${key}']; editSprites('${id}')">✕</span>
             </div>
         `;
     });
@@ -430,8 +560,8 @@ function editSprites(id) {
         <div style="padding: 10px;">
             <h3>EXPRESSIONS: ${char.name}</h3>
             <div id="sprites-editor">${spriteHtml}</div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="globalConfig.characters['${id}'].sprites['new_expr'] = ''; editSprites('${id}')">＋ ADD EXPRESSION</button>
-            <button class="btn" style="width:100%; margin-top:20px;" onclick="hideOverlay(); renderConfig()">DONE</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="store.config.characters['${id}'].sprites['new_expr'] = ''; editSprites('${id}')">＋ ADD EXPRESSION</button>
+            <button class="btn" style="width:100%; margin-top:20px;" onclick="hideOverlay(); store.emit('config_refresh')">DONE</button>
         </div>
     `;
     
@@ -460,75 +590,74 @@ function hideOverlay() {
 }
 
 function addChapter() {
-    const id = Object.keys(globalConfig.chapterNames).length + 1;
-    globalConfig.chapterNames[id] = "New Chapter";
-    globalConfig.chapterBackgrounds[id] = "";
-    globalConfig.chapterMusic[id] = "";
-    renderConfig();
+    const id = Object.keys(store.config.chapterNames).length + 1;
+    store.config.chapterNames[id] = "New Chapter";
+    store.config.chapterBackgrounds[id] = "";
+    store.config.chapterMusic[id] = "";
+    store.emit('config_refresh');
 }
 
 function deleteChapter(id) {
-    delete globalConfig.chapterNames[id];
-    delete globalConfig.chapterBackgrounds[id];
-    delete globalConfig.chapterMusic[id];
-    renderConfig();
+    delete store.config.chapterNames[id];
+    delete store.config.chapterBackgrounds[id];
+    delete store.config.chapterMusic[id];
+    store.emit('config_refresh');
 }
 
 function updateChapter(oldId, newId, field, value) {
     if (field === 'id') {
-        const name = globalConfig.chapterNames[oldId];
-        const bg = globalConfig.chapterBackgrounds[oldId];
-        const mus = globalConfig.chapterMusic[oldId];
+        const name = store.config.chapterNames[oldId];
+        const bg = store.config.chapterBackgrounds[oldId];
+        const mus = store.config.chapterMusic[oldId];
         
-        delete globalConfig.chapterNames[oldId];
-        delete globalConfig.chapterBackgrounds[oldId];
-        delete globalConfig.chapterMusic[oldId];
+        delete store.config.chapterNames[oldId];
+        delete store.config.chapterBackgrounds[oldId];
+        delete store.config.chapterMusic[oldId];
 
-        globalConfig.chapterNames[newId] = name;
-        globalConfig.chapterBackgrounds[newId] = bg;
-        globalConfig.chapterMusic[newId] = mus;
+        store.config.chapterNames[newId] = name;
+        store.config.chapterBackgrounds[newId] = bg;
+        store.config.chapterMusic[newId] = mus;
     } else if (field === 'name') {
-        globalConfig.chapterNames[oldId] = value;
+        store.config.chapterNames[oldId] = value;
     } else if (field === 'bg') {
-        globalConfig.chapterBackgrounds[oldId] = value;
+        store.config.chapterBackgrounds[oldId] = value;
     } else if (field === 'music') {
-        globalConfig.chapterMusic[oldId] = value;
+        store.config.chapterMusic[oldId] = value;
     }
-    renderConfig();
+    store.emit('config_refresh');
 }
 
 function addStateVar(key = "new_var", val = 0) {
-    globalConfig.initialState[key] = val;
-    renderConfig();
+    store.addStateVar(key, val);
 }
 
 function deleteStateVar(key) {
-    delete globalConfig.initialState[key];
-    renderConfig();
+    store.deleteStateVar(key);
 }
 
 function updateGlobalConfig() {
-    globalConfig.storyTitle = document.getElementById('conf-title').value;
-    globalConfig.storySubtitle = document.getElementById('conf-subtitle').value;
-    globalConfig.theme = document.getElementById('conf-theme').value;
-    globalConfig.loadScreenBackground = document.getElementById('conf-loadbg').value;
+    store.config.storyTitle = document.getElementById('conf-title').value;
+    store.config.storySubtitle = document.getElementById('conf-subtitle').value;
+    store.config.theme = document.getElementById('conf-theme').value;
+    store.config.loadScreenBackground = document.getElementById('conf-loadbg').value;
+    store.save();
 }
 
 function renderConfig() {
     // Title & Basics
-    document.getElementById('conf-title').value = globalConfig.storyTitle;
-    document.getElementById('conf-subtitle').value = globalConfig.storySubtitle;
-    document.getElementById('conf-theme').value = globalConfig.theme || 'nasapunk.css';
-    document.getElementById('conf-loadbg').value = globalConfig.loadScreenBackground || '';
+    document.getElementById('conf-title').value = store.config.storyTitle;
+    document.getElementById('conf-subtitle').value = store.config.storySubtitle;
+    document.getElementById('conf-theme').value = store.config.theme || 'nasapunk.css';
+    document.getElementById('conf-loadbg').value = store.config.loadScreenBackground || '';
 
     const stateList = document.getElementById('state-list');
     stateList.innerHTML = '';
-    Object.entries(globalConfig.initialState).forEach(([key, val]) => {
+    Object.entries(store.config.initialState).forEach(([key, val]) => {
         const div = document.createElement('div');
         div.className = 'list-item';
         div.innerHTML = `
-            <input value="${key}" style="width:70px" oninput="const v=globalConfig.initialState['${key}']; delete globalConfig.initialState['${key}']; globalConfig.initialState[this.value]=v; updateStateRealtime()">
-            <input type="number" value="${val}" style="width:40px" oninput="globalConfig.initialState['${key}'] = parseInt(this.value); updateStateRealtime()">
+            <input value="${key}" style="width:70px" oninput="store.updateStateVar('${key}', this.value, ${val})">
+            <input type="number" value="${val}" style="width:40px" oninput="store.updateStateVar('${key}', '${key}', parseInt(this.value))">
             <span style="cursor:pointer" onclick="deleteStateVar('${key}')">✕</span>
         `;
         stateList.appendChild(div);
@@ -536,9 +665,9 @@ function renderConfig() {
 
     const chapterList = document.getElementById('chapter-list');
     chapterList.innerHTML = '';
-    Object.entries(globalConfig.chapterNames).forEach(([id, name]) => {
-        const bg = globalConfig.chapterBackgrounds[id] || "";
-        const music = globalConfig.chapterMusic[id] || "";
+    Object.entries(store.config.chapterNames).forEach(([id, name]) => {
+        const bg = store.config.chapterBackgrounds[id] || "";
+        const music = store.config.chapterMusic[id] || "";
         const div = document.createElement('div');
         div.className = 'list-item';
         div.style.flexDirection = 'column';
@@ -558,7 +687,7 @@ function renderConfig() {
 
     const charList = document.getElementById('char-list');
     charList.innerHTML = '';
-    Object.entries(globalConfig.characters).forEach(([id, c]) => {
+    Object.entries(store.config.characters).forEach(([id, c]) => {
         const div = document.createElement('div');
         div.className = 'list-item';
         div.style.flexDirection = 'column';
@@ -586,12 +715,12 @@ function renderConfig() {
 
     const bgList = document.getElementById('bg-list');
     bgList.innerHTML = '';
-    Object.entries(globalConfig.backgrounds).forEach(([id, url]) => {
+    Object.entries(store.config.backgrounds).forEach(([id, url]) => {
         const div = document.createElement('div');
         div.className = 'list-item';
         div.innerHTML = `
             <input value="${id}" style="width:40px" onchange="renameBg('${id}', this.value)">
-            <input value="${url}" placeholder="URL" onchange="globalConfig.backgrounds['${id}'] = this.value">
+            <input value="${url}" placeholder="URL" onchange="store.config.backgrounds['${id}'] = this.value; store.save()">
             <span style="cursor:pointer" onclick="deleteBg('${id}')">✕</span>
         `;
         bgList.appendChild(div);
@@ -599,7 +728,7 @@ function renderConfig() {
 }
 
 function refreshAllNodes() {
-    nodes.forEach(n => refreshNode(n.id));
+    store.nodes.forEach(n => refreshNode(n.id));
 }
 
 // --- EXPORT / IMPORT ---
@@ -607,11 +736,7 @@ function refreshAllNodes() {
 function exportJSON() {
     const dialogue = [];
     
-    // Map graph nodes to array indices
-    const nodeIdToIndex = {};
-    nodes.forEach((n, i) => nodeIdToIndex[n.id] = i);
-
-    nodes.forEach((node, index) => {
+    store.nodes.forEach((node, index) => {
         const charName = node.data.character || "NARRATION";
         const spriteState = node.data.spriteState ? `:${node.data.spriteState}` : "";
         
@@ -637,7 +762,7 @@ function exportJSON() {
         }
 
         // Handle out link
-        const outLink = links.find(l => l.fromNode === node.id && l.fromPort === 'out');
+        const outLink = store.links.find(l => l.fromNode === node.id && l.fromPort === 'out');
         if (outLink) {
             entry.nextId = outLink.toNode;
         }
@@ -645,7 +770,7 @@ function exportJSON() {
         // Handle choices
         if (node.type === 'choice') {
             entry.choices = node.choices.map((c, idx) => {
-                const link = links.find(l => l.fromNode === node.id && l.fromPort === `choice_${idx}`);
+                const link = store.links.find(l => l.fromNode === node.id && l.fromPort === `choice_${idx}`);
                 return {
                     text: c.text,
                     nextId: link ? link.toNode : null
@@ -664,7 +789,7 @@ function exportJSON() {
             entry.branches = {};
             const typeDef = NODE_TYPES[node.type];
             typeDef.ports.branches.forEach(b => {
-                const link = links.find(l => l.fromNode === node.id && l.fromPort === `branch_${b}`);
+                const link = store.links.find(l => l.fromNode === node.id && l.fromPort === `branch_${b}`);
                 entry.branches[b.toLowerCase()] = link ? link.toNode : null;
             });
         }
@@ -673,7 +798,7 @@ function exportJSON() {
     });
 
     const output = {
-        ...globalConfig,
+        ...store.config,
         storyDialogue: dialogue
     };
 
@@ -691,50 +816,59 @@ function importJSON(e) {
     const reader = new FileReader();
     reader.onload = (re) => {
         const data = JSON.parse(re.target.result);
-        nodes = [];
-        links = [];
+        store.nodes = [];
+        store.links = [];
         workspace.innerHTML = '';
         
         // Load global config
-        globalConfig = { ...globalConfig, ...data };
-        delete globalConfig.storyDialogue;
-        renderConfig();
-
+        store.config = { ...store.config, ...data };
+        delete store.config.storyDialogue;
+        
         // Load nodes
         data.storyDialogue.forEach((d, i) => {
             const node = {
                 id: d.id || `node_${i}`,
-                type: d.choices ? 'choice' : 'dialogue',
+                type: d.choices ? 'choice' : (d.type === 'condition' ? 'condition' : 'dialogue'),
                 x: 100 + (i % 5) * 300,
                 y: 100 + Math.floor(i / 5) * 350,
                 data: {
                     character: d.character,
                     text: d.text,
                     chapter: d.chapter,
-                    scene: d.scene
+                    scene: d.scene,
+                    variable: d.condition?.variable,
+                    operator: d.condition?.operator,
+                    value: d.condition?.value
                 },
                 choices: d.choices || []
             };
-            nodes.push(node);
-            renderNode(node);
+            store.nodes.push(node);
         });
 
         // Re-create links
         data.storyDialogue.forEach((d, i) => {
             const fromId = d.id || `node_${i}`;
             if (d.nextId) {
-                links.push({ fromNode: fromId, fromPort: 'out', toNode: d.nextId, toPort: 'in' });
+                store.links.push({ fromNode: fromId, fromPort: 'out', toNode: d.nextId, toPort: 'in' });
             }
             if (d.choices) {
                 d.choices.forEach((c, cIdx) => {
                     if (c.nextId) {
-                        links.push({ fromNode: fromId, fromPort: `choice_${cIdx}`, toNode: c.nextId, toPort: 'in' });
+                        store.links.push({ fromNode: fromId, fromPort: `choice_${cIdx}`, toNode: c.nextId, toPort: 'in' });
+                    }
+                });
+            }
+            if (d.branches) {
+                Object.entries(d.branches).forEach(([key, target]) => {
+                    if (target) {
+                        const portName = key.charAt(0).toUpperCase() + key.slice(1);
+                        store.links.push({ fromNode: fromId, fromPort: `branch_${portName}`, toNode: target, toPort: 'in' });
                     }
                 });
             }
         });
 
-        renderLinks();
+        store.emit('nodes_changed');
     };
     reader.readAsText(file);
 }

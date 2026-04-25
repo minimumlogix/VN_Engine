@@ -67,7 +67,7 @@ class AudioManager {
         // ── Typing Sound ─────────────────────────────────────────────────────
         const typingSoundPath = (typeof ENGINE_CONFIG !== 'undefined' && ENGINE_CONFIG.audio)
             ? ENGINE_CONFIG.audio.typingSoundPath
-            : 'core_assets/audio/typing_loop.mp3';
+            : 'core/assets/audio/typing_loop.mp3';
         this.typingSoundEffect = new Audio(typingSoundPath);
         this.typingSoundEffect.loop   = true;
         this.typingSoundEffect.volume = this.typingSfxVolume;

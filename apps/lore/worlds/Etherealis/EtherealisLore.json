@@ -1,0 +1,154 @@
+{
+	"1": {
+		"content": "Chrono-Cannibals, those skeletal time-twisters, were once almost used by a desperate chef in a forgotten Aethelgard district to instant-age cheese for a fancy dessert. It… didn't go well. The cheese aged so fast it turned into pure dust, and the chef gained three decades in a single afternoon.",
+		"key": [
+			"Chrono-Cannibals",
+			"food",
+			"aging",
+			"dessert",
+			"Aethelgard"
+		]
+	},
+	"2": {
+		"content": "The Void Merchants once accidentally traded a 'portable pocket dimension' for a bag of sentient, but utterly useless, lint from a forgotten hero's pocket. Shadow-Queen Nyx still curses about the transaction, saying it was her worst deal ever.",
+		"key": [
+			"Void Merchants",
+			"Nyx",
+			"trade",
+			"pocket dimension",
+			"lint"
+		]
+	},
+	"3": {
+		"content": "Despite Aethelgard's brutal caste system and Elven slavery, the Imperial fashion elite once tried to introduce 'enslaved Dark Elf chic' as a trend. It was universally panned, even by some of the more morally flexible nobles, because it involved actual chains that kept clanking during dinner parties, ruining the ambiance.",
+		"key": [
+			"Aethelgard",
+			"fashion",
+			"Dark Elves",
+			"slavery",
+			"social norms"
+		]
+	},
+	"4": {
+		"content": "Legend says a particularly rowdy Ignar adventurer, dared to chug a mouthful of glacial bloodfire from the Frostheart Forge. He gained immense heat resistance for a day, but also burped literal magma for a week straight, much to the disgust and annoyance of everyone around him.",
+		"key": [
+			"Frostheart Forge",
+			"Ignar",
+			"bloodfire",
+			"magma",
+			"adventure"
+		]
+	},
+	"5": {
+		"content": "One poor Chrono Weaver got stuck in the Whispering Planes for a full cycle. He spent three days arguing with his own echo, which kept repeating his existential angst back at him, but slightly off-key. Drove him absolutely bonkers, and he now has a twitch whenever someone raises their voice.",
+		"key": [
+			"Whispering Planes",
+			"Chrono Weaver",
+			"echo",
+			"stuck",
+			"annoying"
+		]
+	},
+	"6": {
+		"content": "A common 'innovation' among daring inventors salvaging Remnant tech is accidentally weaponizing what turns out to be a sentient laundry folding machine. There are now at least three 'Rogue Folders' terrorizing tidy villages across the Cradle Pit's outskirts, meticulously folding everything into tiny, inescapable cubes.",
+		"key": [
+			"Remnant tech",
+			"inventors",
+			"failures",
+			"laundry",
+			"Cradle Pit"
+		]
+	},
+	"7": {
+		"content": "Whispers persist that vampirism wasn't a calculated demonic weapon, but an accidental biotechnological side-effect. Supposedly, a clumsy demon alchemist was trying to create a perpetual energy drink for a rave and spilled a batch of unstable Null-infused blood near a captive human. Instant bloodlust, eternal regret (for the demon, anyway, who just wanted a decent party mix).",
+		"key": [
+			"Vampirism",
+			"demon",
+			"origin",
+			"accident",
+			"Null"
+		]
+	},
+	"8": {
+		"content": "The Dune Speakers' Harmonic Weaving to free the Silica Hydra involved a lot of very loud, experimental desert rock played through giant resonance-glass speakers. It actually worked, but also caused a localized sandstorm of pure glitter, which lingered for weeks and and got into *everything*—food, clothing, even the Hydra itself, which still sparkles ominously.",
+		"key": [
+			"Silica Hydra",
+			"Dune Speakers",
+			"music",
+			"glitter",
+			"sandstorm"
+		]
+	},
+	"9": {
+		"content": "Forge-Queen Ember once won a pivotal duel by 'accidentally' superheating her opponent's armor until it fused to his skin, mid-swing. She claimed it was 'tactical heat management' but everyone knows she just thought it would be hysterically funny. She then had to spend a week apologizing with custom-forged pastries shaped like miniature molten hammers.",
+		"key": [
+			"Forge-Queen Ember",
+			"duel",
+			"prank",
+			"armor",
+			"magma hammer"
+		]
+	},
+	"10": {
+		"content": "A group of overly enthusiastic tourists from Eldrida once tried to 'befriend' a Frost Howler with belly rubs and snacks. It ended with them losing their entire picnic basket to the creature's heat-draining aura and narrowly escaping becoming very chilly wolf chow. They now swear by portable magma lanterns.",
+		"key": [
+			"Frost Howler",
+			"Eldrida",
+			"tourists",
+			"food",
+			"danger"
+		]
+	},
+	"11": {
+		"content": "The High Elves of Lumina Sanctum, in their pursuit of ultimate elegance, attempted to 'Artifice-weave' emotions into their royal tapestries. The result was a tapestry that wept uncontrollably during state dinners and spontaneously burst into joyous, albeit gaudy, glitter showers during funerals. It was swiftly banished to the 'Artistic Failures' vault.",
+		"key": [
+			"High Elves",
+			"Lumina Sanctum",
+			"Artifice",
+			"emotions",
+			"tapestry",
+			"fail"
+		]
+	},
+	"12": {
+		"content": "Tide-Prophet Neri, in a moment of existential crisis, once tried to communicate with the Leviathan of Siren's Dirge by serenading it with a sea shanty. The Leviathan responded by creating a tidal wave that accidentally soaked an entire floating market, leading to a massive fish shortage and some very angry Water Elves.",
+		"key": [
+			"Tide-Prophet Neri",
+			"Leviathan",
+			"communication",
+			"sea shanty",
+			"tidal wave"
+		]
+	},
+	"13": {
+		"content": "Commander Rael of Sentinel Academy, known for his stoic demeanor, has a secret passion for competitive knitting. He once nearly missed a demon breach because he was trying to finish a particularly complex 'Aegis Wall' pattern before the timer ran out. His soldiers still tease him about his 'yarn of duty.'",
+		"key": [
+			"Commander Rael",
+			"Sentinel Academy",
+			"hobby",
+			"knitting",
+			"secret"
+		]
+	},
+	"14": {
+		"content": "The Umbrin Shadow Conclave, despite their mysterious nature, have a surprisingly active underground gambling ring where they bet on how many times a Veil Stalker will get stuck in a particularly dense patch of moonlight. They have a strict 'no Null-magic interference' rule, which makes it 'fair'.",
+		"key": [
+			"Umbrin",
+			"Shadow Conclave",
+			"gambling",
+			"Veil Stalker",
+			"quirk"
+		]
+	},
+	"15": {
+		"content": "There's a persistent rumor that the reason Grand Chancellor Silas Vance is so keen on demon essence for Aethelgard's magitek is that he secretly wants to distill it into a cologne that makes him irresistible. So far, all attempts have resulted in minor demonic possession and a lingering smell of burnt sulfur and disappointment.",
+		"key": [
+			"Silas Vance",
+			"Aethelgard",
+			"demon essence",
+			"cologne",
+			"fail",
+			"romance"
+		]
+	}
+}

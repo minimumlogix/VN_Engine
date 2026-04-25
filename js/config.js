@@ -23,7 +23,7 @@ const ENGINE_CONFIG = {
 
     // ── Audio ─────────────────────────────────────────────────────────────
     audio: {
-        typingSoundPath: 'core_assets/audio/typing_loop.mp3',
+        typingSoundPath: 'core/assets/audio/typing_loop.mp3',
         bgmVolume: 0.4,                         // Default BGM volume (0.0-1.0)
         sfxVolume: 0.5,                         // Default SFX volume (0.0-1.0)
         typingSfxVolume: 0.2,                   // Default typing sound volume

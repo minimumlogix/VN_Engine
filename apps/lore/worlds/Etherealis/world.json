@@ -4,7 +4,7 @@
         "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"></path></svg>",
         "content": "Etherealis is a brutal world shaped by six Primal Entities and bound together by the sentient Primal Weaves, where corrupted magic, ancient wars, and clashing civilizations fuel a realm of dark beauty and danger. Its lands are scarred by the First Corruption of the western continent, north frozen by the Frost King, South drowned by the Great Dreamer, and the giant walls of Aethelgard blocking all the corruption from the west, 10 kingdoms where races and factions rise, fall, and fight over elemental power, Weave mastery, and survival.",
         "animatedTextTitle": "tap to show more",
-        "page1Background": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/00%20ETHEREALIS%20Logo.png"
+        "page1Background": "worlds/Etherealis/logo.png"
     },
     "systems": {
         "title": "World Systems",
@@ -17,32 +17,32 @@
                     {
                         "name": "Artifice Weave",
                         "description": "From Luminary Prime, this magic creates illusions, deceptions, and dream infiltrations.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/artifice.png"
+                        "image": "worlds/Etherealis/magic/weaves/artifice.png"
                     },
                     {
                         "name": "Mind Weave",
                         "description": "From the Silent Oracle, this magic manipulates thought, fear, and memory.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/mind.png"
+                        "image": "worlds/Etherealis/magic/weaves/mind.png"
                     },
                     {
                         "name": "Particle Weave",
                         "description": "From the Great Forger, this magic controls elemental forces like fire, water, and earth.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/particle.png"
+                        "image": "worlds/Etherealis/magic/weaves/particle.png"
                     },
                     {
                         "name": "Chrono Weave",
                         "description": "From the Unbound, this magic manipulates time with freezes, fast-forwards, and spatial folds.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/chrono.png"
+                        "image": "worlds/Etherealis/magic/weaves/chrono.png"
                     },
                     {
                         "name": "Energy Weave",
                         "description": "From the Flow Keeper, this magic controls force, stamina, and power flow.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/energy.png"
+                        "image": "worlds/Etherealis/magic/weaves/energy.png"
                     },
                     {
                         "name": "Null Weave",
                         "description": "From the Veiled Weaver, this magic can heal, raise the dead, or open unstable dimensional rifts.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/weaves/null.png"
+                        "image": "worlds/Etherealis/magic/weaves/null.png"
                     }
                 ]
             },
@@ -53,92 +53,92 @@
                     {
                         "name": "Elemental",
                         "description": "This class involves the manipulation of earth, water, air, fire, etc. It primarily uses Particle Weaving and requires an understanding of the concept of matter states.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/elemental.png"
+                        "image": "worlds/Etherealis/magic/classes/elemental.png"
                     },
                     {
                         "name": "Alchemy",
                         "description": "Focuses on the transmutation of substances and the creation of potions and compounds. This is achieved by combining Particle Weaving and Null Weaving, requiring knowledge of the concept of particles.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/alchemy.png"
+                        "image": "worlds/Etherealis/magic/classes/alchemy.png"
                     },
                     {
                         "name": "Rune/Enchantment",
                         "description": "The practice of imbuing objects with magical properties. It draws upon Artifice Weaving, Particle Weaving, and Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/rune.png"
+                        "image": "worlds/Etherealis/magic/classes/rune.png"
                     },
                     {
                         "name": "Plant Alteration",
                         "description": "Involves affecting the growth, form, and properties of plants. This class uses Particle Weaving (nature) and Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/plant.png"
+                        "image": "worlds/Etherealis/magic/classes/plant.png"
                     },
                     {
                         "name": "Bio-Alteration",
                         "description": "Used for healing and manipulating biological structures. It combines Particle Weaving (biomass), Energy Weaving, and Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/bio.png"
+                        "image": "worlds/Etherealis/magic/classes/bio.png"
                     },
                     {
                         "name": "Mind Magic",
                         "description": "This discipline allows for telepathy and influencing the thoughts and emotions of others. It is purely derived from Mind Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/mind.png"
+                        "image": "worlds/Etherealis/magic/classes/mind.png"
                     },
                     {
                         "name": "Dream Magic",
                         "description": "Allows a caster to enter, shape, or influence dreams. It is a product of combining Mind Weaving and Artifice Weaving (illusions).",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/dream.png"
+                        "image": "worlds/Etherealis/magic/classes/dream.png"
                     },
                     {
                         "name": "Illusion Magic",
                         "description": "Focuses on creating false sensory perceptions. This class stems from Artifice Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/illusion.png"
+                        "image": "worlds/Etherealis/magic/classes/illusion.png"
                     },
                     {
                         "name": "Blood Magic",
                         "description": "A dark art derived from or affecting blood. It is considered a twisted form of Bio-Alteration, also using Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/blood.png"
+                        "image": "worlds/Etherealis/magic/classes/blood.png"
                     },
                     {
                         "name": "Aura (Energy) Magic",
                         "description": "The manipulation of life force or ambient energy for offense, defense, and other purposes. It is fueled by Energy Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/aura.png"
+                        "image": "worlds/Etherealis/magic/classes/aura.png"
                     },
                     {
                         "name": "Shadow Magic",
                         "description": "Involves the manipulation of shadows and darkness. This class uses Particle Weaving (shadow) and potentially Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/shadow.png"
+                        "image": "worlds/Etherealis/magic/classes/shadow.png"
                     },
                     {
                         "name": "Time Magic",
                         "description": "A powerful discipline focused on the manipulation of the flow of time. It is derived from Chrono Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/time.png"
+                        "image": "worlds/Etherealis/magic/classes/time.png"
                     },
                     {
                         "name": "Necromancy",
                         "description": "The grim art of raising and controlling the dead and manipulating life force. It primarily uses Null Weaving (life/death) and potentially Mind Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/necromancy.png"
+                        "image": "worlds/Etherealis/magic/classes/necromancy.png"
                     },
                     {
                         "name": "Techno-Magic",
                         "description": "The practice of animating or enhancing machinery with magic. It combines Artifice Weaving and Energy Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/techno.png"
+                        "image": "worlds/Etherealis/magic/classes/techno.png"
                     },
                     {
                         "name": "Space Magic",
                         "description": "Focuses on manipulating spatial dimensions and enabling teleportation. This class uses Chrono Weaving (space) and Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/space.png"
+                        "image": "worlds/Etherealis/magic/classes/space.png"
                     },
                     {
                         "name": "Summoning/Taming",
                         "description": "Involves calling creatures or spirits and magically binding them. This is achieved through Null Weaving (dimensional) and Mind Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/summoning.png"
+                        "image": "worlds/Etherealis/magic/classes/summoning.png"
                     },
                     {
                         "name": "Corruption Magic",
                         "description": "A malevolent class focused on inflicting negative magical effects and weakening foes. It uses Null Weaving (twisted energies) and potentially Shadow Magic.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/corruption.png"
+                        "image": "worlds/Etherealis/magic/classes/corruption.png"
                     },
                     {
                         "name": "Positive Buff Magic",
                         "description": "Used for enhancing physical or magical abilities. This beneficial magic combines Energy Weaving and Null Weaving.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/magic/positive.png"
+                        "image": "worlds/Etherealis/magic/classes/positive.png"
                     }
                 ]
             },
@@ -149,17 +149,17 @@
                     {
                         "name": "Magitek",
                         "description": "Magitek Arms power cities and armies with rune-etched cores. The Ironbrand Consortium develops magitek engines and sentinel armor, while Aethelgard uses Null Batteries to power its war engines.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/tech/magitech_arms.png"
+                        "image": "worlds/Etherealis/tech/magitech_arms.png"
                     },
                     {
                         "name": "Weave-based Tech",
                         "description": "Arkhia uses Resonance Lenses to channel solar Weaves for industry. Chrono-Stabilizers can alter local time zones. Hover-Discs and Spellblades are common among elite mercenaries.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/tech/spellblade.png"
+                        "image": "worlds/Etherealis/tech/spellblade.png"
                     },
                     {
                         "name": "Specialized Gear",
                         "description": "Vampire hunters from the Crimson Covenant and The Pale Order use specialized gear like blood-sensing gauntlets and silver-weave nets. Daring inventors also salvage and weaponize dangerous Remnant Tech.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/tech/vampire.png"
+                        "image": "worlds/Etherealis/tech/vampire.png"
                     }
                 ]
             }
@@ -173,135 +173,135 @@
             {
                 "name": "Humans",
                 "description": "Adaptable and diverse, humans have established kingdoms across Etherealis, from the frozen peaks of Eldrida to the sun-blasted dunes of Arkhia.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/HUMAN.png",
+                "image": "worlds/Etherealis/race/HUMAN.png",
                 "subRaces": [
                     {
                         "name": "Eldridian Humans (Frost-Walkers)",
                         "description": "From Eldrida, they endure icy blizzards and wield Particle and Energy Weaving over cold. They have pale skin, white or gray hair, and wear ivory masks during storms.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Humans1.png"
+                        "image": "worlds/Etherealis/race/Humans1.png"
                     },
                     {
                         "name": "Arkhian Humans",
                         "description": "From Arkhia, they thrive in sun-blasted desert dunes, controlling sunlight and air. They sport dark skin, sand-glass goggles, and vibrant robes.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Humans2.png"
+                        "image": "worlds/Etherealis/race/Humans2.png"
                     },
                     {
                         "name": "Imperial Humans",
                         "description": "From Aethelgard, they are culturally diverse, living in sprawling cities with caste systems, practicing all forms of magic with a focus on aesthetics and diplomacy.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Humans3.png"
+                        "image": "worlds/Etherealis/race/Humans3.png"
                     }
                 ]
             },
             {
                 "name": "Elves",
                 "description": "An ancient and elegant race with a strong connection to magic, often divided by culture, habitat, and societal structures. Their history is marked by both great power and great tragedy.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/ELF.png",
+                "image": "worlds/Etherealis/race/ELF.png",
                 "subRaces": [
                     {
                         "name": "High Elves",
                         "description": "With ivory-gold skin and silver or golden hair, they reside in sunlit cities, dominating Artifice and Particle Weaving in a bloodline-obsessed society.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Elves_High.png"
+                        "image": "worlds/Etherealis/race/Elves_High.png"
                     },
                     {
                         "name": "Forest Elves",
                         "description": "Live in ancient groves, with earthy skin and nature-blending features. They wield earth magic and value harmony and clan loyalty.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Elves_Wood.png"
+                        "image": "worlds/Etherealis/race/Elves_Wood.png"
                     },
                     {
                         "name": "Water Elves",
                         "description": "Inhabit coastal and underwater cities, with aquatic hues and flowing garments. Many are enslaved or turned to piracy, mastering water magic.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Elves_Water.png"
+                        "image": "worlds/Etherealis/race/Elves_Water.png"
                     },
                     {
                         "name": "Snow Elves",
                         "description": "Born of frost, pale-skinned with red eyes, and adept in glacial magic. Near extinction, they suffer from vampirism and live in secluded tundras.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Elves_Snow.png"
+                        "image": "worlds/Etherealis/race/Elves_Snow.png"
                     },
                     {
                         "name": "Dark Elves",
                         "description": "Once of Zha’vren, they are shadowed and vengeful, with blue-dark skin, red or violet eyes, and high Null aptitude. Many are enslaved or part of the resistance.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Elves_Dark.png"
+                        "image": "worlds/Etherealis/race/Elves_Dark.png"
                     }
                 ]
             },
             {
                 "name": "Terrans",
                 "description": "Enormous beings with bark-like skin, drawing strength from the earth. They value raw strength and natural balance.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/TerranE.png",
+                "image": "worlds/Etherealis/race/TerranE.png",
                 "subRaces": [
                     {
                         "name": "Emerald Clan",
                         "description": "Terrans with deep green, bark-like skin, closely connected to the forests and life.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/TerranE.png"
+                        "image": "worlds/Etherealis/race/TerranE.png"
                     },
                     {
                         "name": "Bloodfist Clan",
                         "description": "Terrans with red, bark-like skin, known for their martial prowess and connection to the earth's raw power.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/TerranB.png"
+                        "image": "worlds/Etherealis/race/TerranB.png"
                     }
                 ]
             },
             {
                 "name": "Felkari",
                 "description": "Anthropomorphic feline races known for their agility, precision, and stealth.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Neko-Sun.png",
+                "image": "worlds/Etherealis/race/Neko-Sun.png",
                 "subRaces": [
                     {
                         "name": "Neko",
                         "description": "Catlike beings, such as the Sunstripe and Tsuki clans, known for agility-based magic and precision.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Neko.png"
+                        "image": "worlds/Etherealis/race/Neko.png"
                     },
                     {
                         "name": "Pantherians",
                         "description": "Powerful stealth users of Null and Particle Weaves, like the Shadowclaw clan, revered for their lethal discipline.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Pantherian.png"
+                        "image": "worlds/Etherealis/race/Pantherian.png"
                     }
                 ]
             },
             {
                 "name": "Ignar",
                 "description": "Born from fire and magma, their skin is traced with glowing flame-veins. They wield fire and light and value passion and duelling might.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Ignar.png"
+                "image": "worlds/Etherealis/race/Ignar.png"
             },
             {
                 "name": "Demons",
                 "description": "Defy classification with shifting appearances and affinity for all Weaves. They command hidden realms and infect others through biotechnological marvels like vampirism.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Demon.png"
+                "image": "worlds/Etherealis/race/Demon.png"
             },
             {
                 "name": "Sylphid",
                 "description": "Winged air-wielders with fair or dark skin, dwelling among sky-islands and embodying freedom and peace.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Sylphid.png"
+                "image": "worlds/Etherealis/race/Sylphid.png"
             },
             {
                 "name": "Etherfolk",
                 "description": "Serene, psionic beings with lavender skin and immense mental discipline. They are isolated masters of Mind Weaving.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Etherfolks.png"
+                "image": "worlds/Etherealis/race/Etherfolks.png"
             },
             {
                 "name": "Umbrin",
                 "description": "Mysterious black-skinned, silver-eyed Null Weavers from the Voidlands, deeply secretive and dimensionally aware.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Umbrin.png"
+                "image": "worlds/Etherealis/race/Umbrin.png"
             },
             {
                 "name": "Remnants",
                 "description": "Conscious automata built by Demons, falling into three distinct castes based on their purpose and state of corruption.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Remnants1.png",
+                "image": "worlds/Etherealis/race/Remnants1.png",
                 "subRaces": [
                     {
                         "name": "Forged Choir",
                         "description": "Loyal automatons created to serve their demonic masters without question.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Remnants1.png"
+                        "image": "worlds/Etherealis/race/Remnants1.png"
                     },
                     {
                         "name": "Keeper Class",
                         "description": "Unflinching dungeon guardians forged for eternal duty, often found guarding ancient sites.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Remnants2.png"
+                        "image": "worlds/Etherealis/race/Remnants2.png"
                     },
                     {
                         "name": "Echoed Blades",
                         "description": "Remnants that have been corrupted by chaotic Weave surges, making them unpredictable and dangerous.",
-                        "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/race/Remnants3.png"
+                        "image": "worlds/Etherealis/race/Remnants3.png"
                     }
                 ]
             }
@@ -314,42 +314,42 @@
             {
                 "name": "Frost Howler",
                 "description": "Horse-sized, ice-furred wolf with glacial fangs. It prowls Eldrida’s tundra, devours heat-energy, and its howls can trigger avalanches. Weak to overheating.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/Frost%20Howler.png"
+                "image": "worlds/Etherealis/bestiery/Frost%20Howler.png"
             },
             {
                 "name": "Dune Serpent",
                 "description": "A 30 ft long serpentine beast with glass-like scales that burrows beneath Arkhia’s deserts. It ambushes prey, consumes minerals, and spews corrosive sand. Weak to water.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/Dune%20Serpent.png"
+                "image": "worlds/Etherealis/bestiery/Dune%20Serpent.png"
             },
             {
                 "name": "Veil Stalker",
                 "description": "Humanoid creature with void-black skin that lurks in Null’s rifts. An ambush predator that drains life-force and can phase through matter. Burns in light.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/Veil%20Stalker.png"
+                "image": "worlds/Etherealis/bestiery/Veil%20Stalker.png"
             },
             {
                 "name": "Rust-Eater",
                 "description": "Skeletal being with warped time-flesh that haunts ruined battlefields. It preys on the wounded, rapidly aging their injuries and turning victims into new cannibals.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/Rust_Eater.png"
+                "image": "worlds/Etherealis/bestiery/Rust_Eater.png"
             },
             {
                 "name": "Leviathan Bonecruncher",
                 "description": "Colossal, coral-encrusted whale skeleton that lurks in abyssal trenches. It manipulates whirlpools and illusions, feeding on shipwrecks.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/LB.png"
+                "image": "worlds/Etherealis/bestiery/LB.png"
             },
             {
                 "name": "Ember Ghoul",
                 "description": "Molten humanoids born in Ignaros volcanoes. They have an explosive touch, steal energy, and are weak to ice.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/EmberGhouls.png"
+                "image": "worlds/Etherealis/bestiery/EmberGhouls.png"
             },
             {
                 "name": "The Great Dreamer",
                 "description": "Mountain-sized, humanoid-squid hybrid with bioluminescent coral tentacles that hypnotize and crush fleets. It is worshipped by cultists.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/TGD.png"
+                "image": "worlds/Etherealis/bestiery/TGD.png"
             },
             {
                 "name": "Void King",
                 "description": "A mountain-sized, cosmic dragon with black scales that absorb everything, devouring magic. It is resisted only by Chrono paradoxes or core-shattering attacks.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/bestiery/VoidKing.png"
+                "image": "worlds/Etherealis/bestiery/VoidKing.png"
             }
         ]
     },
@@ -360,7 +360,7 @@
             {
                 "name": "Eldrida",
                 "description": "Ruled by Jarl Borin Ice-Heart, this kingdom is set in glacial peaks, housing Eldridian Humans. Known for ice berserkers, a Nordic lifestyle, and geothermal forges using Particle and Energy weaves.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/location/Eldrida.png",
+                "image": "worlds/Etherealis/location/kingdoms/Eldrida.png",
                 "importantPlaces": [
                     {
                         "name": "The Frostheart Forge",
@@ -371,7 +371,7 @@
             {
                 "name": "Arkhia",
                 "description": "Ruled by Sultan Zafira Sun-Speaker, this kingdom spreads across shifting sands. Home to wind-singers and resonance-glass technology powered by solar energy and Particle Weaving.",
-                "image": "https://joylandimages.neocities.org/JOYLAND/GREETING/LORE_WIDGET/media/Etherealis/location/Arkhia.png",
+                "image": "worlds/Etherealis/location/kingdoms/Arkhia.png",
                 "importantPlaces": [
                     {
                         "name": "The Sunscar Spire",
@@ -382,7 +382,7 @@
             {
                 "name": "Thalassir",
                 "description": "Ruled by Tide-King Orin Wavecrown, a large coastal city of Water Elves, surviving dark elves, and humans. A gigantic coral tree illuminates the city at night. Features coral marines and Hydro/Biolum Lumin power.",
-                "image": "https://i.imgur.com/gO7hE3f.jpeg",
+                "image": "worlds/Etherealis/location/kingdoms/Thalassir.png",
                 "importantPlaces": [
                     {
                         "name": "The Leviathan Trenches",
@@ -393,7 +393,7 @@
             {
                 "name": "Ignaros",
                 "description": "Ruled by Forge-Queen Ember, this kingdom erupts with Ignar magma forges and Ember Ghoul armies, driven by volcanic magic.",
-                "image": "https://i.imgur.com/nL8sD1z.jpeg",
+                "image": "worlds/Etherealis/location/kingdoms/Ignaros.png",
                 "importantPlaces": [
                     {
                         "name": "The Ember Crucible",
@@ -404,7 +404,7 @@
             {
                 "name": "Aethelgard",
                 "description": "Controlled by Grand Chancellor Silas Vance, this kingdom builds towering spires and magitek academies. It enforces Elven slavery and is protected by the massive Aegis Wall.",
-                "image": "https://i.imgur.com/fL3sK4e.jpeg",
+                "image": "worlds/Etherealis/location/kingdoms/Aethelgard.png",
                 "importantPlaces": [
                     {
                         "name": "The Aegis Wall",
@@ -419,7 +419,7 @@
             {
                 "name": "Zha’vren",
                 "description": "Once the powerful kingdom of the Dark Elves, it now lies in ruin after being conquered by Aethelgard. It is the birthplace of the Shadowveil Resistance.",
-                "image": "https://i.imgur.com/yG8xH3a.jpeg",
+                "image": "worlds/Etherealis/location/kingdoms/Zhavren.png",
                 "importantPlaces": [
                     {
                         "name": "The Ruins of Zha'vren",
@@ -436,32 +436,32 @@
             {
                 "name": "Nullguard",
                 "description": "Led by Malakar Void-Sighted, these fanatics use corrupted Remnant tech to seal rifts and purge demons.",
-                "image": "https://i.imgur.com/kH7gD5a.jpeg"
+                "image": "worlds/Etherealis/factions/Nullguard.png"
             },
             {
                 "name": "Shadowveil Resistance",
                 "description": "Led by Veyra Duskspear, this faction fights to liberate enslaved Elves through underground rebellion and mastery of Null Weaving.",
-                "image": "https://i.imgur.com/yG8xH3a.jpeg"
+                "image": "worlds/Etherealis/factions/ShadowveilResistance.png"
             },
             {
                 "name": "Sentinel Academy",
                 "description": "Commanded by Rael, this academy trains morally grey multi-weave warriors to guard the Aegis Wall against demonic threats.",
-                "image": "https://i.imgur.com/eP4tA2x.jpeg"
+                "image": "worlds/Etherealis/factions/SentinelAcademy.png"
             },
             {
                 "name": "Lumina Sanctum",
                 "description": "Ruled by High Lord Celestis, this faction monopolizes Artifice magic and upholds the elitist rule of High Elves, supporting slavery.",
-                "image": "https://i.imgur.com/jG5sK7d.jpeg"
+                "image": "worlds/Etherealis/factions/LuminaSanctum.png"
             },
             {
                 "name": "Crimson Covenant",
                 "description": "A vampire-hunting brotherhood led by Grand Marshal Lior Ravenbrand, they wield enchanted weapons and track infected hosts across the land.",
-                "image": "https://i.imgur.com/O7hE4jW.jpeg"
+                "image": "worlds/Etherealis/factions/CrimsonCovenant.png"
             },
             {
                 "name": "Ashen Syndicate",
                 "description": "Led by the Furnace King, this syndicate weaponizes volcanic Weaves and Ember Ghouls for power, controlling the cures for the Weave-Sickness they profit from.",
-                "image": "https://i.imgur.com/wO8yK3f.jpeg"
+                "image": "worlds/Etherealis/factions/AshenSyndicate.png"
             }
         ]
     },
@@ -472,32 +472,32 @@
             {
                 "year": "1000 AE",
                 "description": "The Primal Sundering: A cosmic event that fractures the cosmos and leads to the creation of mortals.",
-                "image": "https://i.imgur.com/yF5gD2c.jpeg"
+                "image": "worlds/Etherealis/timeline/1000AE.png"
             },
             {
                 "year": "312 AE",
                 "description": "First Corruption: Demons emerge from a Null rift, slaughtering the Etherfolk. This leads to the Veiled Weaver's binding and the founding of the Nullguard.",
-                "image": "https://i.imgur.com/bN7gD5v.jpeg"
+                "image": "worlds/Etherealis/timeline/312AE.png"
             },
             {
                 "year": "0 AE",
                 "description": "The Aegis Wall is Forged: 10,000 mages sacrifice themselves to forge the magisteel Aegis Wall, ending the first Demon Wars and leading to the launch of Sentinel Academy.",
-                "image": "https://i.imgur.com/fL3sK4e.jpeg"
+                "image": "worlds/Etherealis/timeline/0AE.png"
             },
             {
                 "year": "650 AE",
                 "description": "The Fall of Zha’vren: Aethelgard destroys the Dark Elf kingdom and enslaves its people, giving rise to the Shadowveil Resistance.",
-                "image": "https://i.imgur.com/yG8xH3a.jpeg"
+                "image": "worlds/Etherealis/timeline/650AE.png"
             },
             {
                 "year": "700 AE",
                 "description": "Legalization of Slavery: Aethelgard, with the support of the Lumina Sanctum, legalizes the enslavement of Forest and Dark Elves, while sparing High Elves.",
-                "image": "https://i.imgur.com/dF9hA2q.jpeg"
+                "image": "worlds/Etherealis/timeline/700AE.png"
             },
             {
                 "year": "899 AE",
                 "description": "The Sentinel Betrayal: The Aegis Wall is sabotaged from within, unleashing a new crisis and a new wave of demonic threats upon the world.",
-                "image": "https://i.imgur.com/sN7gH4f.jpeg"
+                "image": "worlds/Etherealis/timeline/899AE.png"
             }
         ]
     },

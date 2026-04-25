@@ -1,0 +1,491 @@
+:root {
+    /* =========================================
+     GLOBAL THEME VARIABLES (Semantic Naming)
+     Theme: Neon Christmas (Crimson & Snow)
+  ========================================= */
+
+    /* CORE PALETTE */
+    --primary-color: #ff0033;
+    /* Neon Red (Borders, Bold, Buttons) */
+    --secondary-color: #FFD700;
+    /* Gold (Headings, Eyes, Accents) */
+    --accent-color: #ff8095;
+    /* Soft Pink (Glows, Breath effects) */
+    --text-main: #ffffff;
+    /* Pure White (Snowy text) */
+    --text-highlight: #ffc2c9;
+    /* Reddish White (Italics/Emphasis) */
+    --text-dim: #a3d9ff;
+    /* Icy Blue (Strikethrough/Code) */
+
+    /* BACKGROUNDS */
+    --bg-overlay: rgba(20, 0, 5, 0.95);
+    /* Dark Red/Black Tint */
+    --panel-bg: rgba(40, 5, 10, 0.85);
+    /* Velvet Red Panels */
+    --code-bg: rgba(240, 248, 255, 0.95);
+    /* Snow/Paper White for Code */
+
+    /* DECORATIONS & EFFECTS */
+    --shadow-glow: rgba(255, 0, 50, 0.25);
+    --shadow-gold: rgba(255, 215, 0, 0.6);
+    --border-dim: rgba(255, 50, 50, 0.3);
+    --icon-main: "â„ï¸";
+    --icon-hover: "ðŸŽ";
+
+    /* IMAGES */
+    --bg-image-main: url('https://joylandimages.neocities.org/JOYLAND/GREETING/gifs/snow.gif');
+    /* Falling Snow */
+    --bg-image-vn-heading: url('https://media.giphy.com/media/26tOZ42Mg6pbTUPDa/giphy.gif');
+    /* Gold Sparkles */
+    --bg-image-vn-scene: url('https://images.unsplash.com/photo-1544274411-a7af7d32c51c?q=80&w=1000&auto=format&fit=crop');
+    /* Winter Cabin/Snowy Scene */
+}
+
+/* ============================
+   1. STANDARD CHAT UI
+=============================== */
+
+.chat-main {
+    background-image: var(--bg-image-main) !important;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--bg-overlay);
+    background-blend-mode: multiply;
+}
+
+/* Text Semantics */
+.markdown-body {
+    color: var(--text-main) !important;
+    font-family: 'Comfortaa', 'Quicksand', sans-serif;
+    font-size: 15px !important;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes neonBreathe {
+
+    0%,
+    100% {
+        text-shadow: 0 0 4px var(--primary-color), 0 0 8px var(--primary-color);
+        color: var(--accent-color);
+    }
+
+    50% {
+        text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+        color: var(--text-main);
+    }
+}
+
+.markdown-body b,
+.markdown-body strong {
+    color: var(--primary-color) !important;
+    font-weight: 700;
+    animation: neonBreathe 2s infinite ease-in-out;
+}
+
+.markdown-body i,
+.markdown-body em {
+    color: var(--text-highlight) !important;
+    opacity: 0.95;
+}
+
+.markdown-body u {
+    border-bottom: 2px dashed var(--secondary-color);
+    color: var(--secondary-color) !important;
+}
+
+.markdown-body del {
+    text-decoration: line-through double;
+    color: var(--text-dim) !important;
+}
+
+/* Message Box */
+.body-text {
+    background-color: var(--panel-bg) !important;
+    border: 1px solid var(--border-dim);
+    border-radius: 15px;
+    box-shadow: 0 0 20px var(--shadow-glow);
+    position: relative;
+    padding: 12px 16px;
+}
+
+/* Rotating Snowflakes */
+@keyframes spinIcon {
+    0% {
+        transform: rotate(0deg) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.2);
+        opacity: 1;
+        text-shadow: 0 0 10px white;
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+        opacity: 0.8;
+    }
+}
+
+.body-text::before,
+.body-text::after {
+    content: var(--icon-main);
+    position: absolute;
+    font-size: 22px;
+    animation: spinIcon 4s linear infinite;
+}
+
+.body-text::before {
+    top: -12px;
+    left: -12px;
+}
+
+.body-text::after {
+    bottom: -12px;
+    right: -12px;
+}
+
+/* Buttons */
+.can-click {
+    position: relative;
+    color: #8b0000;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: 15px;
+    background-color: rgba(255, 250, 250, 0.95);
+    border: 1px solid #ffcccc;
+    padding: 6px 14px;
+}
+
+.can-click:hover {
+    transform: translateY(-3px) scale(1.05);
+    background-color: var(--text-main);
+    box-shadow: 0 0 15px var(--shadow-gold);
+    color: #d4af37;
+}
+
+@keyframes bounceGift {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-5px) rotate(-10deg);
+    }
+
+    75% {
+        transform: translateY(-5px) rotate(10deg);
+    }
+}
+
+.can-click::before {
+    content: var(--icon-hover);
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.can-click:hover::before {
+    opacity: 1;
+    animation: bounceGift 0.8s infinite;
+}
+
+/* Headings */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+    color: var(--secondary-color) !important;
+    font-family: 'Baloo 2', cursive;
+    position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.markdown-body h1::after,
+.markdown-body h2::after,
+.markdown-body h3::after {
+    content: "ðŸŽ„âœ¨";
+    font-size: 0.7em;
+    margin-left: 10px;
+    opacity: 0.9;
+}
+
+/* Code Blocks */
+.markdown-body pre,
+.markdown-body code {
+    background-color: var(--code-bg) !important;
+    border: 2px dashed var(--accent-color);
+    border-radius: 15px;
+    font-family: 'Space Mono', monospace;
+    color: #8B0000 !important;
+    box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.05);
+    padding: 6px 10px;
+}
+
+/* Blockquotes */
+.markdown-body blockquote {
+    border-left: 4px solid #008f39;
+    background-color: rgba(0, 40, 10, 0.6);
+    border-radius: 0 15px 15px 0;
+    padding: 10px 15px;
+    color: #ccffcc;
+}
+
+/* Lists */
+.markdown-body ul li::marker {
+    content: "â„ï¸ ";
+    font-size: 10px;
+    color: var(--text-main);
+}
+
+.markdown-body ol li::marker {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2a0a0a;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    border: 2px solid #2a0a0a;
+}
+
+/* ============================
+   2. VISUAL NOVEL (VN) STYLE
+   (Logic preserved, Colors mapped to Global Vars)
+=============================== */
+
+/* Heading styling for reusability */
+.vn-heading {
+    text-align: center;
+    font-size: 5em;
+    font-family: 'Anton', sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background-image: var(--bg-image-vn-heading);
+    background-size: cover;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px var(--primary-color);
+    margin: 1rem 0;
+}
+
+/* Story intro box */
+.vn-story-intro {
+    border: 3px solid var(--primary-color);
+    padding: 20px;
+    background-color: var(--panel-bg);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: var(--text-main);
+    box-shadow: 0 0 15px var(--shadow-glow);
+    border-radius: 10px;
+    margin: 1rem auto;
+    max-width: 800px;
+}
+
+/* Character container and background */
+.vn-character-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: auto;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-top: 10px;
+
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(90, 0, 0, 0.4) 25%, var(--bg-overlay) 100%),
+        var(--bg-image-vn-scene);
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
+
+/* Character group (name + sprite) */
+.vn-character-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    width: auto;
+    padding: 0 5px;
+    background: linear-gradient(to bottom, transparent 60%, rgba(90, 0, 0, 0.4) 100%);
+}
+
+/* Character name styling */
+.vn-character-name {
+    background-color: var(--primary-color);
+    color: var(--text-main);
+    padding: 0.3rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    z-index: 10;
+    text-align: center;
+    width: 80%;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 0 8px var(--shadow-glow);
+}
+
+/* Character sprite styling */
+.vn-character {
+    height: auto;
+    max-height: 40vh;
+    width: 100%;
+    max-width: 50vw;
+    object-fit: contain;
+    transition: all 0.5s ease;
+    animation: vn-breathe 3.5s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px var(--shadow-glow));
+}
+
+/* Breathing animation */
+@keyframes vn-breathe {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Speaking character styling */
+.vn-character.speaking {
+    animation: vn-speaking 3.5s infinite ease-in-out;
+}
+
+@keyframes vn-speaking {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-6px) scale(1.03);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Dialogue box styling */
+.vn-dialogue-box {
+    height: auto;
+    min-height: 20vh;
+    background-color: var(--panel-bg);
+    border-top: 3px solid var(--primary-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 0 12px var(--shadow-glow);
+}
+
+/* Dialogue content styling */
+.vn-dialogue-content {
+    color: var(--text-main);
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+/* Markdown styles for the dialogue box */
+.vn-dialogue-content h1,
+.vn-dialogue-content h2,
+.vn-dialogue-content h3 {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-family: 'Georgia', serif;
+}
+
+.vn-dialogue-content strong {
+    color: var(--primary-color);
+}
+
+.vn-dialogue-content em {
+    color: var(--text-highlight);
+}
+
+.vn-dialogue-content code {
+    background-color: var(--code-bg);
+    color: #8b0000;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-family: 'Courier New', monospace;
+}
+
+.vn-dialogue-content blockquote {
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1rem;
+    color: var(--text-highlight);
+    font-style: italic;
+    font-family: 'Georgia', serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .vn-character-name {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.7rem;
+    }
+
+    .vn-heading {
+        font-size: 3.5em;
+    }
+
+    .vn-story-intro {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vn-character-name {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        width: 90%;
+    }
+
+    .vn-character-group {
+        padding: 0 2px;
+    }
+
+    .vn-heading {
+        font-size: 2.5em;
+    }
+}
+
+@media (max-height: 500px) {
+    .vn-character-container {
+        min-height: 40vh;
+    }
+
+    .vn-character {
+        object-fit: cover;
+        object-position: top center;
+    }
+}

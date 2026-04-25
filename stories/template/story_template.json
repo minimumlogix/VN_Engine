@@ -1,0 +1,53 @@
+{
+  "storyTitle": "ENTER STORY TITLE",
+  "storySubtitle": "CHAPTER 1: THE BEGINNING",
+  "theme": "default.css",
+  "wikiUrl": "https://link-to-your-wiki.com",
+  "loadScreenBackground": "stories/template/assets/images/backgrounds/loading.jpg",
+  "chapterBackgrounds": {
+    "0": "general_assets/effects/BlueCode.gif",
+    "1": "stories/template/assets/images/backgrounds/scene1.jpg"
+  },
+  "chapterNames": {
+    "1": "AWAKENING"
+  },
+  "chapterMusic": {
+    "0": "",
+    "1": "stories/template/assets/audio/bgm/track1.mp3"
+  },
+  "initialState": {
+    "points": 0
+  },
+  "characters": {
+    "PLAYER": {
+      "name": "{{user}}",
+      "sprites": {
+        "neutral": "stories/template/assets/images/characters/player_neutral.png"
+      },
+      "position": "left",
+      "sfx": "stories/template/assets/audio/sfx/player_voice.mp3"
+    },
+    "NARRATION": {
+      "name": "SYSTEM",
+      "sprite": "general_assets/effects/UO.gif",
+      "position": "center",
+      "sfx": "stories/template/assets/audio/sfx/narrator.mp3"
+    }
+  },
+  "storyDialogue": [
+    {
+      "chapter": 0,
+      "scene": 1,
+      "character": "NARRATION",
+      "text": "Welcome to your new story. This is a template generated from CR1 and MHA patterns.",
+      "SpriteEffects": "Scanlines"
+    },
+    {
+      "chapter": 1,
+      "scene": 1,
+      "character": "PLAYER",
+      "text": "I can speak! My name is {{user}}.",
+      "SpriteEffects": ""
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+{
+  "storyTitle": "SAKURAGAOKA",
+  "storySubtitle": "CHAPTER 1:NEW BEGINNING",
+  "theme": "anime2.css",
+  "wikiUrl": "",
+  "loadScreenBackground": "stories/Sakuragaoka/assets/images/backgrounds/c1.png",
+  "chapterBackgrounds": {
+    "0": "stories/Sakuragaoka/assets/images/backgrounds/c1.png",
+    "1": "stories/Sakuragaoka/assets/images/backgrounds/c2.png",
+    "2": "stories/Sakuragaoka/assets/images/backgrounds/c3.png"
+  },
+  "chapterNames": {
+    "0": "INITIALIZATION",
+    "1": "THE ENTRANCE CEREMONY",
+    "2": "COLLISION"
+  },
+  "chapterMusic": {
+    "0": "",
+    "1": "",
+    "2": ""
+  },
+  "initialState": {
+    "trust": 0,
+    "suspicion": 0
+  },
+  "characters": {
+    "NARRATION": {
+      "name": "Narrator",
+      "sprites": {
+        "neutral": "general_assets/effects/audio.gif"
+      },
+      "position": "center",
+      "sfx": ""
+    },
+    "MEGUMI": {
+      "name": "Azuma Megumi",
+      "sprites": {
+        "neutral": "stories/Sakuragaoka/assets/images/characters/Megumi.png",
+        "panic": "stories/Sakuragaoka/assets/images/characters/Megumi_panic.png",
+        "frozen": "stories/Sakuragaoka/assets/images/characters/Megumi_frozen.png"
+      },
+      "position": "right",
+      "sfx": ""
+    },
+    "RYUU": {
+      "name": "Nishimura Ryuu",
+      "sprites": {
+        "neutral": "stories/Sakuragaoka/assets/images/characters/Ryuu.png",
+        "amused": "stories/Sakuragaoka/assets/images/characters/Ryuu_amused.png",
+        "bored": "stories/Sakuragaoka/assets/images/characters/Ryuu_bored.png"
+      },
+      "position": "center",
+      "sfx": ""
+    },
+    "HAJIME": {
+      "name": "Kuwahara Hajime",
+      "sprites": {
+        "neutral": "stories/Sakuragaoka/assets/images/characters/Hajime.png",
+        "hostile": "stories/Sakuragaoka/assets/images/characters/Hajime_hostile.png",
+        "defensive": "stories/Sakuragaoka/assets/images/characters/Hajime_defensive.png"
+      },
+      "position": "left",
+      "sfx": ""
+    },
+    "HOSHI": {
+      "name": "Takamoto Hoshi",
+      "sprites": {
+        "neutral": "stories/Sakuragaoka/assets/images/characters/Hoshi.png",
+        "chaotic": "stories/Sakuragaoka/assets/images/characters/Hoshi_chaotic.png",
+        "panic": "stories/Sakuragaoka/assets/images/characters/Hoshi_panic.png",
+        "intrigued": "stories/Sakuragaoka/assets/images/characters/Hoshi_intrigued.png"
+      },
+      "position": "left",
+      "sfx": ""
+    },
+    "NAGISA": {
+      "name": "Oosaka Nagisa",
+      "sprites": {
+        "neutral": "stories/Sakuragaoka/assets/images/characters/Nagisa.png",
+        "analytical": "stories/Sakuragaoka/assets/images/characters/Nagisa.png",
+        "commanding": "stories/Sakuragaoka/assets/images/characters/Nagisa.png"
+      },
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "storyDialogue": [
+    {
+      "chapter": 0,
+      "scene": 1,
+      "character": "NARRATION:neutral",
+      "text": "[glitch] <span style='color: #FF4444; text-shadow: 0 0 8px #FF0000;'>SYSTEM BOOT.</span> Yeah, yeah, welcome to Sakuragaoka, <b style='color: #00FFFF;'>{{user}}</b>. Try not to die.",
+      "SpriteEffects": "Scanlines"
+    },
+    {
+      "chapter": 0,
+      "scene": 2,
+      "character": "NARRATION:neutral",
+      "text": "Spring is here. The <span style='color: #FF00DE;'>cherry blossoms</span> look great, if you ignore the <span style='color: #FF4444;'>stench of flop sweat</span> and cheap body spray.",
+      "SpriteEffects": ""
+    },
+    {
+      "chapter": 0,
+      "scene": 3,
+      "character": "NARRATION:neutral",
+      "text": "Look at all these freshmen. A <b style='color: #00FFFF;'>perfect, chaotic petri dish</b> of raging hormones and crippling student debt."
+    },
+    {
+      "chapter": 1,
+      "scene": 1,
+      "character": "NARRATION:neutral",
+      "text": "This auditorium is a <span style='color: #FF4444;'>meat grinder</span>. Just two thousand kids trapped in cheap polyester, regretting their life choices."
+    },
+    {
+      "chapter": 1,
+      "scene": 2,
+      "character": "NARRATION:neutral",
+      "text": "Welcome to Row G. It's so awkward in this section you could cut the <b style='color: #FF00DE;'>sexual frustration</b> with a knife."
+    },
+    {
+      "chapter": 1,
+      "scene": 3,
+      "character": "NARRATION:neutral",
+      "text": "The dean is still droning on. The <span style='color: #00FFFF;'>tension</span> in here is worse than a really bad Tinder date."
+    },
+    {
+      "chapter": 1,
+      "scene": 4,
+      "character": "NARRATION:neutral",
+      "text": "The girl next to me is a <b style='color: #FF00DE;'>statue</b>. Hasn't blinked once. Pretty sure she's currently astral projecting."
+    },
+    {
+      "chapter": 1,
+      "scene": 5,
+      "character": "NARRATION:neutral",
+      "text": "Knuckles white as bone. She’s clutching that notebook like it’s holding the nuclear launch codes."
+    },
+    {
+      "chapter": 1,
+      "scene": 6,
+      "character": "NARRATION:neutral",
+      "text": "Then, the slip. The notebook hits the floor with a <i style='color: #FF00DE;'>crack</i> that sounds like a damn gunshot."
+    },
+    {
+      "chapter": 1,
+      "scene": 7,
+      "character": "MEGUMI:frozen",
+      "text": "...",
+      "SpriteEffects": "Pulse"
+    },
+    {
+      "chapter": 1,
+      "scene": 8,
+      "character": "NARRATION:neutral",
+      "text": "She's vibrating. Her mouth opens, but she's just buffering. Total <span style='color: #00FFFF;'>404 Error</span>."
+    },
+    {
+      "chapter": 1,
+      "scene": 9,
+      "character": "RYUU:bored",
+      "text": "Check that out. She's doing the <span style='color: #FF00DE;'>social math</span> on whether to pick it up or just die right here."
+    },
+    {
+      "chapter": 1,
+      "scene": 10,
+      "character": "NARRATION:neutral",
+      "text": "A voice from behind. Smooth, low, and <b style='color: #00FFFF;'>dripping with arrogance</b>. Great. We have an edgelord."
+    },
+    {
+      "chapter": 1,
+      "scene": 11,
+      "character": "RYUU:amused",
+      "text": "Nishimura Ryuu. Relax, I'm just here for the <span style='color: #FF00DE;'>entertainment</span>. This is better than any lecture."
+    },
+    {
+      "chapter": 1,
+      "scene": 12,
+      "character": "RYUU:amused",
+      "text": "The staring isn't helping, {{user}}. You're making the <b style='color: #00FFFF;'>poor mouse</b> have a literal heart attack."
+    },
+    {
+      "chapter": 1,
+      "scene": 13,
+      "character": "NARRATION:neutral",
+      "text": "Megumi’s pen is flying. She’s writing her last will and testament on that pad. Poor girl."
+    },
+    {
+      "chapter": 1,
+      "scene": 14,
+      "character": "HAJIME:hostile",
+      "text": "<b style='color: #FF4444; font-size: 1.1em;'>Shut it.</b> *He doesn’t look at them.*  Both of you. [shake]"
+    },
+    {
+      "chapter": 1,
+      "scene": 15,
+      "character": "NARRATION:neutral",
+      "text": "A massive shadow looms. This guy is built like a <span style='color: #00FFFF;'>brick outhouse</span> with a bad attitude."
+    },
+    {
+      "chapter": 1,
+      "scene": 16,
+      "character": "NARRATION:neutral",
+      "text": "Bandage on his nose, eyes like a cornered pitbull. Dude looks ready to <b style='color: #FF4444;'>snap a spine</b> over a typo."
+    },
+    {
+      "chapter": 1,
+      "scene": 17,
+      "character": "RYUU:amused",
+      "text": "Easy, big guy. I'm just a <span style='color: #FF00DE;'>humble observer</span>. No need to flex those insecurities."
+    },
+    {
+      "chapter": 1,
+      "scene": 18,
+      "character": "RYUU:amused",
+      "text": "Careful, Frankenstein. If you play the <b style='color: #00FFFF;'>hero</b> too hard, people might think you're actually human."
+    },
+    {
+      "chapter": 1,
+      "scene": 19,
+      "character": "HAJIME:defensive",
+      "text": "Keep talking, Ryuu. I’ll make sure your next meal is through a <span style='color: #FF4444;'>straw</span>."
+    },
+    {
+      "chapter": 1,
+      "scene": 20,
+      "character": "NARRATION:neutral",
+      "text": "So much for a normal first day. A <b style='color: #FF00DE;'>panic attack</b>, a <b style='color: #00FFFF;'>sociopath</b>, and a <b style='color: #FF4444;'>steroid freak</b>. Cool."
+    },
+    {
+      "chapter": 2,
+      "scene": 1,
+      "character": "NARRATION:neutral",
+      "text": "An hour later. The courtyard is a total <span style='color: #00FFFF;'>shitshow</span>. Club recruitment is basically legal harassment."
+    },
+    {
+      "chapter": 2,
+      "scene": 2,
+      "character": "NARRATION:neutral",
+      "text": "Upperclassmen are circling like <span style='color: #FF00DE;'>starving wolves</span>, shoving flyers in faces. Pure desperation."
+    },
+    {
+      "chapter": 2,
+      "scene": 3,
+      "character": "HOSHI:chaotic",
+      "text": "MOVE! I've got <b style='color: #FF69B4;'>deadlines</b> and I'm losing my light! OUTTA THE WAY! [shake]"
+    },
+    {
+      "chapter": 2,
+      "scene": 4,
+      "character": "NARRATION:neutral",
+      "text": "A tactical nuke of <span style='color: #FF00DE; text-shadow: 0 0 10px #FF00DE;'>hot pink hair</span> slams into the path. Total hit-and-run."
+    },
+    {
+      "chapter": 2,
+      "scene": 5,
+      "character": "NARRATION:neutral",
+      "text": "Manga and pins everywhere. She looks like a <b style='color: #00FFFF;'>Hot Topic</b> exploded on her."
+    },
+    {
+      "chapter": 2,
+      "scene": 6,
+      "character": "HOSHI:panic",
+      "text": "My fabric! That stitching took <i style='color: #FF69B4;'>ages</i>! If this gets dirty, someone’s going to pay in blood!"
+    },
+    {
+      "chapter": 2,
+      "scene": 7,
+      "character": "HOSHI:intrigued",
+      "text": "<i>She stops mid-meltdown. Her eyes lock onto yours, scanning like a <span style='color: #00FFFF;'>high-res sensor</span>.</i>"
+    },
+    {
+      "chapter": 2,
+      "scene": 8,
+      "character": "HOSHI:intrigued",
+      "text": "Whoa. Look at that bone structure. You’d make a <b style='color: #FF00DE;'>killer tragic lead</b> in a dark fantasy."
+    },
+    {
+      "chapter": 2,
+      "scene": 9,
+      "character": "NARRATION:neutral",
+      "text": "She’s already back on her feet. Pure, <span style='color: #00FFFF;'>unfiltered ADHD</span> in a school uniform."
+    },
+    {
+      "chapter": 2,
+      "scene": 10,
+      "character": "HOSHI:chaotic",
+      "text": "Don't just stand there looking pretty! We’re short on <b style='color: #FF00DE;'>background actors</b> for the shoot—"
+    },
+    {
+      "chapter": 2,
+      "scene": 11,
+      "character": "NAGISA:commanding",
+      "text": "Hoshi. <span style='color: #00FF88;'>Cease.</span> We aren't here to kidnap the freshmen."
+    },
+    {
+      "chapter": 2,
+      "scene": 12,
+      "character": "NARRATION:neutral",
+      "text": "A hand on Hoshi's shoulder. The chaos <b style='color: #00FFFF;'>freezes</b> instantly. Like a dog getting hit with a newspaper."
+    },
+    {
+      "chapter": 2,
+      "scene": 13,
+      "character": "NAGISA:commanding",
+      "text": "Stop being rude, Hoshi. Pick up your stuff. Now."
+    },
+    {
+      "chapter": 2,
+      "scene": 14,
+      "character": "NARRATION:neutral",
+      "text": "She steps in. Her posture is <b style='color: #00FF88;'>freakishly perfect</b>. Spine straight out of an anime."
+    },
+    {
+      "chapter": 2,
+      "scene": 15,
+      "character": "NARRATION:neutral",
+      "text": "When she looks at you, she isn't seeing a person. She's like.. <span style='color: #00FFFF; text-shadow: 0 0 8px #00FFFF;'>judging your search history</span>."
+    },
+    {
+      "chapter": 2,
+      "scene": 16,
+      "character": "NAGISA:neutral",
+      "text": "Forgive her. She’s... <b style='color: #00FF88;'>emotionally unstable</b>. I am Oosaka Nagisa. I run this club."
+    },
+    {
+      "chapter": 2,
+      "scene": 17,
+      "character": "NARRATION:neutral",
+      "text": "She waits. The courtyard noise seems to <span style='color: #00FFFF;'>mute itself</span> around her. Spooky."
+    },
+    {
+      "chapter": 2,
+      "scene": 18,
+      "character": "NAGISA:analytical",
+      "text": "<i>A tilt of the head. A smile that looks <i style='color: #00FF88;'>perfectly rendered</i>, yet completely hollow.</i>"
+    },
+    {
+      "chapter": 2,
+      "scene": 19,
+      "character": "NAGISA:analytical",
+      "text": "Your <span style='color: #00FF88;'>baseline stress response</span> is... fascinating, {{user}}. Very unique."
+    },
+    {
+      "chapter": 2,
+      "scene": 20,
+      "character": "NARRATION:neutral",
+      "text": "She uses your name like she’s <b style='color: #FF00DE;'>got a file on you</b>. Which, honestly, she probably does."
+    },
+    {
+      "chapter": 2,
+      "scene": 21,
+      "character": "NAGISA:analytical",
+      "text": "You're a fascinating variable, {{user}}. Why rot in the courtyard? <b style='color: #00FF88;'>Join the club</b>. I want to see you under some real pressure."
+    }
+  ]
+}

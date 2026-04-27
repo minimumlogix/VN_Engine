@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Nexus Music Bar 4.0</title>
     <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
 
         :root {
-            --accent: #00ffcc; /* Default, overridden by JS */
+            --accent: #00ffcc;
+            /* Default, overridden by JS */
             --bg-glass: rgba(10, 12, 16, 0.75);
             --border-glass: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
@@ -47,10 +50,11 @@
             display: flex;
             align-items: center;
             padding: 0 20px;
-            padding-bottom: 6px; /* Space for the thick progress bar */
+            padding-bottom: 6px;
+            /* Space for the thick progress bar */
             color: var(--text-main);
             z-index: 99999;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
             transition: border-color 0.3s ease;
         }
 
@@ -58,17 +62,24 @@
         #nexus-player-bar::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             pointer-events: none;
             z-index: -1;
         }
+
         .scanline {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.15) 51%);
             background-size: 100% 4px;
             pointer-events: none;
@@ -76,7 +87,7 @@
             display: none;
             opacity: 0.6;
         }
-        
+
         #nexus-player-bar.error-active .scanline {
             display: block;
             animation: glitch 0.2s infinite;
@@ -84,7 +95,10 @@
 
         #dynamic-bg {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
             opacity: 0.25;
@@ -100,6 +114,41 @@
             60% { transform: translate(-1px, 2px); }
             80% { transform: translate(1px, -2px); }
             100% { transform: translate(0); }
+        }
+
+        /* --- OVERLAYS --- */
+        #uplink-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: var(--bar-height);
+            background: #0a0c10;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+            pointer-events: none;
+        }
+
+        #uplink-overlay.ready {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-text {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+            animation: nexus-blink 1.5s infinite;
+        }
+
+        @keyframes nexus-blink {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent); }
+            50% { opacity: 0.3; text-shadow: none; }
         }
 
         /* Hidden YT Engine */
@@ -171,18 +220,42 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .track-title-wrapper {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
 
         .track-title {
             font-size: 14px;
             font-weight: 800;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: inline-block;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-main);
-            text-shadow: 0 0 8px rgba(255,255,255,0.1);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+            transition: transform 0.1s linear;
+            padding-right: 50px;
+            /* Space for seamless loop if needed */
+        }
+
+        .track-title.marquee {
+            animation: marquee-scroll var(--duration, 10s) linear infinite;
+        }
+
+        @keyframes marquee-scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .credit {
@@ -201,10 +274,10 @@
             font-variant-numeric: tabular-nums;
             width: 45px;
             text-align: center;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             padding: 3px 6px;
             border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .btn {
@@ -226,8 +299,10 @@
             filter: drop-shadow(0 0 8px var(--accent));
             transform: scale(1.1);
         }
-        
-        .btn:active { transform: scale(0.9); }
+
+        .btn:active {
+            transform: scale(0.9);
+        }
 
         .btn-main {
             width: 44px;
@@ -258,7 +333,8 @@
             transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .progress-container:hover, .progress-container:active {
+        .progress-container:hover,
+        .progress-container:active {
             height: 12px;
         }
 
@@ -312,23 +388,24 @@
         .volume-wrapper {
             display: flex;
             align-items: center;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid transparent;
             border-radius: 20px;
             height: 34px;
-            width: 34px; /* Collapsed state */
+            width: 34px;
+            /* Collapsed state */
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
         /* State locks for hovering AND dragging */
-        .volume-wrapper:hover, 
+        .volume-wrapper:hover,
         .volume-wrapper.active,
         .volume-wrapper.is-dragging {
-            width: 120px; 
+            width: 120px;
             border-color: var(--border-glass);
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
         }
 
         .volume-icon-btn {
@@ -344,7 +421,7 @@
             transition: color 0.2s;
         }
 
-        .volume-wrapper:hover .volume-icon-btn, 
+        .volume-wrapper:hover .volume-icon-btn,
         .volume-wrapper.active .volume-icon-btn,
         .volume-wrapper.is-dragging .volume-icon-btn {
             color: var(--accent);
@@ -357,10 +434,11 @@
             margin-left: 2px;
             display: flex;
             align-items: center;
-            height: 100%; /* Fill parent for maximum hitbox */
+            height: 100%;
+            /* Fill parent for maximum hitbox */
         }
 
-        .volume-wrapper:hover .volume-slider-container, 
+        .volume-wrapper:hover .volume-slider-container,
         .volume-wrapper.active .volume-slider-container,
         .volume-wrapper.is-dragging .volume-slider-container {
             opacity: 1;
@@ -371,18 +449,22 @@
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 24px; /* Big touch target */
+            height: 24px;
+            /* Big touch target */
             background: transparent;
             cursor: pointer;
         }
-        input[type=range]:focus { outline: none; }
-        
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
         input[type=range]::-webkit-slider-runnable-track {
             height: 2px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 1px;
         }
-        
+
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -390,11 +472,12 @@
             width: 14px;
             border-radius: 50%;
             background: var(--text-main);
-            margin-top: -6px; /* Align precisely: (2px track/2) - (14px thumb/2) = -6px */
+            margin-top: -6px;
+            /* Align precisely: (2px track/2) - (14px thumb/2) = -6px */
             cursor: pointer;
             transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
         }
-        
+
         input[type=range]::-webkit-slider-thumb:hover,
         input[type=range]:active::-webkit-slider-thumb {
             background: var(--accent);
@@ -408,42 +491,94 @@
             height: 20px;
             fill: currentColor;
         }
+
         .btn-main svg {
             width: 22px;
             height: 22px;
-            margin-left: 2px; /* Optically center play icon */
+            margin-left: 2px;
+            /* Optically center play icon */
         }
-        #pause-icon { margin-left: 0; }
+
+        #pause-icon {
+            margin-left: 0;
+        }
 
         /* --- ANIMATIONS --- */
         @keyframes pulse {
-            0% { opacity: 0.3; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
-            100% { opacity: 0.3; transform: scale(0.9); }
+            0% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+                box-shadow: 0 0 15px var(--accent);
+            }
+
+            100% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
         }
 
         /* --- RESPONSIVE POLISH --- */
         @media (max-width: 768px) {
-            .section-right { flex: 0.5; }
-            .section-center { flex: 2; gap: 10px; }
-            .time-display { display: none; }
-            .track-title { max-width: 160px; font-size: 13px; }
-            .status-block { display: none; }
+            .section-right {
+                flex: 0.5;
+            }
+
+            .section-center {
+                flex: 2;
+                gap: 10px;
+            }
+
+            .time-display {
+                display: none;
+            }
+
+            .track-title {
+                max-width: 160px;
+                font-size: 13px;
+            }
+
+            .status-block {
+                display: none;
+            }
         }
 
         @media (max-width: 480px) {
-            .track-title { max-width: 110px; }
-            #nexus-player-bar { padding: 0 10px; padding-bottom: 5px; }
-            .volume-wrapper { display: none; } /* Hide volume assembly entirely on tiny screens */
-            .btn-nav svg { width: 18px; height: 18px; }
+            .track-title {
+                max-width: 110px;
+            }
+
+            #nexus-player-bar {
+                padding: 0 10px;
+                padding-bottom: 5px;
+            }
+
+            .volume-wrapper {
+                display: none;
+            }
+
+            /* Hide volume assembly entirely on tiny screens */
+            .btn-nav svg {
+                width: 18px;
+                height: 18px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div id="youtube-frame"></div>
 
-    <div id="nexus-player-bar">
+    <div id="uplink-overlay">
+        <div class="loading-text">Establishing Secure Uplink</div>
+    </div>
+
+    <div id="nexus-player-bar" onclick="handleBarClick(event)">
         <div id="dynamic-bg"></div>
         <div class="scanline"></div>
 
@@ -454,7 +589,9 @@
                 <div class="status-label" id="status-label">SYS.OK</div>
             </div>
             <div class="track-info">
-                <div class="track-title" id="track-name">ESTABLISHING LINK...</div>
+                <div class="track-title-wrapper" id="title-container">
+                    <div class="track-title" id="track-name">ESTABLISHING LINK...</div>
+                </div>
                 <div class="credit" id="credit-label">MUSIC PLAYER BY 🅷🆄🅼🅰🅽</div>
             </div>
         </div>
@@ -462,18 +599,26 @@
         <!-- CENTER: Core Navigation -->
         <div class="section-center">
             <div class="time-display" id="current-time">00:00</div>
-            
+
             <button class="btn btn-nav" onclick="triggerPrev()" title="Restart Sequence">
-                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+                </svg>
             </button>
-            
+
             <button class="btn btn-main" id="play-pause-btn" onclick="togglePlay()">
-                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg id="play-icon" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+                <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
             </button>
 
             <button class="btn btn-nav" onclick="triggerNext()" title="Force Skip">
-                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                </svg>
             </button>
 
             <div class="time-display" id="duration">00:00</div>
@@ -482,23 +627,35 @@
         <!-- RIGHT: Aux Systems -->
         <div class="section-right">
             <button class="btn" id="repeat-btn" onclick="toggleRepeat()" title="Cycle Loop Mode">
-                <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+                </svg>
                 <div class="repeat-badge" id="repeat-badge">1</div>
             </button>
 
             <!-- Engineered Volume Assembly -->
             <div class="volume-wrapper" id="volume-wrapper" onclick="toggleVolumeTouch(event)">
                 <button class="volume-icon-btn" id="volume-mute-btn" onclick="toggleMute()">
-                    <svg id="vol-icon-high" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                    <svg id="vol-icon-muted" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    <svg id="vol-icon-high" viewBox="0 0 24 24">
+                        <path
+                            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                    </svg>
+                    <svg id="vol-icon-muted" viewBox="0 0 24 24" style="display:none;">
+                        <path
+                            d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                    </svg>
                 </button>
                 <div class="volume-slider-container">
-                    <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="updateVolume(this.value)">
+                    <input type="range" id="volume-slider" min="0" max="100" value="100"
+                        oninput="updateVolume(this.value)">
                 </div>
             </div>
 
             <button class="btn" onclick="openYouTube()" title="Open Uplink">
-                <svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+                </svg>
             </button>
         </div>
 
@@ -513,7 +670,7 @@
     <script>
         let player;
         const FALLBACK_ID = 'dQw4w9WgXcQ'; // Rickroll Failsafe
-        let videoId = FALLBACK_ID; 
+        let videoId = FALLBACK_ID;
         let repeatState = 0; // 0: Off, 1: Loop, 2: Loop 1
         let animationFrameId;
         let isDraggingProgress = false;
@@ -521,17 +678,20 @@
         let preMuteVolume = 100;
         let listId = null;
         let listType = 'playlist';
+        let preFlightTimer = null;
+        let playAttempted = false;
+        let initialMetadataSet = false;
 
         // Parse Uplink Parameters
         const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.has('v')) videoId = urlParams.get('v');
-        if(urlParams.has('list')) {
+        if (urlParams.has('v')) videoId = urlParams.get('v');
+        if (urlParams.has('list')) {
             listId = urlParams.get('list');
-            if(urlParams.has('listType')) listType = urlParams.get('listType');
+            if (urlParams.has('listType')) listType = urlParams.get('listType');
         }
-        if(urlParams.has('c')) {
+        if (urlParams.has('c')) {
             let color = urlParams.get('c');
-            if(!color.startsWith('#')) color = '#' + color;
+            if (!color.startsWith('#')) color = '#' + color;
             document.documentElement.style.setProperty('--accent', color);
         }
 
@@ -546,6 +706,9 @@
                     'disablekb': 1,
                     'modestbranding': 1,
                     'rel': 0,
+                    'enablejsapi': 1,
+                    'widget_referrer': 'https://www.youtube.com',
+                    'origin': location.origin === 'null' ? 'https://www.youtube.com' : location.origin,
                     'autoplay': (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') ? 1 : 0
                 },
                 events: {
@@ -558,8 +721,8 @@
             if (listId) {
                 playerConfig.playerVars.listType = listType;
                 playerConfig.playerVars.list = listId;
-                if(urlParams.has('index')) playerConfig.playerVars.index = parseInt(urlParams.get('index'));
-                if(urlParams.get('shuffle') === '1') playerConfig.playerVars.shuffle = 1;
+                if (urlParams.has('index')) playerConfig.playerVars.index = parseInt(urlParams.get('index'));
+                if (urlParams.get('shuffle') === '1') playerConfig.playerVars.shuffle = 1;
             } else {
                 playerConfig.videoId = videoId;
             }
@@ -569,39 +732,74 @@
 
         function onSystemReady(event) {
             updateTelemetry();
-            
+
             // Apply URL Parameters
-            if(urlParams.has('title')) {
+            if (urlParams.has('title')) {
                 document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
             }
-            if(urlParams.has('author')) {
+            if (urlParams.has('author')) {
                 document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
             }
-            if(urlParams.has('vol')) {
+            if (urlParams.has('vol')) {
                 const v = parseInt(urlParams.get('vol'));
-                if(!isNaN(v)) {
+                if (!isNaN(v)) {
+                    player.setVolume(v);
+                    document.getElementById('volume-slider').value = v;
+                    localStorage.setItem('nexus-volume', v);
+                }
+            } else {
+                const savedVol = localStorage.getItem('nexus-volume');
+                if (savedVol !== null) {
+                    const v = parseInt(savedVol);
                     player.setVolume(v);
                     document.getElementById('volume-slider').value = v;
                 }
             }
-            if(urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
+            if (urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
                 player.mute();
             }
-            if(urlParams.has('repeat')) {
+            if (urlParams.has('repeat')) {
                 const r = parseInt(urlParams.get('repeat'));
-                if(!isNaN(r) && r >= 0 && r <= 2) {
+                if (!isNaN(r) && r >= 0 && r <= 2) {
                     repeatState = r;
                     updateRepeatUI();
                 }
             }
-            
+
             syncVolumeUI();
             setStatus("SYS.OK", "var(--accent)", "4s");
 
-            // Auto-Sequence Engagement
-            if(urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
+            // Auto-Sequence Engagement with Pre-flight Check
+            if (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
+                playAttempted = true;
                 player.playVideo();
+                startPreFlightCheck();
             }
+        }
+
+        function startPreFlightCheck() {
+            if (preFlightTimer) clearTimeout(preFlightTimer);
+            preFlightTimer = setTimeout(() => {
+                if (player && typeof player.getPlayerState === 'function') {
+                    const state = player.getPlayerState();
+                    if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+                        console.warn("Pre-flight Timeout: Video not playing. Retrying...");
+                        player.playVideo();
+                        // If still stuck after 5 more seconds, maybe it's an error
+                        setTimeout(() => {
+                            if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+                                setStatus("BLOCKED", "#ffff00", "0.5s");
+                                document.getElementById('track-name').innerText = "TAP TO INITIALIZE UPLINK";
+                                document.getElementById('uplink-overlay').classList.add('ready');
+                            }
+                        }, 5000);
+                    }
+                } else {
+                    // Method not ready yet, hide overlay anyway if we've waited 3s
+                    console.log("Player API still initializing. Releasing overlay.");
+                    document.getElementById('uplink-overlay').classList.add('ready');
+                }
+            }, 3000);
         }
 
         function onSystemStateChange(event) {
@@ -609,17 +807,25 @@
             const pauseIcon = document.getElementById('pause-icon');
 
             if (event.data === YT.PlayerState.PLAYING) {
+                if (preFlightTimer) clearTimeout(preFlightTimer);
+                document.getElementById('uplink-overlay').classList.add('ready');
+                
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
+
+                if (!isErrorMode) setStatus("ACTIVE", "var(--accent)", "1s");
                 
-                if(!isErrorMode) setStatus("ACTIVE", "var(--accent)", "1s");
-                
+                // Extra check for marquee after overlay is gone
+                setTimeout(applyMarqueeLogic, 500);
+
                 updateTelemetry();
                 startCinematicLoop();
+            } else if (event.data === YT.PlayerState.BUFFERING) {
+                if (!isErrorMode) setStatus("BUFFERING", "var(--accent)", "0.5s");
             } else {
                 playIcon.style.display = 'block';
                 pauseIcon.style.display = 'none';
-                if(!isErrorMode) setStatus("STANDBY", "var(--accent)", "4s");
+                if (!isErrorMode) setStatus("STANDBY", "var(--accent)", "4s");
                 stopCinematicLoop();
             }
 
@@ -643,6 +849,18 @@
 
         function onSystemError(event) {
             console.warn("Nexus Error Caught. Code:", event.data);
+            
+            // Critical: Hide overlay on error so UI isn't stuck
+            document.getElementById('uplink-overlay').classList.add('ready');
+
+            // If we are in a playlist, try skipping first
+            const playlist = player.getPlaylist();
+            if (playlist && playlist.length > 0) {
+                console.log("Error in playlist. Skipping to next...");
+                player.nextVideo();
+                return;
+            }
+
             isErrorMode = true;
             document.getElementById('nexus-player-bar').classList.add('error-active');
             setStatus("ERR: FALLBACK", "#ff3333", "0.5s");
@@ -656,7 +874,7 @@
                     document.getElementById('track-name').style.color = "var(--text-main)";
                     document.getElementById('nexus-player-bar').classList.remove('error-active');
                     isErrorMode = false;
-                }, 2000); 
+                }, 2000);
             }
         }
 
@@ -673,7 +891,7 @@
         // --- CORE CONTROLS ---
 
         function togglePlay() {
-            if(!player || !player.getPlayerState) return;
+            if (!player || !player.getPlayerState) return;
             const state = player.getPlayerState();
             if (state === YT.PlayerState.PLAYING) {
                 player.pauseVideo();
@@ -683,9 +901,9 @@
         }
 
         function triggerPrev() {
-            if(!player) return;
+            if (!player) return;
             const playlist = player.getPlaylist();
-            if(playlist && playlist.length > 0) {
+            if (playlist && playlist.length > 0) {
                 player.previousVideo();
             } else {
                 player.seekTo(0);
@@ -694,9 +912,9 @@
         }
 
         function triggerNext() {
-            if(!player) return;
+            if (!player) return;
             const playlist = player.getPlaylist();
-            if(playlist && playlist.length > 0) {
+            if (playlist && playlist.length > 0) {
                 player.nextVideo();
             } else {
                 player.seekTo(player.getDuration() - 1);
@@ -705,11 +923,12 @@
         }
 
         // --- VOLUME LOGIC (FIXED) ---
-        
+
         function updateVolume(val) {
-            if(player && player.setVolume) {
+            if (player && player.setVolume) {
                 player.setVolume(val);
-                if(val == 0) {
+                localStorage.setItem('nexus-volume', val);
+                if (val == 0) {
                     player.mute();
                     toggleMuteIcon(true);
                 } else {
@@ -720,16 +939,16 @@
         }
 
         function syncVolumeUI() {
-            if(player && player.getVolume) {
+            if (player && player.getVolume) {
                 let vol = player.getVolume();
-                if(player.isMuted()) vol = 0;
+                if (player.isMuted()) vol = 0;
                 document.getElementById('volume-slider').value = vol;
                 toggleMuteIcon(vol == 0);
             }
         }
 
         function toggleMute() {
-            if(!player) return;
+            if (!player) return;
             const slider = document.getElementById('volume-slider');
             if (player.isMuted() || slider.value == 0) {
                 player.unMute();
@@ -754,12 +973,12 @@
             if (e.target.tagName === 'INPUT' || e.target.closest('#volume-mute-btn')) return;
             const wrapper = document.getElementById('volume-wrapper');
             wrapper.classList.add('active');
-            
+
             // Auto close fallback if not actively dragging
-            if(!wrapper.classList.contains('is-dragging')) {
-                setTimeout(() => { 
-                    if(!wrapper.classList.contains('is-dragging')) {
-                        wrapper.classList.remove('active'); 
+            if (!wrapper.classList.contains('is-dragging')) {
+                setTimeout(() => {
+                    if (!wrapper.classList.contains('is-dragging')) {
+                        wrapper.classList.remove('active');
                     }
                 }, 3000);
             }
@@ -779,14 +998,14 @@
         }
 
         volSlider.addEventListener('mousedown', () => setVolumeDraggingState(true));
-        volSlider.addEventListener('touchstart', () => setVolumeDraggingState(true), {passive: true});
-        
+        volSlider.addEventListener('touchstart', () => setVolumeDraggingState(true), { passive: true });
+
         // Use document listeners to catch dragged releases outside the box boundaries
         document.addEventListener('mouseup', () => {
-            if(volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
+            if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
         });
         document.addEventListener('touchend', () => {
-            if(volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
+            if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
         });
 
 
@@ -795,20 +1014,20 @@
         function updateRepeatUI() {
             const btn = document.getElementById('repeat-btn');
             const badge = document.getElementById('repeat-badge');
-            
+
             btn.classList.remove('btn-state-active');
             badge.style.display = 'none';
 
-            if (repeatState === 1) { 
+            if (repeatState === 1) {
                 btn.classList.add('btn-state-active');
-                if(player && player.setLoop) player.setLoop(true);
-            } else if (repeatState === 2) { 
+                if (player && player.setLoop) player.setLoop(true);
+            } else if (repeatState === 2) {
                 btn.classList.add('btn-state-active');
                 badge.style.display = 'block';
                 badge.innerText = '1';
-                if(player && player.setLoop) player.setLoop(false);
+                if (player && player.setLoop) player.setLoop(false);
             } else {
-                if(player && player.setLoop) player.setLoop(false);
+                if (player && player.setLoop) player.setLoop(false);
             }
         }
 
@@ -818,7 +1037,7 @@
         }
 
         function openYouTube() {
-            if(!player) return;
+            if (!player) return;
             const id = player.getVideoData()?.video_id || videoId;
             window.open(`https://www.youtube.com/watch?v=${id}`, '_blank', 'noopener,noreferrer');
         }
@@ -826,7 +1045,7 @@
         // --- CINEMATIC TELEMETRY ---
 
         function startCinematicLoop() {
-            if(animationFrameId) cancelAnimationFrame(animationFrameId);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             function update() {
                 if (!isDraggingProgress && player && player.getCurrentTime) {
                     const curr = player.getCurrentTime();
@@ -835,9 +1054,9 @@
                         const perc = (curr / dur) * 100;
                         document.getElementById('progress-bar').style.width = perc + '%';
                         document.getElementById('current-time').innerText = formatTime(curr);
-                        
+
                         const durEl = document.getElementById('duration');
-                        if(durEl.innerText === '00:00' || Math.random() < 0.05) {
+                        if (durEl.innerText === '00:00' || Math.random() < 0.05) {
                             durEl.innerText = formatTime(dur);
                         }
                     }
@@ -855,24 +1074,63 @@
         }
 
         function updateTelemetry() {
-            if(isErrorMode) return;
+            if (isErrorMode) return;
             const data = player.getVideoData();
-            if (data && data.title) {
-                if(!urlParams.has('title')) {
-                    document.getElementById('track-name').innerText = data.title;
+            if (data && data.title && data.title !== "YouTube Video") {
+                // If it's the initial load and we have a URL title, use it once.
+                // Otherwise (or if song changes), use the metadata title.
+                const trackEl = document.getElementById('track-name');
+                if (urlParams.has('title') && !initialMetadataSet) {
+                    trackEl.innerText = urlParams.get('title').toUpperCase();
+                } else {
+                    trackEl.innerText = data.title.toUpperCase();
+                }
+
+                if (urlParams.has('author') && !initialMetadataSet) {
+                    document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
+                } else if (data.author) {
+                    document.getElementById('credit-label').innerText = data.author.toUpperCase();
                 }
                 
+                initialMetadataSet = true;
+
+                // Update Marquee if needed
+                setTimeout(applyMarqueeLogic, 100);
+
                 // Dynamic Background Update
                 const id = data.video_id || videoId;
                 const bg = document.getElementById('dynamic-bg');
-                if(id) {
+                if (id) {
                     bg.style.backgroundImage = `url('https://img.youtube.com/vi/${id}/hqdefault.jpg')`;
                 }
             }
         }
 
+        function applyMarqueeLogic() {
+            const trackEl = document.getElementById('track-name');
+            const container = document.getElementById('title-container');
+            
+            // Reset to measure
+            trackEl.classList.remove('marquee');
+            trackEl.style.width = 'auto';
+            trackEl.style.transform = '';
+            
+            const isTooLong = trackEl.scrollWidth > container.clientWidth;
+            
+            if (isTooLong) {
+                const originalText = trackEl.innerText;
+                // Double the content for seamless scroll
+                trackEl.innerHTML = `<span>${originalText}</span><span style="padding-left:100px">${originalText}</span>`;
+                trackEl.classList.add('marquee');
+                // Speed calculation: duration proportional to width
+                const speed = 40; // pixels per second
+                const duration = (trackEl.scrollWidth / speed);
+                trackEl.style.setProperty('--duration', duration + 's');
+            }
+        }
+
         function formatTime(seconds) {
-            if(isNaN(seconds)) return "00:00";
+            if (isNaN(seconds)) return "00:00";
             const min = Math.floor(seconds / 60);
             const sec = Math.floor(seconds % 60);
             return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
@@ -887,21 +1145,21 @@
         // --- SCRUBBER LOGIC (ABSOLUTE BOTTOM) ---
 
         const progressContainer = document.getElementById('progress-container');
-        
+
         function handleScrub(e) {
-            if(!player || !player.getDuration) return;
+            if (!player || !player.getDuration) return;
             const rect = progressContainer.getBoundingClientRect();
             const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
-            
+
             let x = clientX - rect.left;
             x = Math.max(0, Math.min(x, rect.width));
-            
+
             const perc = x / rect.width;
             const duration = player.getDuration();
-            
+
             // UI visual update immediately
             document.getElementById('progress-bar').style.width = (perc * 100) + '%';
-            
+
             if (e.type === 'mouseup' || e.type === 'touchend') {
                 player.seekTo(duration * perc, true);
                 isDraggingProgress = false;
@@ -919,7 +1177,7 @@
             isDraggingProgress = true;
             stopCinematicLoop();
             handleScrub(e);
-        }, {passive: false});
+        }, { passive: false });
 
         document.addEventListener('mousemove', (e) => {
             if (isDraggingProgress) handleScrub(e);
@@ -927,7 +1185,7 @@
 
         document.addEventListener('touchmove', (e) => {
             if (isDraggingProgress) handleScrub(e);
-        }, {passive: false});
+        }, { passive: false });
 
         document.addEventListener('mouseup', (e) => {
             if (isDraggingProgress) handleScrub(e);
@@ -937,6 +1195,18 @@
             if (isDraggingProgress) handleScrub(e);
         });
 
+        function handleBarClick(e) {
+            // Only trigger if not clicking a button or slider
+            if (e.target.closest('button') || e.target.closest('.progress-container') || e.target.closest('input')) return;
+            
+            const state = player.getPlayerState();
+            if (state !== YT.PlayerState.PLAYING) {
+                player.playVideo();
+                document.getElementById('uplink-overlay').classList.add('ready');
+            }
+        }
+
     </script>
 </body>
+
 </html>

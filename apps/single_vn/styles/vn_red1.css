@@ -1,0 +1,225 @@
+:root {
+  /* Crimson Artist Theme color scheme (Deep Red, Charcoal, Soft Pink) */
+  --primary-color: #c00000;             /* Deep, saturated crimson red */
+  --text-color: #f0f8ff;                /* Alice blue / Soft off-white */
+  --background-color: rgba(35, 20, 20, 0.95); /* Deep charcoal with a hint of red */
+
+  /* Accent colors */
+  --glow-color: rgba(255, 0, 0, 0.3);          /* Soft ruby glow */
+  --gradient-color: rgba(60, 40, 40, 0.4);      /* Transparent dark rose */
+
+  /* Markdown text styles */
+  --heading-color: #ff4d4d;              /* Bright red highlight */
+  --strong-color: #ff8080;               /* Light red for <strong> */
+  --emphasis-color: #ffb3b3;              /* Soft pale rose for <em> */
+  --code-bg-color: #3d1a1a;              /* Dark burgundy for code */
+  --quote-color: #ffe6e6;                /* Very pale pink quote */
+
+  /* Configurable heading background - replaced sunflowers with a red texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling for reusability */
+.vn-heading {
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Anton', sans-serif; /* Thick, bold letters */
+  font-weight: 900;
+  letter-spacing: 2px;
+  background-image: var(--heading-bg-image);
+  background-size: cover;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2px var(--primary-color); /* Red outline */
+  margin: 1rem 0;
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 3px solid var(--primary-color);
+  padding: 20px;
+  background-color: var(--background-color);
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: var(--text-color);
+  box-shadow: 0 0 15px var(--glow-color); /* Red glow */
+  border-radius: 10px;
+  margin: 1rem auto;
+  max-width: 800px;
+}
+
+/* Character container and background */
+.vn-character-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: auto;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 10px;
+
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--gradient-color) 25%, var(--background-color) 100%), 
+              url('https://joylandimages.neocities.org/JOYLAND/GREETING/VN_v2.0/AkiraYumi/classBG.png'); /* Keep background image */
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
+/* Character group (name + sprite) */
+.vn-character-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  width: auto;
+  padding: 0 5px;
+  background: linear-gradient(to bottom, transparent 60%, var(--gradient-color) 100%);
+}
+
+/* Character name styling */
+.vn-character-name {
+  background-color: var(--primary-color); /* Red background */
+  color: white;
+  padding: 0.3rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  z-index: 10;
+  text-align: center;
+  width: 80%;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 0 8px var(--glow-color); /* Red glow */
+}
+
+/* Character sprite styling */
+.vn-character {
+  height: auto;
+  max-height: 40vh;
+  width: 100%;
+  max-width: 50vw;
+  object-fit: contain;
+  transition: all 0.5s ease;
+  animation: vn-breathe 3.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px var(--glow-color)); /* Red glow */
+}
+
+/* Breathing animation for all sprites */
+@keyframes vn-breathe {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Speaking character styling */
+.vn-character.speaking {
+  animation: vn-speaking 3.5s infinite ease-in-out;
+}
+
+/* Slightly different animation for the speaking character */
+@keyframes vn-speaking {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Dialogue box styling */
+.vn-dialogue-box {
+  height: auto;
+  min-height: 20vh;
+  background-color: var(--background-color);
+  border-top: 3px solid var(--primary-color); /* Red border */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 12px var(--glow-color); /* Red glow */
+}
+
+/* Dialogue content styling */
+.vn-dialogue-content {
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+}
+
+/* Markdown styles for the dialogue box */
+.vn-dialogue-content h1, 
+.vn-dialogue-content h2, 
+.vn-dialogue-content h3 {
+  color: var(--heading-color); /* Bright red headings */
+  margin-bottom: 0.5rem;
+  font-family: 'Georgia', serif;
+}
+
+.vn-dialogue-content strong {
+  color: var(--strong-color); /* Light red strong */
+}
+
+.vn-dialogue-content em {
+  color: var(--emphasis-color); /* Pale rose emphasis */
+}
+
+.vn-dialogue-content code {
+  background-color: var(--code-bg-color); /* Dark burgundy code bg */
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: 'Courier New', monospace;
+}
+
+.vn-dialogue-content blockquote {
+  border-left: 3px solid var(--primary-color); /* Red blockquote border */
+  padding-left: 1rem;
+  color: var(--quote-color); /* Pale pink quote color */
+  font-style: italic;
+  font-family: 'Georgia', serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vn-character-name {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.7rem;
+  }
+
+  .vn-heading {
+    font-size: 3.5em;
+  }
+
+  .vn-story-intro {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vn-character-name {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    width: 90%;
+  }
+  
+  .vn-character-group {
+    padding: 0 2px;
+  }
+
+  .vn-heading {
+    font-size: 2.5em;
+  }
+}
+
+/* When height is less than 500px, adjust proportions */
+@media (max-height: 500px) {
+  .vn-character-container {
+    min-height: 40vh;
+  }
+  
+  .vn-character {
+    object-fit: cover;
+    object-position: top center;
+  }
+}

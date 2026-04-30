@@ -67,6 +67,18 @@
   background-repeat: no-repeat;
 }
 
+.vn-character-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+
 /* Character group (name + sprite) */
 .vn-character-group {
   display: flex;
@@ -134,18 +146,32 @@
   height: auto;
   min-height: 20vh;
   background-color: var(--background-color);
+  background-image: radial-gradient(circle at 50% 0%, rgba(214, 108, 0, 0.05) 0%, transparent 70%);
   border-top: 3px solid var(--primary-color); /* Orange border */
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 0 12px var(--glow-color); /* Amber glow */
+  box-shadow: 0 0 20px var(--glow-color); /* Amber glow */
+  position: relative;
+  overflow: hidden;
 }
+
+.vn-dialogue-box::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.02) 1px, rgba(255, 255, 255, 0.02) 2px);
+  pointer-events: none;
+}
+
 
 /* Dialogue content styling */
 .vn-dialogue-content {
   color: var(--text-color);
   font-family: 'Arial', sans-serif;
   line-height: 1.6;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
 }
+
 
 /* Markdown styles for the dialogue box */
 .vn-dialogue-content h1, 
@@ -222,3 +248,118 @@
     object-position: top center;
   }
 }
+
+/* Lore Dropdown Section - Native Details Implementation */
+.vn-lore-details {
+  margin: 15px auto;
+  max-width: 800px;
+  width: 95%;
+  z-index: 100;
+  font-family: 'Arial', sans-serif;
+}
+
+.vn-lore-summary {
+  background: linear-gradient(90deg, var(--primary-color) 0%, #4a2500 100%);
+  color: white;
+  padding: 12px 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px var(--glow-color), inset 0 0 10px rgba(0,0,0,0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: relative;
+  z-index: 10;
+  list-style: none; /* Hide default arrow */
+  animation: vn-pulse 3.5s infinite ease-in-out;
+}
+
+@keyframes vn-pulse {
+  0% { box-shadow: 0 4px 15px var(--glow-color); }
+  50% { box-shadow: 0 4px 25px var(--glow-color), 0 0 10px var(--primary-color); }
+  100% { box-shadow: 0 4px 15px var(--glow-color); }
+}
+
+
+.vn-lore-summary::-webkit-details-marker {
+  display: none; /* Hide default arrow in Chrome/Safari */
+}
+
+.vn-lore-summary:hover {
+  filter: brightness(1.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--glow-color);
+}
+
+
+
+
+
+details[open] .vn-lore-summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.vn-lore-icon {
+  width: 20px;
+  height: 20px;
+  fill: white;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+details[open] .vn-lore-icon {
+  transform: rotate(180deg);
+}
+
+
+.vn-lore-content {
+  background: rgba(20, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--primary-color);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  margin-top: -5px;
+  padding: 15px 10px;
+  animation: vn-slideDown 0.4s ease-out;
+  position: relative;
+}
+
+.vn-lore-content::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+
+@keyframes vn-slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vn-lore-summary span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vn-lore-summary span::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px white;
+}
+

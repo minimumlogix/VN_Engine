@@ -1,0 +1,263 @@
+{
+    "worldSummary": {
+        "title": "World Summary",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2\" ry=\"2\"></rect><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"22\"></line><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"22\"></line><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line></svg>",
+        "content": "The year is 2011. The world is fractured by corporate dominance, environmental collapse, and uncontrolled technological advancement. The Second Corporate War has left a scar on the global economy, and the streets of Night City are a volatile mix of chrome, neon, and blood. Megacorporations like Arasaka and Militech vie for control over the shattered remains of the old world governments. In the shadows, edgerunners, fixers, and cyberpunks hustle to survive another day in the dark future.",
+        "animatedTextTitle": "tap to jack in",
+        "page1Background": "worlds/Cyberpunk2011/background.png"
+    },
+    "systems": {
+        "title": "Core Systems & Technology",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><polyline points=\"4 14 10 14 10 20\"></polyline><polyline points=\"20 10 14 10 14 4\"></polyline><line x1=\"14\" y1=\"10\" x2=\"21\" y2=\"3\"></line><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"></line></svg>",
+        "subTabs": {
+            "cyberware": {
+                "title": "Cyberware",
+                "content": "In 2011, the human body is no longer a limit—it is merely a starting point. Cyberware ranges from simple neural interfaces and optical implants to full-body military grade conversions. But every piece of chrome takes a toll on your humanity, risking the descent into cyberpsychosis.",
+                "subtypes": [
+                    {
+                        "name": "Neuralware",
+                        "description": "Coprocessors, interface plugs, and chip sockets that allow direct interfacing with machines, vehicles, and the NET.",
+                        "image": "worlds/Cyberpunk2011/tech/neuralware.png"
+                    },
+                    {
+                        "name": "Cyberoptics",
+                        "description": "Enhanced eyes providing thermal vision, targeting overlays, and anti-dazzle capabilities.",
+                        "image": "worlds/Cyberpunk2011/tech/cyberoptics.png"
+                    },
+                    {
+                        "name": "Cyberlimbs",
+                        "description": "Chrome arms and legs, often equipped with hidden compartments, hydraulic rams, or pop-up weaponry.",
+                        "image": "worlds/Cyberpunk2011/tech/cyberlimbs.png"
+                    },
+                    {
+                        "name": "Subdermal Armor",
+                        "description": "Ballistic plastics woven directly under the skin to stop small arms fire.",
+                        "image": "worlds/Cyberpunk2011/tech/armor.png"
+                    }
+                ]
+            },
+            "netrunning": {
+                "title": "The NET",
+                "content": "The global telecommunications network is a 3D virtual space navigated by Netrunners using Cyberdecks. It's a vast frontier of data fortresses, ICE (Intrusion Countermeasures Electronics), and black-market info hubs.",
+                "subtypes": [
+                    {
+                        "name": "Cyberdecks",
+                        "description": "Portable terminals used to physically 'jack in' to the NET, featuring custom processors and memory for running attack programs.",
+                        "image": "worlds/Cyberpunk2011/tech/cyberdeck.png"
+                    },
+                    {
+                        "name": "ICE & Demons",
+                        "description": "Corporate defensive programs designed to fry the nervous systems of invading Netrunners.",
+                        "image": "worlds/Cyberpunk2011/tech/ice.png"
+                    }
+                ]
+            }
+        }
+    },
+    "races": {
+        "title": "Roles & Edgerunners",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"></path><circle cx=\"12\" cy=\"7\" r=\"4\"></circle></svg>",
+        "description": "On the streets of Night City, who you are is defined by what you do. Roles define the specialized skills and lifepaths of the denizens surviving in 2011.",
+        "subtypes": [
+            {
+                "name": "Solo",
+                "description": "Combat specialists, bodyguards, and hitmen. Enhanced with combat-oriented cyberware, they have an innate combat sense that keeps them alive in firefights.",
+                "image": "worlds/Cyberpunk2011/roles/solo.png"
+            },
+            {
+                "name": "Netrunner",
+                "description": "Cybernetic computer hackers. Using brain-computer interfaces, they slip past corporate ICE to steal the most valuable currency in 2011: information.",
+                "image": "worlds/Cyberpunk2011/roles/netrunner.png"
+            },
+            {
+                "name": "Techie",
+                "description": "Renegade mechanics and doctors. From patching up bullet wounds in a back alley to hot-wiring a corporate AV, they keep the street tech running.",
+                "image": "worlds/Cyberpunk2011/roles/techie.png"
+            },
+            {
+                "name": "Nomad",
+                "description": "Road warriors from the Badlands. Formed into tight-knit families, they control the transport of goods and provide muscle outside the city limits.",
+                "image": "worlds/Cyberpunk2011/roles/nomad.png"
+            },
+            {
+                "name": "Fixer",
+                "description": "Smugglers, information brokers, and street-level fences. If you need a weapon, a job, or illegal chrome, the Fixer is your connection.",
+                "image": "worlds/Cyberpunk2011/roles/fixer.png"
+            },
+            {
+                "name": "Corporate",
+                "description": "Slick business raiders and megacorp executives. They wield money, influence, and corporate black-ops hit squads as their weapons.",
+                "image": "worlds/Cyberpunk2011/roles/corp.png"
+            },
+            {
+                "name": "Rockerboy",
+                "description": "Rebel musicians who use music and charisma to fight authority. They can incite riots and sway public opinion against the megacorps.",
+                "image": "worlds/Cyberpunk2011/roles/rocker.png"
+            }
+        ]
+    },
+    "bestiary": {
+        "title": "Threats & Adversaries",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M12 2a10 10 0 1 0 10 10H12V2z\"></path><path d=\"M12 12L2.1 7.1\"></path><path d=\"M12 12l9.9-4.9\"></path></svg>",
+        "entries": [
+            {
+                "name": "Cyberpsycho",
+                "description": "An individual who has lost their humanity due to excessive cybernetic modification. Heavily armed, heavily armored, and completely devoid of empathy.",
+                "image": "worlds/Cyberpunk2011/threats/cyberpsycho.png"
+            },
+            {
+                "name": "Corpo Hit Squad",
+                "description": "Elite, heavily funded corporate strike teams dispatched by Arasaka or Militech to eliminate high-value targets with extreme prejudice.",
+                "image": "worlds/Cyberpunk2011/threats/corpo_hit_squad.png"
+            },
+            {
+                "name": "Boosterganger",
+                "description": "Street thugs enhanced with cheap, black-market combat cyberware. Unpredictable and violent, fighting for turf and respect in the Combat Zone.",
+                "image": "worlds/Cyberpunk2011/threats/boostergang.png"
+            },
+            {
+                "name": "MaxTac (Psycho Squad)",
+                "description": "The apex predators of the NCPD. An elite, heavily chromed SWAT division designed specifically to hunt down and terminate cyberpsychos.",
+                "image": "worlds/Cyberpunk2011/threats/maxtac.png"
+            },
+            {
+                "name": "Automated Security Drone",
+                "description": "AI-driven corporate defense machines ranging from flying aerodynes equipped with miniguns to quadrupedal walking tanks.",
+                "image": "worlds/Cyberpunk2011/threats/drone.png"
+            }
+        ]
+    },
+    "kingdoms": {
+        "title": "Night City Districts",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M3 21h18\"></path><path d=\"M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16\"></path><path d=\"M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4\"></path></svg>",
+        "entries": [
+            {
+                "name": "City Center",
+                "description": "The corporate heart of Night City. Dominated by gleaming megabuildings, pristine streets, and heavy private security. Only the elite and heavily vetted can walk these streets without harassment.",
+                "image": "worlds/Cyberpunk2011/location/city_center.png",
+                "importantPlaces": [
+                    {
+                        "name": "Corpo Plaza",
+                        "description": "A heavily fortified area containing the regional headquarters of the world's most powerful megacorporations."
+                    }
+                ]
+            },
+            {
+                "name": "Watson",
+                "description": "A bustling, neon-drenched district known for its markets, heavy Asian influence, and the booming medical and tech industries. It is currently the battleground for several gang wars.",
+                "image": "worlds/Cyberpunk2011/location/watson.png",
+                "importantPlaces": [
+                    {
+                        "name": "Kabuki Market",
+                        "description": "A chaotic, multi-level bazaar where you can find anything from illegal cyberware to black-market BDs (Braindances)."
+                    }
+                ]
+            },
+            {
+                "name": "Pacifica",
+                "description": "Originally intended as a corporate vacation resort, funding dried up, leaving half-finished skyscrapers. It is now a lawless zone controlled by gangs, completely abandoned by the NCPD.",
+                "image": "worlds/Cyberpunk2011/location/pacifica.png",
+                "importantPlaces": [
+                    {
+                        "name": "The Grand Imperial Mall",
+                        "description": "A massive, unfinished shopping complex now serving as a heavily fortified gang stronghold."
+                    }
+                ]
+            },
+            {
+                "name": "Heywood",
+                "description": "The biggest bedroom community in Night City. A mix of affluent suburban areas in the north and dangerous slums in the south. The streets are ruled by pride and Latin gang culture.",
+                "image": "worlds/Cyberpunk2011/location/heywood.png",
+                "importantPlaces": [
+                    {
+                        "name": "The Glen",
+                        "description": "The political heart of the city, housing City Hall and local government offices."
+                    }
+                ]
+            },
+            {
+                "name": "The Badlands",
+                "description": "The vast, polluted deserts surrounding Night City. Filled with burning oil fields, garbage dumps, and roaming Nomad clans who control the trade routes.",
+                "image": "worlds/Cyberpunk2011/location/badlands.png",
+                "importantPlaces": [
+                    {
+                        "name": "Jackson Plains",
+                        "description": "A stretch of desert outside the city limits where Nomad convoys gather and trade away from corporate eyes."
+                    }
+                ]
+            }
+        ]
+    },
+    "factions": {
+        "title": "Megacorps & Gangs",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path></svg>",
+        "entries": [
+            {
+                "name": "Arasaka Corporation",
+                "description": "A Japanese megacorporation specializing in corporate security, banking, and manufacturing. They maintain the largest and most lethal private army in the world.",
+                "image": "worlds/Cyberpunk2011/factions/arasaka.png"
+            },
+            {
+                "name": "Militech",
+                "description": "An American megacorp focused on arms manufacturing and private military contracting. The primary rival to Arasaka, constantly on the brink of open war.",
+                "image": "worlds/Cyberpunk2011/factions/militech.png"
+            },
+            {
+                "name": "Maelstrom",
+                "description": "A violent boostergang obsessed with cybernetic modification and the occult. They heavily augment themselves beyond the point of humanity.",
+                "image": "worlds/Cyberpunk2011/factions/maelstrom.png"
+            },
+            {
+                "name": "Tyger Claws",
+                "description": "A ruthless, Yakuza-backed gang residing in Japantown. They operate illicit braindance parlors, casinos, and protection rackets, favoring traditional weapons and martial arts alongside their chrome.",
+                "image": "worlds/Cyberpunk2011/factions/tyger_claws.png"
+            },
+            {
+                "name": "Voodoo Boys",
+                "description": "The undisputed masters of the NET in Night City. A secretive Haitian gang operating out of Pacifica, obsessed with breaking through the Blackwall and contacting rogue AIs.",
+                "image": "worlds/Cyberpunk2011/factions/voodoo_boys.png"
+            },
+            {
+                "name": "Trauma Team International",
+                "description": "A franchised paramedical corporation. For a hefty premium, their heavily armed medical squads will extract a client from any combat zone in less than 3 minutes.",
+                "image": "worlds/Cyberpunk2011/factions/trauma_team.png"
+            }
+        ]
+    },
+    "timeline": {
+        "title": "Timeline",
+        "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg>",
+        "entries": [
+            {
+                "year": "1994",
+                "description": "Night City is founded by Richard Night in Coronado Bay, designed to be a capitalist utopia free from oppressive government regulations.",
+                "image": "worlds/Cyberpunk2011/timeline/1994.png"
+            },
+            {
+                "year": "1998",
+                "description": "Richard Night is assassinated by mobsters. The city falls into chaos as corporations and gangs war for control over the newly built districts.",
+                "image": "worlds/Cyberpunk2011/timeline/1998.png"
+            },
+            {
+                "year": "2004",
+                "description": "The First Corporate War begins between Euro Business Machines (EBM) and Orbital Air over the buyout of Transworld Airlines, showcasing the brutal military power of megacorps.",
+                "image": "worlds/Cyberpunk2011/timeline/2004.png"
+            },
+            {
+                "year": "2008",
+                "description": "The Second Corporate War rocks the global stage as SovOil and Petrochem clash over drilling rights in the South China Sea. The world economy suffers heavily.",
+                "image": "worlds/Cyberpunk2011/timeline/2008.png"
+            },
+            {
+                "year": "2011",
+                "description": "Present Day. Night City is a hyper-capitalist dystopia. Cyberware is fully integrated into society, and tensions between Arasaka and Militech reach a boiling point.",
+                "image": "worlds/Cyberpunk2011/timeline/2011.png"
+            }
+        ]
+    },
+    "outro": {
+        "title": "Welcome to the Dark Future",
+        "description": "In 2011, the line between man and machine is blurred, and the price of life is measured in eddies. Trust no one, keep your chrome polished, and never cut a deal with a dragon.",
+        "discordLink": "https://discord.gg/nightcity-2011"
+    }
+}

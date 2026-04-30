@@ -32,8 +32,13 @@ function openTab(evt, tabId) {
     targetContent.style.display = "block";
     gsap.from(targetContent, { duration: 0.5, opacity: 0, y: 20, ease: "power2.out" });
     evt.currentTarget.classList.add("active");
+    
+    // Initialize custom scrollbar for the main tab content
+    initCustomScrollbar(targetContent);
+
     const firstSubTab = targetContent.querySelector('.sub-tablinks');
     if (firstSubTab) firstSubTab.click();
+
 }
 
 function openSubTab(evt, subTabId, parentKey) {
@@ -43,6 +48,10 @@ function openSubTab(evt, subTabId, parentKey) {
     targetContent.style.display = "block";
     gsap.from(targetContent, { duration: 0.4, opacity: 0, y: 10, ease: "power1.out" });
     evt.currentTarget.classList.add("active");
+
+    // Initialize custom scrollbar for sub-tab content
+    initCustomScrollbar(targetContent);
+
 }
 
 function showImageModal(src) {
@@ -103,6 +112,49 @@ function revealContent() {
     });
 }
 
+function initCustomScrollbar(container) {
+    if (!container) return;
+    
+    // Remove existing if any
+    const existingTrack = container.querySelector('.custom-scrollbar-track');
+    if (existingTrack) existingTrack.remove();
+
+    const track = document.createElement('div');
+    track.className = 'custom-scrollbar-track';
+    const thumb = document.createElement('div');
+    thumb.className = 'custom-scrollbar-thumb';
+    track.appendChild(thumb);
+    container.appendChild(track);
+
+    const updateScrollbar = () => {
+        const contentHeight = container.scrollHeight;
+        const containerHeight = container.offsetHeight;
+        const scrollRange = contentHeight - containerHeight;
+        
+        if (scrollRange <= 0) {
+            track.style.opacity = '0';
+            return;
+        }
+        
+        track.style.opacity = '1';
+        const thumbHeight = Math.max((containerHeight / contentHeight) * containerHeight, 30);
+        thumb.style.height = `${thumbHeight}px`;
+        
+        const scrollPercent = container.scrollTop / scrollRange;
+        const thumbPosition = scrollPercent * (containerHeight - thumbHeight - 20); // 20 for top/bottom margin
+        thumb.style.transform = `translateY(${thumbPosition}px)`;
+    };
+
+    container.addEventListener('scroll', updateScrollbar);
+    window.addEventListener('resize', updateScrollbar);
+    
+    // Initial update after a small delay to ensure content is rendered
+    setTimeout(updateScrollbar, 100);
+    
+    // Return the update function for manual triggers
+    return updateScrollbar;
+}
+
 function animateTimeline() {
     const items = document.querySelectorAll('#page3 .timeline-item');
     const page3Rect = page3Element ? page3Element.getBoundingClientRect() : { top: 0 };
@@ -115,3 +167,4 @@ function animateTimeline() {
         }
     });
 }
+

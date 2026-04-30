@@ -21,10 +21,19 @@ function initializeWidget(worldData) {
     pages = document.querySelectorAll('.page');
     page3Element = document.getElementById('page3');
 
-    if (page3Element) {
-        page3Element.addEventListener('scroll', animateTimeline);
+    const timelineContainer = document.querySelector('.timeline-container');
+    if (timelineContainer) {
+        timelineContainer.addEventListener('scroll', animateTimeline);
         animateTimeline();
+        initCustomScrollbar(timelineContainer);
     }
+
+    const outroContainer = document.querySelector('.outro-container');
+    if (outroContainer) {
+        initCustomScrollbar(outroContainer);
+    }
+
+
 
     document.querySelectorAll('.timeline-content').forEach(content => {
         content.addEventListener('mouseenter', function () { gsap.to(this, { duration: 0.2, y: -8, scale: 1.02, ease: "power1.out" }); });

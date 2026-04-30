@@ -14,7 +14,14 @@
     --timeline-bg-end: #2a2a2a;
     --timeline-line: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.1) 100%);
     --timeline-circle-border: #4a4a4a;
+
+    /* Scalable UI Variables */
+    --page-padding-top: 60px;
+    --section-margin-bottom: 50px;
+    --nav-arrow-bottom: 30px;
+    --nav-arrow-size: 50px;
 }
+
 
 body,
 html {
@@ -82,9 +89,10 @@ html {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding-top: 60px;
+    padding-top: var(--page-padding-top);
     overflow: hidden;
 }
+
 
 #page4 {
     background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #000000 100%);
@@ -379,18 +387,19 @@ html {
 
 .nav-arrow {
     position: fixed;
-    bottom: 30px;
+    bottom: var(--nav-arrow-bottom);
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
     cursor: pointer;
-    width: 50px;
-    height: 50px;
+    width: var(--nav-arrow-size);
+    height: var(--nav-arrow-size);
     display: flex;
     justify-content: center;
     align-items: center;
     transition: all 0.3s ease;
 }
+
 
 .nav-arrow svg {
     width: 100%;
@@ -762,3 +771,110 @@ html {
         font-size: 2.5rem;
     }
 }
+
+/* Short Screen Optimization (Targeting 400px height) */
+@media (max-height: 550px) {
+    :root {
+        --page-padding-top: 30px;
+        --section-margin-bottom: 20px;
+        --nav-arrow-bottom: 15px;
+        --nav-arrow-size: 40px;
+    }
+
+    #animated-text {
+        font-size: clamp(1.2em, 4vh, 1.8em);
+        margin-bottom: var(--section-margin-bottom);
+        letter-spacing: 2px;
+    }
+
+
+    .tab button {
+        padding: 8px;
+    }
+
+    .tab button svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .tabcontent-wrapper {
+        margin: 10px;
+    }
+
+    .tabcontent {
+        height: calc(100vh - 110px);
+        padding: 15px;
+    }
+
+    .entry {
+        gap: 15px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+    }
+
+    .entry img {
+        max-width: 100px;
+    }
+
+    .timeline-header {
+        margin-bottom: 30px;
+    }
+
+    .timeline-header h1 {
+        font-size: clamp(1.8rem, 6vh, 2.5rem);
+    }
+
+    .timeline-header h2 {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    .timeline-container {
+        height: calc(100vh - 60px);
+        padding-bottom: 40px;
+    }
+
+    .timeline-year {
+        font-size: 1.8rem;
+    }
+
+    .timeline-description {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .timeline-image {
+        height: 120px;
+    }
+
+    #page4 h1 {
+        font-size: clamp(2rem, 8vh, 3rem);
+        margin-bottom: 10px;
+    }
+
+    #page4 p {
+        font-size: 1rem;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .discord-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+
+    .nav-arrow {
+        bottom: 15px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .spoiler-warning h2 {
+        font-size: 1.5rem;
+    }
+
+    .spoiler-warning p {
+        font-size: 0.9rem;
+    }
+}
+

@@ -1,0 +1,16 @@
+<svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Horizontal Bars -->
+  <line x1="10" y1="5" x2="190" y2="5" stroke="#FF003C" stroke-width="2" />
+  <line x1="10" y1="35" x2="190" y2="35" stroke="#FF003C" stroke-width="2" />
+  
+  <!-- Vertical Brackets -->
+  <path d="M 5 0 L 0 5 L 0 35 L 5 40" stroke="#FF003C" stroke-width="3" />
+  <path d="M 195 0 L 200 5 L 200 35 L 195 40" stroke="#FF003C" stroke-width="3" />
+  
+  <!-- Corner Tech Details -->
+  <rect x="0" y="0" width="10" height="2" fill="#FF9F00" />
+  <rect x="190" y="38" width="10" height="2" fill="#FF9F00" />
+  
+  <!-- Subtle Gradient Background -->
+  <rect x="5" y="6" width="190" height="28" fill="#FF003C" fill-opacity="0.05" />
+</svg>

@@ -1,0 +1,28 @@
+<svg width="240" height="60" viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <pattern id="scanlines" width="240" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="1" x2="240" y2="1" stroke="#FF003C" stroke-opacity="0.1" stroke-width="1" />
+    </pattern>
+  </defs>
+  <!-- Background Shape -->
+  <path d="M 15 0 L 225 0 L 240 15 L 240 45 L 225 60 L 15 60 L 0 45 L 0 15 Z" fill="#121212" fill-opacity="0.8" />
+  <path d="M 15 0 L 225 0 L 240 15 L 240 45 L 225 60 L 15 60 L 0 45 L 0 15 Z" fill="url(#scanlines)" />
+  
+  <!-- Outer Glow Border -->
+  <path d="M 15 1 L 225 1 L 239 15 L 239 45 L 225 59 L 15 59 L 1 45 L 1 15 Z" stroke="#FF003C" stroke-width="2" filter="url(#glow)" />
+  
+  <!-- Corner Detailing -->
+  <path d="M 0 15 L 15 0" stroke="#FF9F00" stroke-width="2" />
+  <path d="M 225 60 L 240 45" stroke="#FF9F00" stroke-width="2" />
+  
+  <!-- Tech Accents -->
+  <rect x="230" y="20" width="4" height="20" fill="#FF003C" fill-opacity="0.5" />
+  <rect x="6" y="20" width="4" height="20" fill="#FF003C" fill-opacity="0.5" />
+  
+  <!-- Bottom Accent Bar -->
+  <rect x="60" y="56" width="120" height="2" fill="#FF003C" />
+</svg>

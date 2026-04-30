@@ -1,0 +1,26 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad_red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF003C" />
+      <stop offset="100%" stop-color="#990024" />
+    </linearGradient>
+  </defs>
+  <!-- Main Hexagon -->
+  <path d="M 20 0 L 180 0 L 200 30 L 180 60 L 20 60 L 0 30 Z" fill="#121212" stroke="url(#grad_red)" stroke-width="2" />
+  
+  <!-- Glitch Blocks -->
+  <rect x="0" y="25" width="10" height="4" fill="#FF003C">
+    <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite" />
+  </rect>
+  <rect x="190" y="31" width="10" height="4" fill="#FF9F00">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="1.5s" repeatCount="indefinite" />
+  </rect>
+  
+  <!-- Internal Tech Lines -->
+  <path d="M 30 10 L 170 10" stroke="#FF003C" stroke-opacity="0.3" stroke-width="1" />
+  <path d="M 30 50 L 170 50" stroke="#FF003C" stroke-opacity="0.3" stroke-width="1" />
+  
+  <!-- Accent Triangles -->
+  <path d="M 10 30 L 15 25 L 15 35 Z" fill="#FF003C" />
+  <path d="M 190 30 L 185 25 L 185 35 Z" fill="#FF003C" />
+</svg>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk SVG Button Assets - Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --primary-red: #FF003C;
+            --accent-yellow: #FF9F00;
+            --text-color: #E0E0E0;
+            --glow-color: rgba(255, 0, 60, 0.5);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 60, 0.05) 0%, transparent 70%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 3px 100%;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--primary-red);
+            text-shadow: 0 0 10px var(--glow-color);
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--primary-red);
+            padding-bottom: 10px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: rgba(20, 20, 20, 0.8);
+            border-left: 4px solid var(--primary-red);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(225deg, var(--primary-red) 50%, transparent 50%);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 30, 30, 0.9);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-yellow);
+            align-self: flex-start;
+            margin-bottom: 25px;
+        }
+
+        /* Button Styling Base */
+        .cyber-btn {
+            position: relative;
+            width: 240px;
+            height: 60px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .cyber-btn img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 60, 0.3));
+            transition: filter 0.2s ease;
+        }
+
+        .cyber-btn:hover img {
+            filter: drop-shadow(0 0 15px rgba(255, 0, 60, 0.8)) brightness(1.2);
+        }
+
+        .cyber-btn:active {
+            transform: scale(0.95);
+        }
+
+        .code-snippet {
+            width: 100%;
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-top: 20px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+        }
+
+        /* Specific sizes for different buttons */
+        .btn-frame { width: 200px; height: 50px; }
+        .btn-hex { width: 200px; height: 60px; }
+        .btn-minimal { width: 200px; height: 40px; }
+
+    </style>
+</head>
+<body>
+
+    <h1>Cyberpunk Asset Library</h1>
+
+    <div class="container">
+        <!-- Trapezoid Tech -->
+        <div class="card">
+            <h3>TRAPEZOID TECH</h3>
+            <button class="cyber-btn">
+                <img src="btn_trapezoid_tech.svg" alt="Trapezoid Tech">
+                INITIALIZE
+            </button>
+            <div class="code-snippet">&lt;button class="cyber-btn"&gt;
+    &lt;img src="vectors/btn_trapezoid_tech.svg"&gt;
+    TEXT
+&lt;/button&gt;</div>
+        </div>
+
+        <!-- Clipped Frame -->
+        <div class="card">
+            <h3>CLIPPED FRAME</h3>
+            <button class="cyber-btn btn-frame">
+                <img src="btn_clipped_frame.svg" alt="Clipped Frame">
+                CONNECT
+            </button>
+            <div class="code-snippet">Perfect for UI windows
+or system messages.</div>
+        </div>
+
+        <!-- Hex Glitch -->
+        <div class="card">
+            <h3>HEX GLITCH</h3>
+            <button class="cyber-btn btn-hex">
+                <img src="btn_hex_glitch.svg" alt="Hex Glitch">
+                EXECUTE
+            </button>
+            <div class="code-snippet">Animated SVG elements
+integrated into the asset.</div>
+        </div>
+
+        <!-- Minimal Bracket -->
+        <div class="card">
+            <h3>MINIMAL BRACKET</h3>
+            <button class="cyber-btn btn-minimal">
+                <img src="btn_minimal_bracket.svg" alt="Minimal Bracket">
+                SYSTEMS
+            </button>
+            <div class="code-snippet">Sleek profile for
+secondary UI controls.</div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Frame -->
+  <path d="M 0 0 L 180 0 L 200 20 L 200 50 L 20 50 L 0 30 Z" stroke="#FF003C" stroke-width="1.5" />
+  
+  <!-- Outer Brackets -->
+  <path d="M 10 0 L 0 0 L 0 15" stroke="#FF003C" stroke-width="3" />
+  <path d="M 190 50 L 200 50 L 200 35" stroke="#FF003C" stroke-width="3" />
+  
+  <!-- Decorative Notch -->
+  <path d="M 170 0 L 185 0 L 195 10 L 195 25" stroke="#FF9F00" stroke-width="1" />
+  
+  <!-- Inner Fill Area (Semi-transparent) -->
+  <path d="M 4 4 L 178 4 L 196 22 L 196 46 L 22 46 L 4 28 Z" fill="#FF003C" fill-opacity="0.05" />
+  
+  <!-- Tiny Tech Dots -->
+  <circle cx="10" cy="40" r="1.5" fill="#FF003C" />
+  <circle cx="190" cy="10" r="1.5" fill="#FF003C" />
+</svg>

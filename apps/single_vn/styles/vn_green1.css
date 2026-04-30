@@ -1,0 +1,366 @@
+:root {
+  /* Emerald Artist Theme color scheme (Deep Green, Charcoal, Soft Mint) */
+  --primary-color: #2e7d32;             /* Deep, saturated forest green */
+  --text-color: #f1f8e9;                /* Soft mint off-white */
+  --background-color: rgba(20, 35, 20, 0.95); /* Deep charcoal with a hint of green */
+
+  /* Accent colors */
+  --glow-color: rgba(0, 230, 118, 0.3);          /* Soft emerald glow */
+  --gradient-color: rgba(40, 60, 40, 0.4);      /* Transparent dark moss */
+
+  /* Markdown text styles */
+  --heading-color: #69f0ae;              /* Bright green highlight */
+  --strong-color: #00e676;               /* Medium green for <strong> */
+  --emphasis-color: #b9f6ca;              /* Soft pale mint for <em> */
+  --code-bg-color: #1a3d1a;              /* Dark forest for code */
+  --quote-color: #e8f5e9;                /* Very pale green quote */
+
+  /* Configurable heading background */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling for reusability */
+.vn-heading {
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Anton', sans-serif; /* Thick, bold letters */
+  font-weight: 900;
+  letter-spacing: 2px;
+  background-image: var(--heading-bg-image);
+  background-size: cover;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2px var(--primary-color); /* Green outline */
+  margin: 1rem 0;
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 3px solid var(--primary-color);
+  padding: 20px;
+  background-color: var(--background-color);
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: var(--text-color);
+  box-shadow: 0 0 15px var(--glow-color); /* Green glow */
+  border-radius: 10px;
+  margin: 1rem auto;
+  max-width: 800px;
+}
+
+/* Character container and background */
+.vn-character-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: auto;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 10px;
+
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--gradient-color) 25%, var(--background-color) 100%), 
+              url('https://joylandimages.neocities.org/JOYLAND/GREETING/VN_v2.0/AkiraYumi/classBG.png'); /* Keep background image */
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
+.vn-character-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(rgba(16, 20, 18, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+
+/* Character group (name + sprite) */
+.vn-character-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  width: auto;
+  padding: 0 5px;
+  background: linear-gradient(to bottom, transparent 60%, var(--gradient-color) 100%);
+}
+
+/* Character name styling */
+.vn-character-name {
+  background-color: var(--primary-color); /* Green background */
+  color: white;
+  padding: 0.3rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  z-index: 10;
+  text-align: center;
+  width: 80%;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 0 8px var(--glow-color); /* Green glow */
+}
+
+/* Character sprite styling */
+.vn-character {
+  height: auto;
+  max-height: 40vh;
+  width: 100%;
+  max-width: 50vw;
+  object-fit: contain;
+  transition: all 0.5s ease;
+  animation: vn-breathe 3.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px var(--glow-color)); /* Green glow */
+}
+
+/* Breathing animation for all sprites */
+@keyframes vn-breathe {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Speaking character styling */
+.vn-character.speaking {
+  animation: vn-speaking 3.5s infinite ease-in-out;
+}
+
+/* Slightly different animation for the speaking character */
+@keyframes vn-speaking {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Dialogue box styling */
+.vn-dialogue-box {
+  height: auto;
+  min-height: 20vh;
+  background-color: var(--background-color);
+  background-image: radial-gradient(circle at 50% 0%, rgba(46, 125, 50, 0.05) 0%, transparent 70%);
+  border-top: 3px solid var(--primary-color); /* Green border */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 20px var(--glow-color); /* Green glow */
+  position: relative;
+  overflow: hidden;
+}
+
+.vn-dialogue-box::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.02) 1px, rgba(255, 255, 255, 0.02) 2px);
+  pointer-events: none;
+}
+
+
+/* Dialogue content styling */
+.vn-dialogue-content {
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+
+/* Markdown styles for the dialogue box */
+.vn-dialogue-content h1, 
+.vn-dialogue-content h2, 
+.vn-dialogue-content h3 {
+  color: var(--heading-color); /* Bright green headings */
+  margin-bottom: 0.5rem;
+  font-family: 'Georgia', serif;
+}
+
+.vn-dialogue-content strong {
+  color: var(--strong-color); /* Medium green strong */
+}
+
+.vn-dialogue-content em {
+  color: var(--emphasis-color); /* Pale mint emphasis */
+}
+
+.vn-dialogue-content code {
+  background-color: var(--code-bg-color); /* Dark forest code bg */
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: 'Courier New', monospace;
+}
+
+.vn-dialogue-content blockquote {
+  border-left: 3px solid var(--primary-color); /* Green blockquote border */
+  padding-left: 1rem;
+  color: var(--quote-color); /* Pale green quote color */
+  font-style: italic;
+  font-family: 'Georgia', serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vn-character-name {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.7rem;
+  }
+
+  .vn-heading {
+    font-size: 3.5em;
+  }
+
+  .vn-story-intro {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vn-character-name {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    width: 90%;
+  }
+  
+  .vn-character-group {
+    padding: 0 2px;
+  }
+
+  .vn-heading {
+    font-size: 2.5em;
+  }
+}
+
+/* When height is less than 500px, adjust proportions */
+@media (max-height: 500px) {
+  .vn-character-container {
+    min-height: 40vh;
+  }
+  
+  .vn-character {
+    object-fit: cover;
+    object-position: top center;
+  }
+}
+
+/* Lore Dropdown Section - Native Details Implementation */
+.vn-lore-details {
+  margin: 15px auto;
+  max-width: 800px;
+  width: 95%;
+  z-index: 100;
+  font-family: 'Arial', sans-serif;
+}
+
+.vn-lore-summary {
+  background: linear-gradient(90deg, var(--primary-color) 0%, #002000 100%);
+  color: white;
+  padding: 12px 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px var(--glow-color), inset 0 0 10px rgba(0,0,0,0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  position: relative;
+  z-index: 10;
+  list-style: none; /* Hide default arrow */
+  animation: vn-pulse 3.5s infinite ease-in-out;
+}
+
+@keyframes vn-pulse {
+  0% { box-shadow: 0 4px 15px var(--glow-color); }
+  50% { box-shadow: 0 4px 25px var(--glow-color), 0 0 10px var(--primary-color); }
+  100% { box-shadow: 0 4px 15px var(--glow-color); }
+}
+
+
+.vn-lore-summary::-webkit-details-marker {
+  display: none; /* Hide default arrow in Chrome/Safari */
+}
+
+.vn-lore-summary:hover {
+  filter: brightness(1.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--glow-color);
+}
+
+
+
+
+
+
+details[open] .vn-lore-summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.vn-lore-icon {
+  width: 20px;
+  height: 20px;
+  fill: white;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+details[open] .vn-lore-icon {
+  transform: rotate(180deg);
+}
+
+
+.vn-lore-content {
+  background: rgba(10, 20, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--primary-color);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  margin-top: -5px;
+  padding: 15px 10px;
+  animation: vn-slideDown 0.4s ease-out;
+  position: relative;
+}
+
+.vn-lore-content::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(16, 20, 18, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+
+@keyframes vn-slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vn-lore-summary span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vn-lore-summary span::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 8px white;
+}

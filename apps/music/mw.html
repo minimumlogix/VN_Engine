@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Nexus Music Bar 4.0</title>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
 
@@ -694,6 +693,12 @@
             if (!color.startsWith('#')) color = '#' + color;
             document.documentElement.style.setProperty('--accent', color);
         }
+
+        // Load YouTube IFrame API asynchronously with a cache-busting fingerprint
+        const apiScript = document.createElement('script');
+        apiScript.src = "https://www.youtube.com/iframe_api?fingerprint=" + Math.random().toString(36).substring(2, 15);
+        const firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(apiScript, firstScript);
 
         // Initialize Embedded System (YT API)
         function onYouTubeIframeAPIReady() {

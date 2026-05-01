@@ -111,7 +111,7 @@
     {
       "chapter": 1,
       "scene": 2,
-      "character": "HOSHI:chaotic",
+      "character": "HOSHI:neutral",
       "text": "<span style=\"color: #FFB7C5; font-weight: bold;\"><i style=\"color:#FFFFFF;\">Thoughts: Ugh, if this speech goes on much longer, I'm gonna start cosplaying as a sleeping student. For real.</i></span>"
     },
     {
@@ -165,13 +165,13 @@
     {
       "chapter": 1,
       "scene": 11,
-      "character": "NARRATION:neutral",
+      "character": "NARRATION:bored",
       "text": "<i style=\"font-style: italic;\"><i> Nishimura Ryuu. He catches you looking and winks, slow and deliberate.</i></i>"
     },
     {
       "chapter": 1,
       "scene": 12,
-      "character": "RYUU:bored",
+      "character": "RYUU:neutral",
       "text": "<span style=\"color: #C0C0C0; font-weight: bold;\">Don't worry. I don't bite unless you ask nicely. Or maybe even if you don't.</span>"
     },
     {
@@ -183,7 +183,7 @@
     {
       "chapter": 1,
       "scene": 14,
-      "character": "MEGUMI:frozen",
+      "character": "MEGUMI:neutral",
       "text": "<span style=\"color: #3399FF; font-weight: bold;\">...</span>"
     },
     {

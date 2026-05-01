@@ -1,6 +1,6 @@
 {
   "storyTitle": "SAKURAGAOKA",
-  "storySubtitle": "CHAPTER 1: NEW BEGINNING",
+  "storySubtitle": "THE NEW BEGINNING",
   "theme": "anime2.css",
   "wikiUrl": "",
   "loadScreenBackground": "stories/Sakuragaoka/assets/images/backgrounds/c1.png",
@@ -14,10 +14,10 @@
     "0": "INITIALIZATION",
     "1": "THE ENTRANCE CEREMONY",
     "2": "THE CLUB RECRUITMENT",
-    "3": "THE COSPLAY CLUB"
+    "3": "THE LONELY CLUB"
   },
   "chapterMusic": {
-    "0": "",
+    "0": "stories/Sakuragaoka/assets/audio/bgm_main_theme.mp3",
     "1": "",
     "2": "",
     "3": ""

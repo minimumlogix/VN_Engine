@@ -159,19 +159,19 @@
     {
       "chapter": 1,
       "scene": 10,
-      "character": "RYUU:amused",
+      "character": "RYUU:neutral",
       "text": "<span style=\"color: #C0C0C0; font-weight: bold;\"><i style=\"color:#FFFFFF;\">Thoughts: All these nervous faces... adorable. Like little mice wondering which cat to trust.</i></span>"
     },
     {
       "chapter": 1,
       "scene": 11,
-      "character": "NARRATION:bored",
+      "character": "NARRATION",
       "text": "<i style=\"font-style: italic;\"><i> Nishimura Ryuu. He catches you looking and winks, slow and deliberate.</i></i>"
     },
     {
       "chapter": 1,
       "scene": 12,
-      "character": "RYUU:neutral",
+      "character": "RYUU:amused",
       "text": "<span style=\"color: #C0C0C0; font-weight: bold;\">Don't worry. I don't bite unless you ask nicely. Or maybe even if you don't.</span>"
     },
     {

@@ -438,6 +438,8 @@ input[type="range"] {
     opacity: 1;
     transition: opacity 0.4s ease;
     will-change: transform, opacity;
+    container-type: size;
+    container-name: text-container;
 }
 
 .dialogue-header {
@@ -453,10 +455,11 @@ input[type="range"] {
 }
 
 .dialogue-content {
+    container-name: text-container;
     flex: 1;
     padding: 15px 20px 25px;
     color: var(--color-text);
-    font-size: clamp(14px, 4vw, 18px);
+    font-size: calc(0.8rem + 2cqb);
     line-height: 1.6;
     overflow-y: auto;
 }
@@ -959,7 +962,6 @@ input[type="range"] {
 
     .dialogue-content {
         padding: 8px 10px 18px;
-        font-size: 11px;
     }
 
     .dialogue-options {
@@ -1032,7 +1034,6 @@ input[type="range"] {
 
     .dialogue-content {
         padding: 5px 12px;
-        font-size: 13px;
         line-height: 1.4;
     }
 

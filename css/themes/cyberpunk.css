@@ -561,7 +561,6 @@ input[type="range"]::-moz-range-thumb {
 
 .dialogue-content {
     color: var(--color-text);
-    font-size: 1rem;
     line-height: 1.7;
     text-shadow: 0 0 2px rgba(0,255,255,0.1);
 }

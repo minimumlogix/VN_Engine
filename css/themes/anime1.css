@@ -281,7 +281,6 @@ h1 {
 
 .dialogue-content {
     color: var(--color-text);
-    font-size: 1rem;
     line-height: 1.9;
     font-weight: 500;
     text-shadow: 0 0 2px rgba(255,255,255,0.08);

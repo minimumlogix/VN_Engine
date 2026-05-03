@@ -405,7 +405,6 @@ input[type="range"]::-moz-range-thumb {
 
 .dialogue-content {
     color: var(--parchment);
-    font-size: 1.02rem;
     line-height: 1.75;
     font-style: normal;
 }

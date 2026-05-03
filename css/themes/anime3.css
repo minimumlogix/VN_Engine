@@ -219,7 +219,6 @@ body {
 
 .dialogue-content {
     font-family: var(--font-primary);
-    font-size: 1.1rem;
     color: #e2e2e4;
     line-height: 1.65;
 }

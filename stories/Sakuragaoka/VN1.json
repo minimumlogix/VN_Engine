@@ -92,15 +92,13 @@
       "chapter": 0,
       "scene": 1,
       "character": "NARRATION",
-      "text": "<i style=\"font-style: italic;\">[shadows] <b> Welcome, {{user}}, To the Sakuragaoka College. Where the cherry blossoms fall and your life as a student begins.</b></i>",
-      "SpriteEffects": "Scanlines"
+      "text": "<i style=\"font-style: italic;\">[shadows] <b> Welcome, {{user}}, To the Sakuragaoka College. Where the cherry blossoms fall and your life as a student begins.</b></i>"
     },
     {
       "chapter": 0,
       "scene": 2,
       "character": "NARRATION",
-      "text": "<i style=\"font-style: italic;\">Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon.</i>",
-      "SpriteEffects": "Scanlines"
+      "text": "<i style=\"font-style: italic;\">Get started! Use ‣ AUTO for automatic scene change, LEFT/RIGHT icon for manual navigation, and toggle music/voice on the top right icon.</i>"
     },
     {
       "chapter": 1,

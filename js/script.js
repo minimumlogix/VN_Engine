@@ -706,9 +706,15 @@ function finishLoading() {
     // which bypasses ScreenManager entirely, leaving currentScreen = null when showScreen('story')
     // fires. We inform the manager of the 'loading' screen BEFORE transitioning so that
     // previousScreen and history are populated correctly.
+    let _startKeyHandler;
     const _doStart = () => {
         // Force browser audio engine unlock inside immediate user gesture
         if (typeof audioManager !== 'undefined') audioManager.forceUnlock();
+
+        // Ensure keydown listener is unbinded immediately when the story begins
+        if (_startKeyHandler) {
+            document.removeEventListener('keydown', _startKeyHandler);
+        }
 
         const loadingScreen = document.getElementById('loadingScreen');
         if (!loadingScreen) return;
@@ -739,11 +745,10 @@ function finishLoading() {
         startGameBtn.addEventListener('click', _doStart);
 
         // Also wire keyboard Enter to start the game from the start screen
-        const _startKeyHandler = (e) => {
+        _startKeyHandler = (e) => {
             const startContent = document.getElementById('startContent');
             if (startContent && startContent.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
-                document.removeEventListener('keydown', _startKeyHandler);
                 _doStart();
             }
         };

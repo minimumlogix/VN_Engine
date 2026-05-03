@@ -219,7 +219,7 @@
     {
       "chapter": 2,
       "scene": 2,
-      "character": "HOSHI:chaotic",
+      "character": "HOSHI:amused",
       "text": "<span style=\"color: #FFB7C5; font-weight: bold;\">Okay, seriously, who designed this place? A labyrinth? A ritual sacrifice maze? Both?</span>"
     },
     {
@@ -237,7 +237,7 @@
     {
       "chapter": 2,
       "scene": 5,
-      "character": "HOSHI:intrigued",
+      "character": "HOSHI:chaotic",
       "text": "<span style=\"color: #FFB7C5; font-weight: bold;\">Oh my gosh, we're all lost together! That's not pathetic, that's a bonding experience!</span>"
     },
     {
@@ -423,7 +423,7 @@
     {
       "chapter": 3,
       "scene": 22,
-      "character": "MEGUMI:neutral",
+      "character": "MEGUMI:frozen",
       "text": "<span style=\"color: #3399FF; font-weight: bold;\"><i style=\"color:#FFFFFF;\">Megumi slides a note toward you without looking up. It says: </i> Please stay. I think I need a friend.</span>"
     },
     {

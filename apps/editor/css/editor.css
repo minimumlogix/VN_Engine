@@ -69,6 +69,8 @@ body {
     opacity: 0.6;
     transition: opacity 0.2s, stroke-width 0.2s;
     filter: drop-shadow(0 0 6px var(--accent-dim));
+    cursor: pointer;
+    pointer-events: stroke;
 }
 
 .connection:hover {
@@ -234,11 +236,11 @@ body {
 }
 
 #panel-toggle {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: rgba(255,255,255,0.05);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -267,12 +269,61 @@ body {
 
 #toolbar {
     top: 20px;
-    right: 20px;
-    height: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    height: 52px;
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 0 20px;
+    gap: 10px;
+    padding: 0 16px;
+    border-radius: 12px;
+}
+
+#toolbar .btn-accent {
+    background: var(--accent) !important;
+    color: #0a0c10 !important;
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    transition: all 0.2s ease !important;
+}
+#toolbar .btn-accent:hover {
+    background: #00cca3 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 255, 204, 0.3) !important;
+}
+
+#toolbar .btn-outline-accent {
+    background: transparent !important;
+    color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    transition: all 0.2s ease !important;
+}
+#toolbar .btn-outline-accent:hover {
+    background: var(--accent-dim) !important;
+    transform: translateY(-1px) !important;
+}
+
+#toolbar .btn-outline-danger {
+    background: transparent !important;
+    color: #ff4a4a !important;
+    border: 1px solid #ff4a4a !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    transition: all 0.2s ease !important;
+}
+#toolbar .btn-outline-danger:hover {
+    background: rgba(255, 74, 74, 0.15) !important;
+    transform: translateY(-1px) !important;
 }
 
 .btn {

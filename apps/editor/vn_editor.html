@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus VN Editor | Industry Standard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/editor.css">
 </head>
 <body>
@@ -47,16 +49,32 @@
         <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addChapter()">＋ ADD CHAPTER</button>
     </div>
 
-    <div id="toolbar" class="panel">
-        <div id="panel-toggle" onclick="toggleConfigPanel()">☰</div>
-        <button class="btn" onclick="addNode('dialogue')">＋ DIALOGUE</button>
-        <button class="btn" onclick="addNode('choice')">＋ CHOICE</button>
-        <button class="btn" onclick="addNode('condition')">＋ LOGIC</button>
-        <button class="btn" onclick="addNode('effect')">＋ EFFECT</button>
-        <div style="flex: 1;"></div>
-        <button class="btn btn-outline" onclick="exportJSON()">💾 EXPORT</button>
-        <button class="btn btn-outline" onclick="document.getElementById('import-input').click()">📂 IMPORT</button>
-        <button class="btn btn-outline" style="color:var(--danger)" onclick="if(confirm('Clear all data and reset to default?')) store.clearAutosave()">🧹 CLEAR CACHE</button>
+    <div id="toolbar" class="panel d-flex align-items-center gap-2">
+        <button id="panel-toggle" class="btn btn-sm d-flex align-items-center justify-content-center" onclick="toggleConfigPanel()" title="Toggle Config Panel">
+            <i class="bi bi-list"></i>
+        </button>
+        <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('dialogue')">
+            <i class="bi bi-chat-right-text"></i> DIALOGUE
+        </button>
+        <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('choice')">
+            <i class="bi bi-diagram-2"></i> CHOICE
+        </button>
+        <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('condition')">
+            <i class="bi bi-cpu"></i> LOGIC
+        </button>
+        <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('effect')">
+            <i class="bi bi-magic"></i> EFFECT
+        </button>
+        <div class="vr mx-1"></div>
+        <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="exportJSON()">
+            <i class="bi bi-download"></i> EXPORT
+        </button>
+        <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="document.getElementById('import-input').click()">
+            <i class="bi bi-upload"></i> IMPORT
+        </button>
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="if(confirm('Clear all data and reset to default?')) store.clearAutosave()">
+            <i class="bi bi-trash"></i> CLEAR CACHE
+        </button>
         <input type="file" id="import-input" style="display:none" onchange="importJSON(event)">
     </div>
 

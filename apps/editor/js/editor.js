@@ -470,7 +470,7 @@ function renderLinks(mouseEvent = null) {
     store.links.forEach(link => {
         const fromPos = getPortPos(link.fromNode, link.fromPort);
         const toPos = getPortPos(link.toNode, link.toPort);
-        if (fromPos && toPos) drawLink(fromPos, toPos);
+        if (fromPos && toPos) drawLink(fromPos, toPos, link);
     });
 
     if (activeLink && mouseEvent) {
@@ -501,12 +501,26 @@ function getPortPos(nodeId, portId) {
     return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
 }
 
-function drawLink(start, end) {
+function drawLink(start, end, linkData = null) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const dx = Math.abs(end.x - start.x) * 0.5;
     const d = `M ${start.x} ${start.y} C ${start.x + dx} ${start.y} ${end.x - dx} ${end.y} ${end.x} ${end.y}`;
     path.setAttribute("d", d);
     path.setAttribute("class", "connection");
+
+    if (linkData) {
+        const removeLink = (e) => {
+            if (e.altKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                store.links = store.links.filter(l => l !== linkData);
+                store.emit('links_changed');
+            }
+        };
+        path.addEventListener('click', removeLink);
+        path.addEventListener('mousedown', removeLink);
+    }
+
     svg.appendChild(path);
 }
 

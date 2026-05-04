@@ -2,7 +2,7 @@
     "worldSummary": {
         "title": "World Summary",
         "icon": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"></path></svg>",
-        "content": "Etherealis is a brutal world shaped by six Primal Entities and bound together by the sentient Primal Weaves, where corrupted magic, ancient wars, and clashing civilizations fuel a realm of dark beauty and danger. Its lands are scarred by the First Corruption of the western continent, north frozen by the Frost King, South drowned by the Great Dreamer, and the giant walls of Aethelgard blocking all the corruption from the west, 10 kingdoms where races and factions rise, fall, and fight over elemental power, Weave mastery, and survival.",
+        "content": "Etherealis is a brutal world shaped by six Primal Entities and bound together by the sentient [Primal Weaves](tab-systems 'View Systems'), where corrupted magic, ancient wars, and clashing civilizations fuel a realm of dark beauty and danger. Its lands are scarred by the [First Corruption](tab-timeline 'Read Timeline') of the western continent, north frozen by the Frost King, South drowned by the [Great Dreamer](detail-bestiary-6 'Beast details'), and the giant walls of [Aethelgard](detail-kingdoms-4 'Go to Aethelgard') blocking all the corruption from the west, 10 kingdoms where races and factions rise, fall, and fight over elemental power, Weave mastery, and survival.",
         "animatedTextTitle": "tap to show more",
         "page1Background": "worlds/Etherealis/logo.png"
     },
@@ -12,7 +12,7 @@
         "subTabs": {
             "magicSystem": {
                 "title": "Magic System",
-                "content": "The Primal Weave is a sentient cosmic magic brain that Weavers tap into using attunement to one or more Primal Entities. Six Primal Entities shaped the world from its Weave of reality: **Luminary Prime** (Artifice Weave), **Silent Oracle** (Mind Weave), **Great Forger** (Particle Weave), **Unbound** (Chrono Weave), **Flow Keeper** (Energy Weaving), and **Veiled Weaver** (Null Weaving). Corruption, collapse, or overuse of any Weave threatens both the caster and the realm’s balance.",
+                "content": "The Primal Weave is a sentient cosmic magic brain that Weavers tap into using attunement to one or more Primal Entities. Six Primal Entities shaped the world from its Weave of reality: **Luminary Prime** (Artifice Weave), **Silent Oracle** (Mind Weave), **Great Forger** (Particle Weave), **Unbound** (Chrono Weave), **Flow Keeper** (Energy Weaving), and **Veiled Weaver** ([Null Weaving](detail-factions-1 'Shadowveil Resistance')). Corruption, collapse, or overuse of any Weave threatens both the caster and the realm’s balance.",
                 "subtypes": [
                     {
                         "name": "Artifice Weave",
@@ -199,7 +199,7 @@
                 "subRaces": [
                     {
                         "name": "High Elves",
-                        "description": "With ivory-gold skin and silver or golden hair, they reside in sunlit cities, dominating Artifice and Particle Weaving in a bloodline-obsessed society.",
+                        "description": "With ivory-gold skin and silver or golden hair, they reside in sunlit cities, dominating Artifice and Particle Weaving in a bloodline-obsessed society, led by the [Lumina Sanctum](detail-factions-3 'The Lumina Sanctum faction').",
                         "image": "worlds/Etherealis/race/Elves_High.png"
                     },
                     {
@@ -219,7 +219,7 @@
                     },
                     {
                         "name": "Dark Elves",
-                        "description": "Once of Zha’vren, they are shadowed and vengeful, with blue-dark skin, red or violet eyes, and high Null aptitude. Many are enslaved or part of the resistance.",
+                        "description": "Once of [Zha'vren](detail-kingdoms-5 'View Zha-vren details'), they are shadowed and vengeful, with blue-dark skin, red or violet eyes, and high Null aptitude. Many are enslaved or part of the [Shadowveil Resistance](detail-factions-1 'Join the resistance').",
                         "image": "worlds/Etherealis/race/Elves_Dark.png"
                     }
                 ]
@@ -359,7 +359,7 @@
         "entries": [
             {
                 "name": "Eldrida",
-                "description": "Ruled by Jarl Borin Ice-Heart, this kingdom is set in glacial peaks, housing Eldridian Humans. Known for ice berserkers, a Nordic lifestyle, and geothermal forges using Particle and Energy weaves.",
+                "description": "Ruled by Jarl Borin Ice-Heart, this kingdom is set in glacial peaks, housing [Eldridian Humans](detail-races-0 'Frost-Walkers'). Known for ice berserkers, a Nordic lifestyle, and geothermal forges using Particle and Energy weaves.",
                 "image": "worlds/Etherealis/location/kingdoms/Eldrida.png",
                 "importantPlaces": [
                     {
@@ -370,7 +370,7 @@
             },
             {
                 "name": "Arkhia",
-                "description": "Ruled by Sultan Zafira Sun-Speaker, this kingdom spreads across shifting sands. Home to wind-singers and resonance-glass technology powered by solar energy and Particle Weaving.",
+                "description": "Ruled by Sultan Zafira Sun-Speaker, this kingdom spreads across shifting sands. Home to [Arkhian Humans](detail-races-0 'View Arkhian Humans') wind-singers and resonance-glass technology powered by solar energy and Particle Weaving.",
                 "image": "worlds/Etherealis/location/kingdoms/Arkhia.png",
                 "importantPlaces": [
                     {
@@ -381,7 +381,7 @@
             },
             {
                 "name": "Thalassir",
-                "description": "Ruled by Tide-King Orin Wavecrown, a large coastal city of Water Elves, surviving dark elves, and humans. A gigantic coral tree illuminates the city at night. Features coral marines and Hydro/Biolum Lumin power.",
+                "description": "Ruled by Tide-King Orin Wavecrown, a large coastal city of [Water Elves](detail-races-1 'See Water Elves'), surviving dark elves, and humans. A gigantic coral tree illuminates the city at night. Features coral marines and Hydro/Biolum Lumin power.",
                 "image": "worlds/Etherealis/location/kingdoms/Thalassir.png",
                 "importantPlaces": [
                     {

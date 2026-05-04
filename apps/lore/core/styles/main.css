@@ -85,16 +85,6 @@ html {
 }
 
 #page3 {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: var(--page-padding-top);
-    overflow: hidden;
-}
-
-
-#page4 {
     background: radial-gradient(circle at 50% 50%, #0a0a1a 0%, #000000 100%);
     display: flex;
     flex-direction: column;
@@ -107,7 +97,7 @@ html {
     position: relative;
 }
 
-#page4::before {
+#page3::before {
     content: '';
     position: absolute;
     top: -10%;
@@ -120,7 +110,7 @@ html {
     pointer-events: none;
 }
 
-#page4 h1 {
+#page3 h1 {
     font-family: 'Playfair Display', serif;
     font-size: 4rem;
     font-weight: 700;
@@ -132,7 +122,7 @@ html {
     text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-#page4 p {
+#page3 p {
     font-size: 1.3em;
     max-width: 650px;
     margin-bottom: 50px;
@@ -207,10 +197,11 @@ html {
 
 .tab {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 30px;
     width: 100%;
     background-color: var(--background-overlay);
-    padding: 10px 0;
+    padding: 3px 0;
     flex-shrink: 0;
 }
 
@@ -219,7 +210,7 @@ html {
     border: none;
     outline: none;
     cursor: pointer;
-    padding: 12px;
+    padding: 8px 12px;
     transition: 0.3s;
     color: var(--primary-text);
     font-size: 1em;
@@ -260,8 +251,8 @@ html {
 }
 
 .tab button svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     stroke: var(--secondary-text);
     stroke-width: 1.5;
     transition: stroke 0.3s;
@@ -726,11 +717,11 @@ html {
 }
 
 @media (max-width: 768px) {
-    #page4 h1 {
+    #page3 h1 {
         font-size: 2.5rem;
     }
 
-    #page4 p {
+    #page3 p {
         font-size: 1em;
     }
 
@@ -847,12 +838,12 @@ html {
         height: 120px;
     }
 
-    #page4 h1 {
+    #page3 h1 {
         font-size: clamp(2rem, 8vh, 3rem);
         margin-bottom: 10px;
     }
 
-    #page4 p {
+    #page3 p {
         font-size: 1rem;
         margin-bottom: 25px;
         line-height: 1.5;
@@ -877,4 +868,314 @@ html {
         font-size: 0.9rem;
     }
 }
+
+/* Timeline tab overrides */
+.tabcontent .timeline-container {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px 60px 20px;
+    color: white;
+    overflow: visible;
+    height: auto;
+}
+
+/* Card Hierarchy UI & Grid Styles */
+.tab-nav-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background: rgba(20, 20, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    padding: 3px 6px;
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.toolbar-left, .toolbar-right {
+    flex: 1;
+    display: flex;
+}
+.toolbar-left { justify-content: flex-start; }
+.toolbar-right { justify-content: flex-end; }
+.toolbar-center { display: flex; justify-content: center; }
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    font-family: inherit;
+}
+
+.nav-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: transform 0.3s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    color: #d4af37;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+}
+
+.tab-state-container {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.01);
+}
+
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    border-radius: 14px 14px 0 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-image-wrapper::before {
+    content: '✦';
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 26px;
+    height: 26px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.8rem;
+    backdrop-filter: blur(4px);
+    z-index: 2;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-label {
+    padding: 14px 12px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 20px rgba(212, 175, 55, 0.12);
+}
+
+.card:hover .card-image-wrapper::before {
+    background: #d4af37;
+    color: #000;
+    border-color: transparent;
+    transform: rotate(45deg);
+}
+
+.card:hover .card-image-wrapper img {
+    transform: scale(1.06);
+}
+
+.card:hover .card-label {
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.03);
+}
+
+/* Detail View Styles */
+.entry-detail-view {
+    padding: 10px 0;
+    animation: slideUpFade 0.4s ease-out;
+}
+
+.detail-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    margin-bottom: 25px;
+    background: linear-gradient(135deg, #ffffff 0%, #d4af37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.detail-content-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 900px) {
+    .detail-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.detail-text-side {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-text-side p {
+    margin-bottom: 18px;
+}
+
+.detail-text-side h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: #d4af37;
+}
+
+.detail-image-side {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.detail-image-side img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+}
+
+.detail-image-side img:hover {
+    transform: scale(1.02);
+}
+
+.detail-sub-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.important-places-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.important-places-section h5 {
+    color: #d4af37;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+/* Custom fade animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glossary & Internal Link Styling */
+.lore-link {
+    color: #d4af37;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(212, 175, 55, 0.4);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.lore-link:hover {
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.8);
+}
+
+.glossary-tooltip {
+    position: absolute;
+    background: rgba(26, 26, 26, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    max-width: 280px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.15);
+    z-index: 2000;
+    pointer-events: none;
+    transform: translateX(-50%);
+    backdrop-filter: blur(12px);
+    animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from { opacity: 0; transform: translate(-50%, 5px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+
 

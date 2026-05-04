@@ -86,7 +86,6 @@ function smoothScroll(targetIndex) {
             isScrolling = false;
             currentPage = targetIndex;
             updateNavIcon();
-            if (currentPage === 2 && page3Element) animateTimeline();
         }
     });
 }
@@ -155,16 +154,39 @@ function initCustomScrollbar(container) {
     return updateScrollbar;
 }
 
-function animateTimeline() {
-    const items = document.querySelectorAll('#page3 .timeline-item');
-    const page3Rect = page3Element ? page3Element.getBoundingClientRect() : { top: 0 };
-    const windowHeight = window.innerHeight;
-    items.forEach(item => {
-        const rect = item.getBoundingClientRect();
-        const itemTopRelativeToPage3 = rect.top - page3Rect.top;
-        if (itemTopRelativeToPage3 < windowHeight * 0.8) {
-            item.classList.add('active');
-        }
-    });
-}
+// --- GLOSSARY POPUP TOOLTIP IMPLEMENTATION ---
+document.addEventListener('mouseover', (e) => {
+    const link = e.target.closest('.lore-link');
+    if (!link) return;
+    const text = link.getAttribute('data-tooltip');
+    if (!text) return;
+
+    let tooltip = document.getElementById('glossary-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'glossary-tooltip';
+        tooltip.className = 'glossary-tooltip';
+        document.body.appendChild(tooltip);
+    }
+    tooltip.innerHTML = text;
+    tooltip.style.display = 'block';
+
+    const rect = link.getBoundingClientRect();
+    tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 10}px`;
+    
+    // adjust if going off top
+    if (rect.top + window.scrollY - tooltip.offsetHeight - 10 < 0) {
+        tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
+    }
+});
+
+document.addEventListener('mouseout', (e) => {
+    const link = e.target.closest('.lore-link');
+    if (!link) return;
+    const tooltip = document.getElementById('glossary-tooltip');
+    if (tooltip) {
+        tooltip.style.display = 'none';
+    }
+});
 

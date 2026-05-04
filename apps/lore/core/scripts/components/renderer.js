@@ -1,3 +1,43 @@
+// Global Tab History Cache
+let tabHistories = {};
+
+// Custom marked renderer for lore glossary tooltips & links
+const renderer = {
+    link(href, title, text) {
+        if (href.startsWith('tab-') || href.startsWith('detail-')) {
+            return `<a href="${href}" class="lore-link" data-tooltip="${title || ''}" onclick="handleLoreNavigation(event, '${href}')">${text}</a>`;
+        }
+        return `<a href="${href}" target="_blank" ${title ? `title="${title}"` : ''}>${text}</a>`;
+    }
+};
+if (typeof marked !== 'undefined' && marked.use) {
+    marked.use({ renderer });
+}
+
+window.handleLoreNavigation = function(event, href) {
+    if (event) event.preventDefault();
+    if (href.startsWith('tab-')) {
+        const tabId = href;
+        const btn = document.querySelector(`.tablinks[onclick*="${tabId}"]`);
+        if (btn) {
+            btn.click();
+        }
+    } else if (href.startsWith('detail-')) {
+        const parts = href.split('-');
+        const key = parts[1];
+        const entryIdx = parseInt(parts[2], 10);
+
+        const btn = document.querySelector(`.tablinks[onclick*="tab-${key}"]`);
+        if (btn) {
+            btn.click();
+        }
+
+        if (typeof window.navigateToDetail === 'function') {
+            window.navigateToDetail(key, entryIdx);
+        }
+    }
+};
+
 // --- DYNAMIC CONTENT GENERATION ---
 function generateTabsAndContent(data) {
     const tabContainer = document.getElementById('main-tabs');
@@ -5,8 +45,10 @@ function generateTabsAndContent(data) {
     tabContainer.innerHTML = '';
     contentContainer.innerHTML = '';
 
+    tabHistories = {};
+
     Object.keys(data).forEach(key => {
-        if (key !== 'worldSummary' && key !== 'timeline' && key !== 'outro') {
+        if (key !== 'worldSummary' && key !== 'outro') {
             const item = data[key];
             const tabId = `tab-${key}`;
             const button = document.createElement('button');
@@ -18,76 +60,39 @@ function generateTabsAndContent(data) {
             const contentDiv = document.createElement('div');
             contentDiv.id = tabId;
             contentDiv.className = 'tabcontent';
-            let innerHTML = `<h3>${item.title}</h3>`;
 
-            if (item.content) innerHTML += marked.parse(item.content);
-            if (item.description) innerHTML += marked.parse(`<em>${item.description}</em>`);
-
-            if (item.subTabs) {
-                innerHTML += `<div class="sub-tab" id="sub-tabs-${key}">`;
-                Object.keys(item.subTabs).forEach(subKey => {
-                    innerHTML += `<button class="sub-tablinks" onclick="openSubTab(event, 'sub-tab-${subKey}', '${key}')">${item.subTabs[subKey].title}</button>`;
+            if (key === 'timeline') {
+                let timelineHTML = `<div class="timeline-container">
+                                    <div class="timeline-header">
+                                        <h1>${item.title}</h1>
+                                        <h2>Key Events & Milestones</h2>
+                                    </div>
+                                    <div class="timeline">`;
+                item.entries.forEach(event => {
+                    timelineHTML += `<div class="timeline-item active">
+                                    <div class="timeline-content">
+                                        <div class="timeline-year">${event.year}</div>
+                                        ${event.image ? `<img src="${event.image}" alt="${event.year}" class="timeline-image" onerror="this.onerror=null;this.src='https://placehold.co/400x200/000000/ffffff?text=Image+Not+Found';">` : ''}
+                                        <div class="timeline-description">${marked.parse(event.description)}</div>
+                                    </div>
+                                </div>`;
                 });
-                innerHTML += `</div>`;
-
-                Object.keys(item.subTabs).forEach(subKey => {
-                    const subTab = item.subTabs[subKey];
-                    innerHTML += `<div id="sub-tab-${subKey}" class="sub-tabcontent sub-tabcontent-${key}">`;
-                    innerHTML += `<div class="entry">
-                                <div class="entry-content">
-                                    <h4>${subTab.title}</h4>
-                                    ${subTab.content ? marked.parse(subTab.content) : ''}
-                                </div>
-                                ${subTab.image ? `<div class="entry-image-wrapper"><img src="${subTab.image}" alt="${subTab.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/000000/ffffff?text=Image+Not+Found';" onclick="showImageModal('${subTab.image}')"></div>` : ''}
-                            </div>`;
-                    if (subTab.subtypes && subTab.subtypes.length > 0) {
-                        innerHTML += generateSubSubtypeHTML(subTab);
-                    }
-                    innerHTML += `</div>`;
-                });
-            } else if (item.subtypes || item.entries) {
-                const entries = item.subtypes || item.entries;
-                entries.forEach(entry => {
-                    innerHTML += `<div class="entry">
-                                <div class="entry-content">
-                                    <h4>${entry.name}</h4>
-                                    ${marked.parse(entry.description)}
-                                    ${entry.importantPlaces ? `<h5>Important Places:</h5><ul>${entry.importantPlaces.map(p => `<li><strong>${p.name}:</strong> ${marked.parseInline(p.description)}</li>`).join('')}</ul>` : ''}
-                                </div>
-                                ${entry.image ? `<div class="entry-image-wrapper"><img src="${entry.image}" alt="${entry.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/000000/ffffff?text=Image+Not+Found';" onclick="showImageModal('${entry.image}')"></div>` : ''}
-                                ${(entry.subRaces && entry.subRaces.length > 0) ? generateSubRaceHTML(entry) : ''}
-                            </div>`;
-                });
+                timelineHTML += `</div></div>`;
+                contentDiv.innerHTML = timelineHTML;
+            } else {
+                tabHistories[key] = {
+                    stack: [{ type: 'main', item: item }],
+                    cursor: 0
+                };
+                renderTabState(key, tabHistories[key].stack[0], contentDiv);
             }
-            contentDiv.innerHTML = innerHTML;
             contentContainer.appendChild(contentDiv);
         }
     });
 
     const page3 = document.getElementById('page3');
-    if (data.timeline && page3) {
-        let timelineHTML = `<div class="timeline-container">
-                            <div class="timeline-header">
-                                <h1>${data.timeline.title}</h1>
-                                <h2>Key Events & Milestones</h2>
-                            </div>
-                            <div class="timeline">`;
-        data.timeline.entries.forEach(event => {
-            timelineHTML += `<div class="timeline-item">
-                            <div class="timeline-content">
-                                <div class="timeline-year">${event.year}</div>
-                                ${event.image ? `<img src="${event.image}" alt="${event.year}" class="timeline-image" onerror="this.onerror=null;this.src='https://placehold.co/400x200/000000/ffffff?text=Image+Not+Found';">` : ''}
-                                <div class="timeline-description">${marked.parse(event.description)}</div>
-                            </div>
-                        </div>`;
-        });
-        timelineHTML += `</div></div>`;
-        page3.innerHTML = timelineHTML;
-    }
-
-    const page4 = document.getElementById('page4');
-    if (data.outro && page4) {
-        page4.innerHTML = `<div class="outro-container">
+    if (data.outro && page3) {
+        page3.innerHTML = `<div class="outro-container">
                                 <h1>${data.outro.title}</h1>
                                 <p>${data.outro.description}</p>
                                 <a href="${data.outro.discordLink}" target="_blank" class="discord-button">
@@ -99,42 +104,217 @@ function generateTabsAndContent(data) {
     }
 }
 
-function generateSubRaceHTML(entry) {
-    const subRaceContainerId = `sub-races-${entry.name.replace(/\s+/g, '-')}`;
-    let subRaceHTML = `<div class="sub-race-section">
-                        <button class="expand-button active" onclick="toggleSubRaces(this, '${subRaceContainerId}')">
-                            Show Sub-Races <span class="arrow">&#9660;</span>
-                        </button>
-                        <div id="${subRaceContainerId}" class="sub-race-container">`;
-    entry.subRaces.forEach(subRace => {
-        subRaceHTML += `<div class="entry">
-                        <div class="entry-content">
-                            <h4>${subRace.name}</h4>
-                            ${marked.parse(subRace.description)}
+function renderTabState(key, state, contentDiv) {
+    if (!contentDiv) {
+        contentDiv = document.getElementById(`tab-${key}`);
+    }
+    if (!contentDiv) return;
+
+    contentDiv.innerHTML = '';
+
+    const history = tabHistories[key];
+    const toolbar = document.createElement('div');
+    toolbar.className = 'tab-nav-toolbar';
+    toolbar.innerHTML = `
+        <div class="toolbar-left">
+            <button class="nav-btn back-btn" ${history.cursor === 0 ? 'disabled' : ''} onclick="goBack('${key}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+        </div>
+        <div class="toolbar-center">
+            <button class="nav-btn home-btn" ${history.cursor === 0 ? 'disabled' : ''} onclick="goHome('${key}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </button>
+        </div>
+        <div class="toolbar-right">
+            <button class="nav-btn fwd-btn" ${history.cursor === history.stack.length - 1 ? 'disabled' : ''} onclick="goForward('${key}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    `;
+    contentDiv.appendChild(toolbar);
+
+    const stateContainer = document.createElement('div');
+    stateContainer.className = 'tab-state-container';
+
+    if (state.type === 'main') {
+        let innerHTML = `<h3>${state.item.title}</h3>`;
+        if (state.item.content) innerHTML += marked.parse(state.item.content);
+        if (state.item.description) innerHTML += marked.parse(`<em>${state.item.description}</em>`);
+
+        if (state.item.subTabs) {
+            innerHTML += `<div class="cards-grid">`;
+            Object.keys(state.item.subTabs).forEach(subKey => {
+                const subTab = state.item.subTabs[subKey];
+                innerHTML += `
+                    <div class="card subtab-card" onclick="openSubTabToDetail('${key}', '${subKey}')">
+                        <div class="card-image-wrapper">
+                            <img src="${subTab.image || 'https://placehold.co/400x500/000000/ffffff?text=' + subTab.title.replace(/\s+/g, '+')}" alt="${subTab.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x500/000000/ffffff?text=Image+Not+Found';">
                         </div>
-                        ${subRace.image ? `<div class="entry-image-wrapper"><img src="${subRace.image}" alt="${subRace.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/000000/ffffff?text=Image+Not+Found';" onclick="showImageModal('${subRace.image}')"></div>` : ''}
-                    </div>`;
-    });
-    subRaceHTML += `</div></div>`;
-    return subRaceHTML;
+                        <div class="card-label">
+                            ‹ ${subTab.title} ›
+                        </div>
+                    </div>
+                `;
+            });
+            innerHTML += `</div>`;
+        } else if (state.item.subtypes || state.item.entries) {
+            const entries = state.item.subtypes || state.item.entries;
+            innerHTML += `<div class="cards-grid">`;
+            entries.forEach((entry, idx) => {
+                innerHTML += `
+                    <div class="card entry-card" onclick="navigateToDetail('${key}', ${idx})">
+                        <div class="card-image-wrapper">
+                            <img src="${entry.image || 'https://placehold.co/400x500/000000/ffffff?text=' + entry.name.replace(/\s+/g, '+')}" alt="${entry.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x500/000000/ffffff?text=Image+Not+Found';">
+                        </div>
+                        <div class="card-label">
+                            ‹ ${entry.name} ›
+                        </div>
+                    </div>
+                `;
+            });
+            innerHTML += `</div>`;
+        }
+        stateContainer.innerHTML = innerHTML;
+    } else if (state.type === 'detail') {
+        const entry = state.entry;
+        let innerHTML = `
+            <div class="entry-detail-view">
+                <div class="detail-header">
+                    <h2>‹ ${entry.name || entry.title} ›</h2>
+                </div>
+                <div class="detail-content-grid">
+                    <div class="detail-text-side">
+                        ${entry.description ? marked.parse(entry.description) : ''}
+                        ${entry.content ? marked.parse(entry.content) : ''}
+                        
+                        ${entry.importantPlaces ? `
+                            <div class="important-places-section">
+                                <h5>Important Places:</h5>
+                                <ul>${entry.importantPlaces.map(p => `<li><strong>${p.name}:</strong> ${marked.parseInline(p.description)}</li>`).join('')}</ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${entry.image ? `
+                    <div class="detail-image-side">
+                        <img src="${entry.image}" alt="${entry.name || entry.title}" onerror="this.onerror=null;this.src='https://placehold.co/400x500/000000/ffffff?text=Image+Not+Found';" onclick="showImageModal('${entry.image}')">
+                    </div>
+                    ` : ''}
+                </div>
+        `;
+
+        if (entry.subRaces && entry.subRaces.length > 0) {
+            innerHTML += `<h3 class="detail-sub-header">Sub-Races</h3>`;
+            innerHTML += `<div class="cards-grid">`;
+            entry.subRaces.forEach((subRace, idx) => {
+                innerHTML += `
+                    <div class="card entry-card" onclick="navigateToSubDetail('${key}', ${idx})">
+                        <div class="card-image-wrapper">
+                            <img src="${subRace.image || 'https://placehold.co/400x500/000000/ffffff?text=' + subRace.name.replace(/\s+/g, '+')}" alt="${subRace.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x500/000000/ffffff?text=Image+Not+Found';">
+                        </div>
+                        <div class="card-label">
+                            ‹ ${subRace.name} ›
+                        </div>
+                    </div>
+                `;
+            });
+            innerHTML += `</div>`;
+        }
+
+        if (entry.subtypes && entry.subtypes.length > 0) {
+            innerHTML += `<h3 class="detail-sub-header">Sub-Categories</h3>`;
+            innerHTML += `<div class="cards-grid">`;
+            entry.subtypes.forEach((subCategory, idx) => {
+                innerHTML += `
+                    <div class="card entry-card" onclick="navigateToSubCategoryDetail('${key}', ${idx})">
+                        <div class="card-image-wrapper">
+                            <img src="${subCategory.image || 'https://placehold.co/400x500/000000/ffffff?text=' + subCategory.name.replace(/\s+/g, '+')}" alt="${subCategory.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x500/000000/ffffff?text=Image+Not+Found';">
+                        </div>
+                        <div class="card-label">
+                            ‹ ${subCategory.name} ›
+                        </div>
+                    </div>
+                `;
+            });
+            innerHTML += `</div>`;
+        }
+
+        innerHTML += `</div>`;
+        stateContainer.innerHTML = innerHTML;
+    }
+    contentDiv.appendChild(stateContainer);
+    
+    // Initialize custom scrollbar for the new state content
+    initCustomScrollbar(contentDiv);
 }
 
-function generateSubSubtypeHTML(parentEntry) {
-    const subSubtypeContainerId = `sub-subtypes-${parentEntry.title.replace(/\s+/g, '-')}`;
-    let subSubtypeHTML = `<div class="sub-race-section">
-                        <button class="expand-button active" onclick="toggleSubRaces(this, '${subSubtypeContainerId}')">
-                            Show Sub-Categories <span class="arrow">&#9660;</span>
-                        </button>
-                        <div id="${subSubtypeContainerId}" class="sub-race-container">`;
-    parentEntry.subtypes.forEach(subSubtype => {
-        subSubtypeHTML += `<div class="entry">
-                        <div class="entry-content">
-                            <h4>${subSubtype.name}</h4>
-                            ${marked.parse(subSubtype.description)}
-                        </div>
-                        ${subSubtype.image ? `<div class="entry-image-wrapper"><img src="${subSubtype.image}" alt="${subSubtype.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x300/000000/ffffff?text=Image+Not+Found';" onclick="showImageModal('${subSubtype.image}')"></div>` : ''}
-                    </div>`;
-    });
-    subSubtypeHTML += `</div></div>`;
-    return subSubtypeHTML;
-}
+// Global scope bindings for navigation events
+window.goBack = function(key) {
+    const history = tabHistories[key];
+    if (history && history.cursor > 0) {
+        history.cursor--;
+        renderTabState(key, history.stack[history.cursor]);
+    }
+};
+
+window.goHome = function(key) {
+    const history = tabHistories[key];
+    if (history && history.cursor > 0) {
+        history.cursor = 0;
+        history.stack = [history.stack[0]];
+        renderTabState(key, history.stack[0]);
+    }
+};
+
+window.goForward = function(key) {
+    const history = tabHistories[key];
+    if (history && history.cursor < history.stack.length - 1) {
+        history.cursor++;
+        renderTabState(key, history.stack[history.cursor]);
+    }
+};
+
+window.navigateToDetail = function(key, entryIdx) {
+    const history = tabHistories[key];
+    const item = history.stack[0].item;
+    const entries = item.subtypes || item.entries;
+    const entry = entries[entryIdx];
+    
+    history.stack = history.stack.slice(0, history.cursor + 1);
+    history.stack.push({ type: 'detail', entry: entry });
+    history.cursor++;
+    renderTabState(key, history.stack[history.cursor]);
+};
+
+window.openSubTabToDetail = function(key, subKey) {
+    const history = tabHistories[key];
+    const item = history.stack[0].item;
+    const subTab = item.subTabs[subKey];
+    
+    history.stack = history.stack.slice(0, history.cursor + 1);
+    history.stack.push({ type: 'detail', entry: subTab });
+    history.cursor++;
+    renderTabState(key, history.stack[history.cursor]);
+};
+
+window.navigateToSubDetail = function(key, subIdx) {
+    const history = tabHistories[key];
+    const currentDetail = history.stack[history.cursor].entry;
+    const subRace = currentDetail.subRaces[subIdx];
+    
+    history.stack = history.stack.slice(0, history.cursor + 1);
+    history.stack.push({ type: 'detail', entry: subRace });
+    history.cursor++;
+    renderTabState(key, history.stack[history.cursor]);
+};
+
+window.navigateToSubCategoryDetail = function(key, subIdx) {
+    const history = tabHistories[key];
+    const currentDetail = history.stack[history.cursor].entry;
+    const subCategory = currentDetail.subtypes[subIdx];
+    
+    history.stack = history.stack.slice(0, history.cursor + 1);
+    history.stack.push({ type: 'detail', entry: subCategory });
+    history.cursor++;
+    renderTabState(key, history.stack[history.cursor]);
+};

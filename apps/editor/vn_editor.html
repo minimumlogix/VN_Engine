@@ -21,12 +21,7 @@
             <input type="text" id="conf-subtitle" value="CHAPTER 1" onchange="updateGlobalConfig()">
 
             <label>THEME</label>
-            <select id="conf-theme" onchange="updateGlobalConfig()">
-                <option value="nasapunk.css">Nasapunk (Default)</option>
-                <option value="cyberpunk.css">Cyberpunk</option>
-                <option value="anime.css">Anime Classic</option>
-                <option value="minimal.css">Minimal</option>
-            </select>
+            <div id="theme-dropdown-container"></div>
 
             <label>LOAD SCREEN BG (URL)</label>
             <input type="text" id="conf-loadbg" placeholder="URL to loading image" onchange="updateGlobalConfig()">
@@ -39,10 +34,6 @@
         <div class="section-title">CHARACTERS</div>
         <div id="char-list" class="config-section"></div>
         <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addCharacter()">＋ ADD CHAR</button>
-
-        <div class="section-title">BACKGROUNDS</div>
-        <div id="bg-list" class="config-section"></div>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addBackground()">＋ ADD BG</button>
 
         <div class="section-title">CHAPTERS</div>
         <div id="chapter-list" class="config-section"></div>
@@ -69,9 +60,7 @@
         <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('condition')">
             <i class="bi bi-cpu"></i> LOGIC
         </button>
-        <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('effect')">
-            <i class="bi bi-magic"></i> EFFECT
-        </button>
+
         <div class="vr mx-1"></div>
         <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="exportJSON()">
             <i class="bi bi-download"></i> EXPORT
@@ -79,10 +68,10 @@
         <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="document.getElementById('import-input').click()">
             <i class="bi bi-upload"></i> IMPORT
         </button>
-        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="if(confirm('Clear all data and reset to default?')) store.clearAutosave()">
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="clearCache()">
             <i class="bi bi-trash"></i> CLEAR CACHE
         </button>
-        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="clearScreen()">
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="clearWorkspace()">
             <i class="bi bi-x-circle"></i> CLEAR SCREEN
         </button>
         <input type="file" id="import-input" style="display:none" onchange="importJSON(event)">

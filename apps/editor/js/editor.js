@@ -33,7 +33,10 @@ class NexusDataStore {
     }
 
     undo() {
-        if (this.undoStack.length <= 1) return;
+        if (this.undoStack.length <= 1) {
+            showToast('Nothing to undo', 'warn');
+            return;
+        }
         const current = JSON.stringify({
             nodes: this.nodes,
             links: this.links,
@@ -48,10 +51,14 @@ class NexusDataStore {
         this.emit('nodes_changed');
         this.emit('config_refresh');
         this.emit('links_changed');
+        showToast('Undo');
     }
 
     redo() {
-        if (this.redoStack.length === 0) return;
+        if (this.redoStack.length === 0) {
+            showToast('Nothing to redo', 'warn');
+            return;
+        }
         const current = JSON.stringify({
             nodes: this.nodes,
             links: this.links,
@@ -65,6 +72,7 @@ class NexusDataStore {
         this.emit('nodes_changed');
         this.emit('config_refresh');
         this.emit('links_changed');
+        showToast('Redo');
     }
 
     // Observer Pattern
@@ -106,6 +114,9 @@ class NexusDataStore {
 
     clearAutosave() {
         localStorage.removeItem(this.autoSaveKey);
+        // Also clear undo/redo stacks so nothing is recoverable after reset
+        this.undoStack = [];
+        this.redoStack = [];
         location.reload();
     }
 
@@ -261,9 +272,11 @@ class NexusDataStore {
 }
 
 const store = new NexusDataStore();
+window.store = store;
 
 let offset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 let zoom = 1;
+let lastMiddleClick = 0;
 let isDragging = false;
 let lastMousePos = { x: 0, y: 0 };
 let activeLink = null;
@@ -282,6 +295,9 @@ const NODE_TYPES = {
             { name: 'text', label: 'Dialogue Text', type: 'textarea' },
             { name: 'chapter', label: 'Chapter', type: 'number' },
             { name: 'scene', label: 'Scene', type: 'number' },
+            { name: 'effect', label: 'Screen Effect', type: 'select', options: ['None', 'shake', 'glitch', 'flash', 'blink', 'electricuted', 'shadows', 'earthquake', 'heartbeat', 'vhs', 'drain', 'nuke', 'bloodsplatter', 'shockwave', 'hologram', 'rage'] },
+            { name: 'overlay', label: 'Screen Overlay', type: 'select', options: ['None', 'GLITCH', 'ELECTROCUTED', 'NUKE', 'SHOCKWAVE', 'PORTAL'] },
+            { name: 'intensity', label: 'Effect Intensity (1-3)', type: 'number' },
             { name: 'persistentEffect', label: 'Persistent GIF/Effect (URL)', type: 'text' },
             { name: 'SpriteEffects', label: 'Sprite Post-Effect', type: 'select', options: ['None', 'Scanlines', 'Holo', 'Ghost', 'Glitch', 'Faded'] }
         ],
@@ -293,15 +309,6 @@ const NODE_TYPES = {
             { name: 'text', label: 'Prompt', type: 'text' }
         ],
         ports: { in: true, choices: true }
-    },
-    effect: {
-        title: "SCREEN EFFECT",
-        fields: [
-            { name: 'effect', label: 'Macro Effect (Body)', type: 'select', options: ['None', 'shake', 'glitch', 'flash', 'blink', 'electricuted', 'shadows', 'earthquake', 'heartbeat', 'vhs', 'drain', 'nuke', 'bloodsplatter', 'shockwave', 'hologram', 'rage'] },
-            { name: 'overlay', label: 'Overlay (Blocking)', type: 'select', options: ['None', 'GLITCH', 'ELECTROCUTED', 'NUKE', 'SHOCKWAVE', 'PORTAL'] },
-            { name: 'intensity', label: 'Intensity (1-3)', type: 'number' }
-        ],
-        ports: { in: true, out: true }
     },
     condition: {
         title: "VARIABLE CHECK",
@@ -334,6 +341,10 @@ function init() {
             store.redo();
         }
     });
+
+    window.onclick = () => {
+        document.querySelectorAll('.nexus-dropdown').forEach(d => d.classList.remove('active'));
+    };
     
     // Subscribe UI to Data Changes
     store.subscribe((event, data) => {
@@ -401,6 +412,14 @@ function updateWorkspace() {
 }
 
 function startPan(e) {
+    if (e.button === 1) { // Middle click
+        const now = Date.now();
+        if (now - lastMiddleClick < 300) {
+            zoomToExtents();
+        }
+        lastMiddleClick = now;
+    }
+    
     if (e.target === editorContainer || e.target === svg) {
         isDragging = true;
         lastMousePos = { x: e.clientX, y: e.clientY };
@@ -437,15 +456,80 @@ function handleMouseUp(e) {
 }
 
 function handleWheel(e) {
+    e.preventDefault();
+    
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    zoom = Math.min(Math.max(0.2, zoom * delta), 3);
+    const oldZoom = zoom;
+    const newZoom = Math.min(Math.max(0.1, zoom * delta), 4);
+    
+    if (oldZoom === newZoom) return;
+
+    // Zoom relative to mouse position
+    const rect = editorContainer.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // Calculate workspace coordinates of the mouse
+    const wx = (mx - offset.x) / oldZoom;
+    const wy = (my - offset.y) / oldZoom;
+
+    // Update zoom
+    zoom = newZoom;
+
+    // Adjust offset to keep wx, wy at mx, my
+    offset.x = mx - wx * zoom;
+    offset.y = my - wy * zoom;
+
     needsRender = true;
+}
+
+function zoomToExtents() {
+    if (store.nodes.length === 0) {
+        zoom = 1;
+        offset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        needsRender = true;
+        return;
+    }
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    store.nodes.forEach(n => {
+        minX = Math.min(minX, n.x);
+        minY = Math.min(minY, n.y);
+        maxX = Math.max(maxX, n.x + 300); // Node width + some margin
+        maxY = Math.max(maxY, n.y + 400); // Rough estimated height
+    });
+
+    const padding = 100;
+    const contentWidth = maxX - minX + padding * 2;
+    const contentHeight = maxY - minY + padding * 2;
+    
+    const containerRect = editorContainer.getBoundingClientRect();
+    const targetZoom = Math.min(
+        containerRect.width / contentWidth,
+        containerRect.height / contentHeight,
+        1.2 // Don't zoom in too much
+    );
+    
+    zoom = Math.max(0.2, targetZoom);
+    
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    
+    offset.x = containerRect.width / 2 - centerX * zoom;
+    offset.y = containerRect.height / 2 - centerY * zoom;
+    
+    needsRender = true;
+    showToast('Zoom to Extents');
 }
 
 // --- NODE LOGIC ---
 
-function addNode(type, x = 0, y = 0) {
-    store.addNode(type, x, y);
+function addNode(type) {
+    // Place new nodes at the current viewport center so they're always visible
+    const containerRect = editorContainer.getBoundingClientRect();
+    const cx = containerRect.left + containerRect.width / 2;
+    const cy = containerRect.top + containerRect.height / 2;
+    store.addNode(type, cx, cy);
 }
 
 function renderNode(node) {
@@ -463,18 +547,18 @@ function renderNode(node) {
         if (f.type === 'textarea') {
             fieldsHtml += `<textarea oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">${node.data[f.name] || ''}</textarea>`;
         } else if (f.type === 'select') {
-            fieldsHtml += `<select onchange="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
+            const handlers = f.name === 'character' ? 
+                `onmouseenter="showSpritePreview('${node.id}', this.getAttribute('data-value'))" onmouseleave="hideSpritePreview()"` : '';
+            
             let options = f.options;
             if (f.options === 'chars') options = Object.keys(store.config.characters);
             if (f.options === 'state') options = Object.keys(store.config.initialState);
             
-            options.forEach(opt => {
-                const selected = node.data[f.name] === opt ? 'selected' : '';
-                fieldsHtml += `<option value="${opt}" ${selected}>${opt}</option>`;
-            });
-            fieldsHtml += `</select>`;
+            fieldsHtml += getDropdownHtml(node.id, f.name, options, node.data[f.name], handlers);
         } else {
-            fieldsHtml += `<input type="${f.type}" value="${node.data[f.name] || ''}" oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
+            const handlers = (f.name === 'spriteState') ? 
+                `onmouseenter="showSpritePreview('${node.id}')" onmouseleave="hideSpritePreview()"` : '';
+            fieldsHtml += `<input ${handlers} type="${f.type}" value="${node.data[f.name] || ''}" oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
         }
     });
 
@@ -549,14 +633,31 @@ function deleteNode(id) {
     store.deleteNode(id);
 }
 
-function clearScreen() {
-    if (confirm('Are you sure you want to clear the screen? This deletes all nodes and links from the workspace.')) {
-        store.pushSnapshot();
+function clearWorkspace() {
+    confirmAction('Are you sure you want to clear the screen? This will remove all nodes and links, and reset the view. Configuration (characters/etc) will remain.', () => {
         store.nodes = [];
         store.links = [];
+        // Reset history so undo can't bring back cleared nodes
+        store.undoStack = [];
+        store.redoStack = [];
+        
+        // Reset view for a truly "blank space"
+        offset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        zoom = 1;
+        needsRender = true;
+
         store.emit('nodes_changed');
         store.emit('links_changed');
-    }
+        // Push a clean snapshot as the new base state
+        store.pushSnapshot();
+        showToast('Workspace cleared');
+    });
+}
+
+function clearCache() {
+    confirmAction('This will PERMANENTLY DELETE all autosaved progress and reset the editor to its default state. This cannot be undone.', () => {
+        store.clearAutosave();
+    });
 }
 
 function selectNode(id) {
@@ -695,6 +796,50 @@ function updateChoice(nodeId, idx, text) {
     store.updateChoice(nodeId, idx, text);
 }
 
+// --- CUSTOM DROPDOWN HELPERS ---
+function getDropdownHtml(nodeId, fieldName, options, currentValue, handlers = '') {
+    const id = `dropdown_${nodeId}_${fieldName}`;
+    let itemsHtml = '';
+    options.forEach(opt => {
+        itemsHtml += `<div class="nexus-dropdown-option ${opt === currentValue ? 'selected' : ''}" onclick="updateDropdownValue('${nodeId}', '${fieldName}', '${opt}')">${opt}</div>`;
+    });
+
+    const displayValue = currentValue || (options.length > 0 ? options[0] : 'None');
+
+    return `
+        <div class="nexus-dropdown" id="${id}" data-value="${currentValue}" ${handlers}>
+            <div class="nexus-dropdown-trigger" onclick="toggleDropdown('${id}')">
+                <span>${displayValue}</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="nexus-dropdown-options">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
+}
+
+function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    const wasActive = el.classList.contains('active');
+    document.querySelectorAll('.nexus-dropdown').forEach(d => d.classList.remove('active'));
+    if (!wasActive) el.classList.add('active');
+    event.stopPropagation();
+}
+
+function updateDropdownValue(nodeId, fieldName, value) {
+    if (nodeId === 'global') {
+        store.config[fieldName] = value;
+        store.save();
+        renderConfig();
+    } else if (nodeId.startsWith('char_')) {
+        const charId = nodeId.replace('char_', '');
+        store.updateCharacter(charId, fieldName, value);
+    } else {
+        store.updateNodeData(nodeId, fieldName, value);
+    }
+}
+
 function refreshNode(id) {
     const el = document.getElementById(id);
     if (el) el.remove();
@@ -768,6 +913,113 @@ function hideOverlay() {
     if (modal) modal.style.display = 'none';
 }
 
+function confirmAction(message, onConfirm) {
+    const content = `
+        <div style="text-align:center; padding: 10px;">
+            <h3 style="color:var(--accent); margin-bottom:15px; letter-spacing: 2px;">🛰️ NEXUS WARNING</h3>
+            <p style="color:white; margin-bottom:25px; font-size: 14px; line-height: 1.5;">${message}</p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button class="btn btn-outline" style="flex:1;" onclick="hideOverlay()">CANCEL</button>
+                <button class="btn" style="flex:1; background:var(--accent); color:black; font-weight: bold;" id="nexus-confirm-btn">CONFIRM</button>
+            </div>
+        </div>
+    `;
+    showModal(content);
+    document.getElementById('nexus-confirm-btn').onclick = () => {
+        hideOverlay();
+        onConfirm();
+    };
+}
+
+function showToast(message, type = 'info') {
+    // Remove existing toast if any
+    const existing = document.getElementById('nexus-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'nexus-toast';
+    const colors = {
+        info: { bg: 'rgba(0,255,204,0.15)', border: 'var(--accent)', text: 'var(--accent)' },
+        warn: { bg: 'rgba(255,157,0,0.15)', border: '#ff9d00', text: '#ff9d00' },
+        error: { bg: 'rgba(255,60,60,0.15)', border: '#ff3c3c', text: '#ff3c3c' }
+    };
+    const c = colors[type] || colors.info;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: ${c.bg};
+        border: 1px solid ${c.border};
+        color: ${c.text};
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-family: var(--font-mono, monospace);
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        z-index: 99999;
+        pointer-events: none;
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    // Auto-dismiss after 1.5s
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 1500);
+}
+
+function showSpritePreview(nodeId, charId) {
+    const node = store.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    
+    const finalCharId = charId || node.data.character;
+    const character = store.config.characters[finalCharId];
+    if (!character) return;
+
+    const state = node.data.spriteState || 'neutral';
+    const spriteUrl = character.sprites[state] || character.sprites['neutral'] || Object.values(character.sprites)[0];
+
+    if (!spriteUrl || spriteUrl === "") return;
+
+    let preview = document.getElementById('sprite-preview');
+    if (!preview) {
+        preview = document.createElement('div');
+        preview.id = 'sprite-preview';
+        document.body.appendChild(preview);
+    }
+
+    preview.style.backgroundImage = `url(${spriteUrl})`;
+    
+    // Position it relative to the node
+    const nodeEl = document.getElementById(nodeId);
+    if (nodeEl) {
+        const rect = nodeEl.getBoundingClientRect();
+        preview.style.left = (rect.left + rect.width / 2 - 110) + 'px';
+        preview.style.top = (rect.top - 335) + 'px';
+        preview.classList.add('active');
+    }
+}
+
+function hideSpritePreview() {
+    const preview = document.getElementById('sprite-preview');
+    if (preview) {
+        preview.classList.remove('active');
+    }
+}
+
 function addChapter() {
     const id = Object.keys(store.config.chapterNames).length + 1;
     store.config.chapterNames[id] = "New Chapter";
@@ -814,10 +1066,15 @@ function deleteStateVar(key) {
     store.deleteStateVar(key);
 }
 
+const THEMES = [
+    'nasapunk.css', 'cyberpunk.css', 'anime1.css', 'anime2.css', 
+    'anime3.css', 'anime4.css', 'fantasy.css', 'gothic.css', 
+    'romantic1.css', 'romantic2.css', 'warmui.css'
+];
+
 function updateGlobalConfig() {
     store.config.storyTitle = document.getElementById('conf-title').value;
     store.config.storySubtitle = document.getElementById('conf-subtitle').value;
-    store.config.theme = document.getElementById('conf-theme').value;
     store.config.loadScreenBackground = document.getElementById('conf-loadbg').value;
     store.save();
 }
@@ -826,8 +1083,10 @@ function renderConfig() {
     // Title & Basics
     document.getElementById('conf-title').value = store.config.storyTitle;
     document.getElementById('conf-subtitle').value = store.config.storySubtitle;
-    document.getElementById('conf-theme').value = store.config.theme || 'nasapunk.css';
     document.getElementById('conf-loadbg').value = store.config.loadScreenBackground || '';
+
+    const themeContainer = document.getElementById('theme-dropdown-container');
+    themeContainer.innerHTML = getDropdownHtml('global', 'theme', THEMES, store.config.theme || 'nasapunk.css');
 
     const stateList = document.getElementById('state-list');
     stateList.innerHTML = '';
@@ -878,13 +1137,11 @@ function renderConfig() {
                 <input value="${c.name || ''}" placeholder="Display Name" style="flex:1" oninput="updateCharacter('${id}', 'name', this.value)">
                 <span style="cursor:pointer" onclick="deleteCharacter('${id}')">✕</span>
             </div>
-            <div style="display:flex; gap:5px;">
-                <select style="flex:1" onchange="updateCharacter('${id}', 'position', this.value)">
-                    <option value="left" ${c.position === 'left' ? 'selected' : ''}>Left</option>
-                    <option value="center" ${c.position === 'center' ? 'selected' : ''}>Center</option>
-                    <option value="right" ${c.position === 'right' ? 'selected' : ''}>Right</option>
-                </select>
-                <button class="btn btn-outline" style="padding:2px 8px; font-size:10px" onclick="editSprites('${id}')">🎭 SPRITES</button>
+            <div style="display:flex; gap:5px; align-items:center; margin-bottom: 5px;">
+                <div style="flex:1">
+                    ${getDropdownHtml('char_' + id, 'position', ['left', 'center', 'right'], c.position || 'center')}
+                </div>
+                <button class="btn btn-outline" style="padding:2px 8px; font-size:10px; height:34px" onclick="editSprites('${id}')">🎭 SPRITES</button>
             </div>
             <input value="${c.sfx || ''}" placeholder="Voice SFX URL" oninput="updateCharacter('${id}', 'sfx', this.value)">
             <textarea placeholder="Description (optional)" style="height:40px; font-size:10px" oninput="updateCharacter('${id}', 'description', this.value)">${c.description || ''}</textarea>
@@ -892,18 +1149,7 @@ function renderConfig() {
         charList.appendChild(div);
     });
 
-    const bgList = document.getElementById('bg-list');
-    bgList.innerHTML = '';
-    Object.entries(store.config.backgrounds).forEach(([id, url]) => {
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        div.innerHTML = `
-            <input value="${id}" style="width:40px" onchange="renameBg('${id}', this.value)">
-            <input value="${url}" placeholder="URL" onchange="store.config.backgrounds['${id}'] = this.value; store.save()">
-            <span style="cursor:pointer" onclick="deleteBg('${id}')">✕</span>
-        `;
-        bgList.appendChild(div);
-    });
+    // Background list removed as redundant
 }
 
 function refreshAllNodes() {
@@ -930,14 +1176,13 @@ function exportJSON() {
         if (node.data.SpriteEffects && node.data.SpriteEffects !== 'None') entry.SpriteEffects = node.data.SpriteEffects;
         if (node.data.persistentEffect) entry.persistentEffect = node.data.persistentEffect;
 
-        if (node.type === 'effect') {
-            if (node.data.effect && node.data.effect !== 'None') {
-                const intensity = node.data.intensity ? `(${node.data.intensity})` : "";
-                entry.text = `[${node.data.effect}${intensity}] ${entry.text}`;
-            }
-            if (node.data.overlay && node.data.overlay !== 'None') {
-                entry.text = `[${node.data.overlay}] ${entry.text}`;
-            }
+        // Merge Screen Effects into Dialogue Text
+        if (node.data.effect && node.data.effect !== 'None') {
+            const intensity = node.data.intensity ? `(${node.data.intensity})` : "";
+            entry.text = `[${node.data.effect}${intensity}] ${entry.text}`;
+        }
+        if (node.data.overlay && node.data.overlay !== 'None') {
+            entry.text = `<${node.data.overlay}> ${entry.text}`;
         }
 
         // Handle out link

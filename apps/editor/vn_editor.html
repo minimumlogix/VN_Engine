@@ -53,6 +53,13 @@
         <button id="panel-toggle" class="btn btn-sm d-flex align-items-center justify-content-center" onclick="toggleConfigPanel()" title="Toggle Config Panel">
             <i class="bi bi-list"></i>
         </button>
+        <button class="btn btn-outline-accent btn-sm d-flex align-items-center justify-content-center px-2" onclick="store.undo()" title="Undo (Ctrl+Z)">
+            <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+        <button class="btn btn-outline-accent btn-sm d-flex align-items-center justify-content-center px-2" onclick="store.redo()" title="Redo (Ctrl+Y)">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <div class="vr mx-1"></div>
         <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('dialogue')">
             <i class="bi bi-chat-right-text"></i> DIALOGUE
         </button>
@@ -74,6 +81,9 @@
         </button>
         <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="if(confirm('Clear all data and reset to default?')) store.clearAutosave()">
             <i class="bi bi-trash"></i> CLEAR CACHE
+        </button>
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" onclick="clearScreen()">
+            <i class="bi bi-x-circle"></i> CLEAR SCREEN
         </button>
         <input type="file" id="import-input" style="display:none" onchange="importJSON(event)">
     </div>

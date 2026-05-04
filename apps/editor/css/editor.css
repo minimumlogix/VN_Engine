@@ -63,20 +63,43 @@ body {
 
 .connection {
     fill: none;
-    stroke: var(--accent);
-    stroke-width: 3;
+    stroke: var(--link-color, var(--accent));
+    stroke-width: 3.5px;
     stroke-linecap: round;
-    opacity: 0.6;
-    transition: opacity 0.2s, stroke-width 0.2s;
-    filter: drop-shadow(0 0 6px var(--accent-dim));
+    opacity: 0.8;
+    transition: opacity 0.2s, stroke-width 0.2s, stroke 0.3s;
+    filter: drop-shadow(0 0 4px var(--link-color-dim, rgba(0, 255, 204, 0.4)));
     cursor: pointer;
     pointer-events: stroke;
 }
 
 .connection:hover {
     opacity: 1;
-    stroke-width: 5;
-    filter: drop-shadow(0 0 10px var(--accent));
+    stroke-width: 5.5px;
+    filter: drop-shadow(0 0 12px var(--link-color, var(--accent)));
+}
+
+.connection-active {
+    stroke-dasharray: 8, 8;
+    animation: flow-line 25s linear infinite;
+}
+
+.connection-drag {
+    stroke-dasharray: 5, 5;
+    animation: flow-line-drag 0.5s linear infinite;
+    pointer-events: none !important;
+}
+
+@keyframes flow-line {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}
+
+@keyframes flow-line-drag {
+    to {
+        stroke-dashoffset: -20;
+    }
 }
 
 /* --- NODES --- */
@@ -167,14 +190,14 @@ body {
 .port {
     width: 14px;
     height: 14px;
-    background: var(--node-bg);
-    border: 3px solid var(--accent);
+    background: #0a0c10;
+    border: 2.5px solid var(--port-fill-color, var(--accent));
     border-radius: 50%;
     position: absolute;
     cursor: crosshair;
     z-index: 20;
-    transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 0 10px var(--accent-dim);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 10px rgba(0,0,0,0.6);
 }
 
 .port::after {
@@ -183,26 +206,62 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 4px;
-    height: 4px;
-    background: var(--accent);
+    width: 0;
+    height: 0;
+    background: #0a0c10;
     border-radius: 50%;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: all 0.2s ease;
+}
+
+.port::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    cursor: crosshair;
 }
 
 .port:hover {
-    transform: scale(1.3);
-    background: var(--accent-dim);
-    box-shadow: 0 0 15px var(--accent);
+    box-shadow: 0 0 16px var(--port-fill-color, var(--accent));
+    background: var(--port-fill-color, var(--accent)) !important;
 }
 
 .port:hover::after {
     opacity: 1;
+    width: 5px;
+    height: 5px;
 }
 
-.port-in { left: -8px; top: 50%; transform: translateY(-50%); }
-.port-out { right: -8px; top: 50%; transform: translateY(-50%); }
+.port.port-connected {
+    background-color: var(--port-fill-color, var(--accent)) !important;
+    border-color: var(--port-fill-color, var(--accent)) !important;
+    box-shadow: 0 0 12px var(--port-fill-color, var(--accent));
+}
+
+.port.port-connected::after {
+    opacity: 1;
+    background: #0a0c10;
+    width: 5px;
+    height: 5px;
+}
+
+.port-in { left: -7px; top: 50%; transform: translateY(-50%); }
+.port-out { right: -7px; top: 50%; transform: translateY(-50%); }
+
+.port-in:hover, .port-out:hover, .port-choice:hover, .branch-port:hover {
+    transform: translateY(-50%) scale(1.35);
+}
+
+.port-dialogue { --port-fill-color: #00ffcc; }
+.port-choice { --port-fill-color: #ff9d00; }
+.port-condition { --port-fill-color: #0084ff; }
+.port-effect { --port-fill-color: #c03cfc; }
 
 /* --- SIDEBARS --- */
 .panel {
@@ -443,6 +502,8 @@ h2 {
 
 .branch-port {
     position: absolute !important;
-    right: -8px;
+    right: -7px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
 }
 

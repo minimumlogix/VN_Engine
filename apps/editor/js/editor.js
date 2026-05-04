@@ -11,6 +11,60 @@ class NexusDataStore {
         this.config = JSON.parse(JSON.stringify(DEFAULT_STORY_DATA)); // Deep clone
         this.listeners = [];
         this.autoSaveKey = 'nexus_editor_autosave';
+        this.undoStack = [];
+        this.redoStack = [];
+        this.maxHistorySize = 100;
+        this.historyTimer = null;
+    }
+
+    pushSnapshot() {
+        const snapshot = JSON.stringify({
+            nodes: this.nodes,
+            links: this.links,
+            config: this.config
+        });
+        const last = this.undoStack[this.undoStack.length - 1];
+        if (last === snapshot) return;
+        this.undoStack.push(snapshot);
+        this.redoStack = [];
+        if (this.undoStack.length > this.maxHistorySize) {
+            this.undoStack.shift();
+        }
+    }
+
+    undo() {
+        if (this.undoStack.length <= 1) return;
+        const current = JSON.stringify({
+            nodes: this.nodes,
+            links: this.links,
+            config: this.config
+        });
+        this.redoStack.push(current);
+        this.undoStack.pop();
+        const prevState = JSON.parse(this.undoStack[this.undoStack.length - 1]);
+        this.nodes = prevState.nodes || [];
+        this.links = prevState.links || [];
+        this.config = prevState.config || this.config;
+        this.emit('nodes_changed');
+        this.emit('config_refresh');
+        this.emit('links_changed');
+    }
+
+    redo() {
+        if (this.redoStack.length === 0) return;
+        const current = JSON.stringify({
+            nodes: this.nodes,
+            links: this.links,
+            config: this.config
+        });
+        this.undoStack.push(current);
+        const nextState = JSON.parse(this.redoStack.pop());
+        this.nodes = nextState.nodes || [];
+        this.links = nextState.links || [];
+        this.config = nextState.config || this.config;
+        this.emit('nodes_changed');
+        this.emit('config_refresh');
+        this.emit('links_changed');
     }
 
     // Observer Pattern
@@ -57,6 +111,7 @@ class NexusDataStore {
 
     // --- Node Operations ---
     addNode(type, x, y) {
+        this.pushSnapshot();
         const id = 'node_' + Date.now();
         const node = {
             id, type,
@@ -71,6 +126,7 @@ class NexusDataStore {
     }
 
     deleteNode(id) {
+        this.pushSnapshot();
         this.nodes = this.nodes.filter(n => n.id !== id);
         this.links = this.links.filter(l => l.fromNode !== id && l.toNode !== id);
         this.emit('nodes_changed');
@@ -79,6 +135,13 @@ class NexusDataStore {
     updateNodeData(id, field, value) {
         const node = this.nodes.find(n => n.id === id);
         if (node) {
+            if (!this.historyTimer) {
+                this.pushSnapshot();
+            }
+            clearTimeout(this.historyTimer);
+            this.historyTimer = setTimeout(() => {
+                this.historyTimer = null;
+            }, 1000);
             node.data[field] = value;
             this.emit('node_data_updated', { id, field });
         }
@@ -89,13 +152,12 @@ class NexusDataStore {
         if (node) {
             node.x = x;
             node.y = y;
-            // No emit here to prevent render loop during drag, 
-            // but we save on drag end via other means if needed
         }
     }
 
     // --- Choice Logic ---
     addChoice(nodeId) {
+        this.pushSnapshot();
         const node = this.nodes.find(n => n.id === nodeId);
         if (node && node.type === 'choice') {
             node.choices.push({ text: 'New Choice', target: null });
@@ -106,6 +168,13 @@ class NexusDataStore {
     updateChoice(nodeId, idx, text) {
         const node = this.nodes.find(n => n.id === nodeId);
         if (node && node.choices[idx]) {
+            if (!this.historyTimer) {
+                this.pushSnapshot();
+            }
+            clearTimeout(this.historyTimer);
+            this.historyTimer = setTimeout(() => {
+                this.historyTimer = null;
+            }, 1000);
             node.choices[idx].text = text;
             this.emit('data_updated');
         }
@@ -113,6 +182,7 @@ class NexusDataStore {
 
     // --- Link Operations ---
     createLink(fromNode, fromPort, toNode, toPort) {
+        this.pushSnapshot();
         this.links = this.links.filter(l => !(l.fromNode === fromNode && l.fromPort === fromPort));
         this.links.push({ fromNode, fromPort, toNode, toPort });
         this.emit('links_changed');
@@ -120,21 +190,31 @@ class NexusDataStore {
 
     // --- Global Config Operations ---
     updateConfig(field, value) {
+        this.pushSnapshot();
         this.config[field] = value;
         this.emit('config_updated');
     }
 
     addStateVar(key = "new_var", val = 0) {
+        this.pushSnapshot();
         this.config.initialState[key] = val;
         this.emit('config_refresh');
     }
 
     deleteStateVar(key) {
+        this.pushSnapshot();
         delete this.config.initialState[key];
         this.emit('config_refresh');
     }
 
     updateStateVar(oldKey, newKey, value) {
+        if (!this.historyTimer) {
+            this.pushSnapshot();
+        }
+        clearTimeout(this.historyTimer);
+        this.historyTimer = setTimeout(() => {
+            this.historyTimer = null;
+        }, 1000);
         if (oldKey !== newKey) {
             delete this.config.initialState[oldKey];
         }
@@ -143,6 +223,7 @@ class NexusDataStore {
     }
 
     addCharacter() {
+        this.pushSnapshot();
         const id = "NEW_CHAR_" + Object.keys(this.config.characters).length;
         this.config.characters[id] = {
             name: "New Character",
@@ -155,6 +236,13 @@ class NexusDataStore {
     }
 
     updateCharacter(id, field, value) {
+        if (!this.historyTimer) {
+            this.pushSnapshot();
+        }
+        clearTimeout(this.historyTimer);
+        this.historyTimer = setTimeout(() => {
+            this.historyTimer = null;
+        }, 1000);
         if (field === 'id') {
             const char = this.config.characters[id];
             delete this.config.characters[id];
@@ -166,6 +254,7 @@ class NexusDataStore {
     }
 
     deleteCharacter(id) {
+        this.pushSnapshot();
         delete this.config.characters[id];
         this.emit('config_refresh');
     }
@@ -234,6 +323,17 @@ function init() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     editorContainer.addEventListener('wheel', handleWheel);
+
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'z') {
+            e.preventDefault();
+            store.undo();
+        }
+        if (e.ctrlKey && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+            e.preventDefault();
+            store.redo();
+        }
+    });
     
     // Subscribe UI to Data Changes
     store.subscribe((event, data) => {
@@ -258,6 +358,9 @@ function init() {
             });
         }
     }
+
+    // Push initial state to history stack
+    store.pushSnapshot();
 
     renderAllNodes();
     renderConfig();
@@ -322,8 +425,9 @@ function handleMouseMove(e) {
 function handleMouseUp(e) {
     isDragging = false;
     if (activeLink) {
-        const port = e.target.closest('.port');
-        if (port && port.classList.contains('port-in')) {
+        const elements = document.elementsFromPoint(e.clientX, e.clientY);
+        const port = elements.find(el => el.classList.contains('port-in'));
+        if (port) {
             const targetNodeId = port.closest('.node').dataset.id;
             createLink(activeLink.fromNode, activeLink.fromPort, targetNodeId, 'in');
         }
@@ -380,7 +484,7 @@ function renderNode(node) {
             fieldsHtml += `
                 <div class="choice-row">
                     <input type="text" value="${c.text}" oninput="store.updateChoice('${node.id}', ${idx}, this.value)" style="flex:1">
-                    <div class="port port-choice" data-idx="${idx}" onmousedown="startLink(event, '${node.id}', 'choice_${idx}')"></div>
+                    <div class="port port-choice port-choice-out port-${node.type}" data-idx="${idx}" onmousedown="startLink(event, '${node.id}', 'choice_${idx}')"></div>
                 </div>
             `;
         });
@@ -393,12 +497,12 @@ function renderNode(node) {
             <span style="color:var(--text-dim); cursor:pointer" onclick="deleteNode('${node.id}')">✕</span>
         </div>
         <div class="node-content">${fieldsHtml}</div>
-        ${typeDef.ports.in ? `<div class="port port-in"></div>` : ''}
-        ${typeDef.ports.out ? `<div class="port port-out" onmousedown="startLink(event, '${node.id}', 'out')"></div>` : ''}
+        ${typeDef.ports.in ? `<div class="port port-in port-${node.type}"></div>` : ''}
+        ${typeDef.ports.out ? `<div class="port port-out port-${node.type}" onmousedown="startLink(event, '${node.id}', 'out')"></div>` : ''}
         ${typeDef.ports.branches ? typeDef.ports.branches.map((b, i) => `
             <div class="branch-row">
                 <span class="branch-label">${b}</span>
-                <div class="port port-out branch-port" style="top:${20 + i * 25}px" onmousedown="startLink(event, '${node.id}', 'branch_${b}')"></div>
+                <div class="port port-out branch-port port-${node.type}" onmousedown="startLink(event, '${node.id}', 'branch_${b}')"></div>
             </div>
         `).join('') : ''}
     `;
@@ -445,6 +549,16 @@ function deleteNode(id) {
     store.deleteNode(id);
 }
 
+function clearScreen() {
+    if (confirm('Are you sure you want to clear the screen? This deletes all nodes and links from the workspace.')) {
+        store.pushSnapshot();
+        store.nodes = [];
+        store.links = [];
+        store.emit('nodes_changed');
+        store.emit('links_changed');
+    }
+}
+
 function selectNode(id) {
     if (selectedNode) {
         const prev = document.getElementById(selectedNode);
@@ -478,6 +592,34 @@ function renderLinks(mouseEvent = null) {
         const toPos = { x: mouseEvent.clientX, y: mouseEvent.clientY };
         drawLink(fromPos, toPos);
     }
+
+    updateConnectedPorts();
+}
+
+function updateConnectedPorts() {
+    document.querySelectorAll('.port').forEach(p => p.classList.remove('port-connected'));
+    store.links.forEach(l => {
+        const fromNodeEl = document.getElementById(l.fromNode);
+        if (fromNodeEl) {
+            let pEl;
+            if (l.fromPort === 'out') pEl = fromNodeEl.querySelector('.port-out');
+            else if (l.fromPort.startsWith('choice_')) {
+                const idx = l.fromPort.split('_')[1];
+                pEl = fromNodeEl.querySelectorAll('.port-choice')[idx];
+            } else if (l.fromPort.startsWith('branch_')) {
+                const bName = l.fromPort.split('_')[1];
+                const branches = Array.from(fromNodeEl.querySelectorAll('.branch-port'));
+                pEl = branches.find(p => p.getAttribute('onmousedown').includes(`'branch_${bName}'`));
+            }
+            if (pEl) pEl.classList.add('port-connected');
+        }
+
+        const toNodeEl = document.getElementById(l.toNode);
+        if (toNodeEl) {
+            const pEl = toNodeEl.querySelector('.port-in');
+            if (pEl) pEl.classList.add('port-connected');
+        }
+    });
 }
 
 function getPortPos(nodeId, portId) {
@@ -503,10 +645,33 @@ function getPortPos(nodeId, portId) {
 
 function drawLink(start, end, linkData = null) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const dx = Math.abs(end.x - start.x) * 0.5;
+    const dx = Math.min(Math.max(120, Math.abs(end.x - start.x) * 0.5), 250);
     const d = `M ${start.x} ${start.y} C ${start.x + dx} ${start.y} ${end.x - dx} ${end.y} ${end.x} ${end.y}`;
     path.setAttribute("d", d);
-    path.setAttribute("class", "connection");
+
+    let color = '#00ffcc';
+    let dimColor = 'rgba(0, 255, 204, 0.4)';
+
+    if (linkData) {
+        const sourceNode = store.nodes.find(n => n.id === linkData.fromNode);
+        if (sourceNode) {
+            if (sourceNode.type === 'dialogue') {
+                color = '#00ffcc'; dimColor = 'rgba(0, 255, 204, 0.4)';
+            } else if (sourceNode.type === 'choice') {
+                color = '#ff9d00'; dimColor = 'rgba(255, 157, 0, 0.4)';
+            } else if (sourceNode.type === 'condition') {
+                color = '#0084ff'; dimColor = 'rgba(0, 132, 255, 0.4)';
+            } else if (sourceNode.type === 'effect') {
+                color = '#c03cfc'; dimColor = 'rgba(192, 60, 252, 0.4)';
+            }
+        }
+        path.setAttribute("class", "connection connection-active");
+    } else {
+        path.setAttribute("class", "connection connection-drag");
+    }
+
+    path.style.setProperty('--link-color', color);
+    path.style.setProperty('--link-color-dim', dimColor);
 
     if (linkData) {
         const removeLink = (e) => {

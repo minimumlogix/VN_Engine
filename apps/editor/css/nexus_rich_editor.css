@@ -29,9 +29,8 @@
     user-select: none;
 }
 
-.nexus-format-bar {
-    /* alias for #nexus-format-bar */
-}
+
+
 
 .nfb-group {
     display: flex;

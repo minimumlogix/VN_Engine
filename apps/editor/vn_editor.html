@@ -12,8 +12,14 @@
 <body>
 
     <div id="config-panel" class="panel">
-        <h2>🛰️ NEXUS CONFIG</h2>
-        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px">
+            <h2 style="font-size:18px; font-weight:800; letter-spacing:2px; margin:0; background:linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent">🛰️ NEXUS</h2>
+            <div id="node-count-badge" class="badge rounded-pill" style="font-size:10px; background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent)">0 NODES</div>
+        </div>
+        <div class="section-header" onclick="toggleSection('global-config-section', this)">
+            <h3><i class="bi bi-gear-fill"></i> GLOBAL CONFIG</h3>
+            <i class="bi bi-chevron-down"></i>
+        </div>
         <div id="global-config-section" class="config-section">
             <label>STORY TITLE</label>
             <input type="text" id="conf-title" value="NEW STORY" onchange="updateGlobalConfig()">
@@ -28,17 +34,38 @@
             <input type="text" id="conf-loadbg" placeholder="URL to loading image" onchange="updateGlobalConfig()">
         </div>
 
-        <div class="section-title">INITIAL STATE (VARIABLES)</div>
-        <div id="state-list" class="config-section"></div>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addStateVar()">＋ ADD VARIABLE</button>
+        <div class="section-header" onclick="toggleSection('state-list-section', this)">
+            <h3><i class="bi bi-cpu-fill"></i> INITIAL STATE</h3>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div id="state-list-section" class="config-section-container">
+            <div id="state-list" class="config-section"></div>
+            <button class="btn btn-outline" style="width: 100%; margin-bottom: 15px; font-size: 11px; border-style: dashed; opacity: 0.7;" onclick="addStateVar()">
+                <i class="bi bi-plus-lg"></i> ADD VARIABLE
+            </button>
+        </div>
 
-        <div class="section-title">CHARACTERS</div>
-        <div id="char-list" class="config-section"></div>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addCharacter()">＋ ADD CHAR</button>
+        <div class="section-header" onclick="toggleSection('char-list-section', this)">
+            <h3><i class="bi bi-people-fill"></i> CHARACTERS</h3>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div id="char-list-section" class="config-section-container">
+            <div id="char-list" class="config-section"></div>
+            <button class="btn btn-outline" style="width: 100%; margin-bottom: 15px; font-size: 11px; border-style: dashed; opacity: 0.7;" onclick="addCharacter()">
+                <i class="bi bi-plus-lg"></i> ADD CHARACTER
+            </button>
+        </div>
 
-        <div class="section-title">CHAPTERS</div>
-        <div id="chapter-list" class="config-section"></div>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 5px; font-size: 11px;" onclick="addChapter()">＋ ADD CHAPTER</button>
+        <div class="section-header" onclick="toggleSection('chapter-list-section', this)">
+            <h3><i class="bi bi-book-fill"></i> CHAPTERS</h3>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div id="chapter-list-section" class="config-section-container">
+            <div id="chapter-list" class="config-section"></div>
+            <button class="btn btn-outline" style="width: 100%; margin-bottom: 15px; font-size: 11px; border-style: dashed; opacity: 0.7;" onclick="addChapter()">
+                <i class="bi bi-plus-lg"></i> ADD CHAPTER
+            </button>
+        </div>
     </div>
 
     <div id="toolbar" class="panel d-flex align-items-center gap-2">

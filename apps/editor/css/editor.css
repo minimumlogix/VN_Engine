@@ -349,14 +349,32 @@ body {
 #config-panel {
     top: 20px;
     left: 20px;
-    width: 340px;
+    width: 360px;
     bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    overflow-y: auto;
+    overflow-y: overlay;
+    padding-right: 10px;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
     transform-origin: left center;
+}
+
+#config-panel::-webkit-scrollbar {
+    width: 5px;
+}
+
+#config-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#config-panel::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+#config-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-dim);
 }
 
 #config-panel.collapsed {
@@ -390,11 +408,130 @@ body {
     border-color: var(--accent);
 }
 
-.config-section {
-    background: rgba(0,0,0,0.2);
-    padding: 12px;
-    border-radius: 10px;
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    margin-top: 15px;
     border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.section-header:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--accent-dim);
+}
+
+.section-header h3 {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.section-header.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.config-section, .config-section-container {
+    background: rgba(0,0,0,0.15);
+    padding: 12px;
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--border);
+    border-top: none;
+    margin-bottom: 10px;
+    transition: all 0.3s ease-out;
+}
+
+.config-section.collapsed, .config-section-container.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border: none;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.config-section-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.config-section-container .config-section {
+    padding: 0;
+    background: transparent;
+    border: none;
+    margin-bottom: 0;
+    max-height: none;
+    opacity: 1;
+}
+
+.list-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.list-item:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.config-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+}
+
+.config-thumb-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 16px;
+}
+
+.btn-delete {
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete:hover {
+    background: rgba(255, 74, 74, 0.15);
+    color: #ff4a4a;
 }
 
 #toolbar {

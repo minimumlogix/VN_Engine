@@ -1414,6 +1414,20 @@ function updateGlobalConfig() {
     store.save();
 }
 
+function toggleSection(sectionId, header) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    
+    const isCollapsed = section.classList.toggle('collapsed');
+    header.classList.toggle('collapsed', isCollapsed);
+    
+    // Rotate icon
+    const icon = header.querySelector('.bi-chevron-down');
+    if (icon) {
+        icon.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+    }
+}
+
 function renderConfig() {
     // Focus Persistence: Save current focus state
     const active = document.activeElement;
@@ -1442,10 +1456,14 @@ function renderConfig() {
     store.config.initialState.forEach((v) => {
         const div = document.createElement('div');
         div.className = 'list-item';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '10px';
         div.innerHTML = `
-            <input id="state-key-${v.id}" value="${v.key}" style="width:70px" oninput="store.updateStateVar('${v.id}', this.value, ${v.value})">
-            <input id="state-val-${v.id}" type="number" value="${v.value}" style="width:40px" oninput="store.updateStateVar('${v.id}', '${v.key}', parseInt(this.value))">
-            <span style="cursor:pointer" onclick="deleteStateVar('${v.id}')">✕</span>
+            <i class="bi bi-hash" style="color:var(--accent); font-size: 16px; opacity: 0.6"></i>
+            <input id="state-key-${v.id}" value="${v.key}" placeholder="Variable Key" style="flex:1; margin-right:5px" oninput="store.updateStateVar('${v.id}', this.value, ${v.value})">
+            <input id="state-val-${v.id}" type="number" value="${v.value}" style="width:50px; text-align:center; margin-right:5px" oninput="store.updateStateVar('${v.id}', '${v.key}', parseInt(this.value))">
+            <span class="btn-delete" onclick="deleteStateVar('${v.id}')"><i class="bi bi-x-lg"></i></span>
         `;
         stateList.appendChild(div);
     });
@@ -1457,17 +1475,23 @@ function renderConfig() {
         const music = store.config.chapterMusic[id] || "";
         const div = document.createElement('div');
         div.className = 'list-item';
+        div.style.display = 'flex';
         div.style.flexDirection = 'column';
         div.style.alignItems = 'stretch';
         div.style.gap = '5px';
         div.innerHTML = `
-            <div style="display:flex; gap:5px; align-items:center">
-                <input type="number" value="${id}" style="width:50px; font-weight:bold; color:var(--accent)" onchange="updateChapter('${id}', this.value, 'id')">
-                <input value="${name}" placeholder="Chapter Title" style="flex:1" onchange="updateChapter('${id}', null, 'name', this.value)">
-                <span style="cursor:pointer" onclick="deleteChapter('${id}')">✕</span>
+            <div style="display:grid; grid-template-columns: 44px 1fr; gap:10px; align-items: start; width: 100%">
+                ${bg ? `<img src="${bg}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-image"></i></div>`}
+                <div style="display:flex; flex-direction:column; gap:6px; min-width: 0">
+                    <div style="display:flex; gap:5px; align-items:center">
+                        <input type="number" value="${id}" style="width:35px; font-weight:bold; color:var(--accent); text-align:center; padding: 4px;" onchange="updateChapter('${id}', this.value, 'id')">
+                        <input value="${name}" placeholder="Chapter Title" style="flex:1; margin-right:5px" onchange="updateChapter('${id}', null, 'name', this.value)">
+                        <span class="btn-delete" onclick="deleteChapter('${id}')"><i class="bi bi-x-lg"></i></span>
+                    </div>
+                    <input value="${bg}" placeholder="Background URL" style="font-size:11px" onchange="updateChapter('${id}', null, 'bg', this.value)">
+                    <input value="${music}" placeholder="Music URL (MP3/YT)" style="font-size:11px" onchange="updateChapter('${id}', null, 'music', this.value)">
+                </div>
             </div>
-            <input value="${bg}" placeholder="Background URL" style="font-size:10px" onchange="updateChapter('${id}', null, 'bg', this.value)">
-            <input value="${music}" placeholder="Music URL (MP3/YT)" style="font-size:10px" onchange="updateChapter('${id}', null, 'music', this.value)">
         `;
         chapterList.appendChild(div);
     });
@@ -1477,23 +1501,29 @@ function renderConfig() {
     Object.entries(store.config.characters).forEach(([id, c]) => {
         const div = document.createElement('div');
         div.className = 'list-item';
+        div.style.display = 'flex';
         div.style.flexDirection = 'column';
         div.style.alignItems = 'stretch';
         div.style.gap = '5px';
         div.innerHTML = `
-            <div style="display:flex; gap:5px; align-items:center">
-                <input value="${id}" style="width:80px; font-weight:bold; color:var(--accent)" oninput="updateCharacter('${id}', 'id', this.value)">
-                <input value="${c.name || ''}" placeholder="Display Name" style="flex:1" oninput="updateCharacter('${id}', 'name', this.value)">
-                <span style="cursor:pointer" onclick="deleteCharacter('${id}')">✕</span>
-            </div>
-            <div style="display:flex; gap:5px; align-items:center; margin-bottom: 5px;">
-                <div style="flex:1">
-                    ${getDropdownHtml('char_' + id, 'position', ['left', 'center', 'right'], c.position || 'center')}
+            <div style="display:grid; grid-template-columns: 44px 1fr; gap:10px; align-items: start; width: 100%">
+                ${c.sprites?.neutral ? `<img src="${c.sprites.neutral}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-person"></i></div>`}
+                <div style="display:flex; flex-direction:column; gap:6px; min-width: 0">
+                    <div style="display:flex; gap:5px; align-items:center">
+                        <input value="${id}" style="width:60px; font-weight:bold; color:var(--accent); font-size:11px; padding: 4px;" oninput="updateCharacter('${id}', 'id', this.value)">
+                        <input value="${c.name || ''}" placeholder="Display Name" style="flex:1; margin-right:5px" oninput="updateCharacter('${id}', 'name', this.value)">
+                        <span class="btn-delete" onclick="deleteCharacter('${id}')"><i class="bi bi-x-lg"></i></span>
+                    </div>
+                    <div style="display:flex; gap:5px; align-items:center;">
+                        <div style="flex:1">
+                            ${getDropdownHtml('char_' + id, 'position', ['left', 'center', 'right'], c.position || 'center')}
+                        </div>
+                        <button class="btn btn-outline" style="padding:2px 8px; font-size:10px; height:34px" onclick="editSprites('${id}')">🎭 SPRITES</button>
+                    </div>
+                    <input value="${c.sfx || ''}" placeholder="Voice SFX URL" style="font-size:11px" oninput="updateCharacter('${id}', 'sfx', this.value)">
+                    <textarea placeholder="Description (optional)" style="height:40px; font-size:11px" oninput="updateCharacter('${id}', 'description', this.value)">${c.description || ''}</textarea>
                 </div>
-                <button class="btn btn-outline" style="padding:2px 8px; font-size:10px; height:34px" onclick="editSprites('${id}')">🎭 SPRITES</button>
             </div>
-            <input value="${c.sfx || ''}" placeholder="Voice SFX URL" oninput="updateCharacter('${id}', 'sfx', this.value)">
-            <textarea placeholder="Description (optional)" style="height:40px; font-size:10px" oninput="updateCharacter('${id}', 'description', this.value)">${c.description || ''}</textarea>
         `;
         charList.appendChild(div);
     });

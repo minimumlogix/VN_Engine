@@ -347,6 +347,7 @@ let selectedNode = null;
 
 let needsRender = true;
 let mouseEvent = null;
+let snapTarget = null;
 
 // --- NODE DEFINITIONS ---
 const NODE_TYPES = {
@@ -512,6 +513,30 @@ function handleMouseMove(e) {
         needsRender = true;
     }
     if (activeLink) {
+        // Magnetic Snapping
+        const ports = Array.from(document.querySelectorAll('.port-in'));
+        let closest = null;
+        let minDist = 60; // Snapping radius
+
+        ports.forEach(p => {
+            p.classList.remove('port-snapping');
+            const rect = p.getBoundingClientRect();
+            const px = rect.left + rect.width / 2;
+            const py = rect.top + rect.height / 2;
+            const d = Math.sqrt((e.clientX - px)**2 + (e.clientY - py)**2);
+            if (d < minDist) {
+                minDist = d;
+                closest = p;
+            }
+        });
+
+        if (closest) {
+            snapTarget = closest;
+            closest.classList.add('port-snapping');
+        } else {
+            snapTarget = null;
+        }
+
         needsRender = true;
     }
 }
@@ -519,13 +544,19 @@ function handleMouseMove(e) {
 function handleMouseUp(e) {
     isDragging = false;
     if (activeLink) {
-        const elements = document.elementsFromPoint(e.clientX, e.clientY);
-        const port = elements.find(el => el.classList.contains('port-in'));
+        let port = snapTarget;
+        if (!port) {
+            const elements = document.elementsFromPoint(e.clientX, e.clientY);
+            port = elements.find(el => el.classList.contains('port-in'));
+        }
+
         if (port) {
             const targetNodeId = port.closest('.node').dataset.id;
             createLink(activeLink.fromNode, activeLink.fromPort, targetNodeId, 'in');
+            port.classList.remove('port-snapping');
         }
         activeLink = null;
+        snapTarget = null;
         needsRender = true;
     }
 }
@@ -610,7 +641,7 @@ function addNode(type) {
 function renderNode(node) {
     const typeDef = NODE_TYPES[node.type];
     const div = document.createElement('div');
-    div.className = `node node-${node.type}`;
+    div.className = `node node-${node.type} node-appearing`;
     div.id = node.id;
     div.dataset.id = node.id;
     div.style.left = node.x + 'px';
@@ -757,6 +788,13 @@ function renderNode(node) {
     div.onclick = () => selectNode(node.id);
 
     workspace.appendChild(div);
+    
+    // Trigger appearing animation
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            div.classList.remove('node-appearing');
+        });
+    });
 
     // Mount rich editors after the node is in the DOM
     richFields.forEach(fieldName => {
@@ -785,7 +823,15 @@ function updateNodeData(nodeId, field, value) {
 }
 
 function deleteNode(id) {
-    store.deleteNode(id);
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.add('node-deleting');
+        setTimeout(() => {
+            store.deleteNode(id);
+        }, 200);
+    } else {
+        store.deleteNode(id);
+    }
 }
 
 function duplicateNode(id) {
@@ -875,10 +921,20 @@ function renderLinks(mouseEvent = null) {
     if (activeLink && mouseEvent) {
         const fromPos = getPortPos(activeLink.fromNode, activeLink.fromPort);
         const containerRect = editorContainer.getBoundingClientRect();
-        const toPos = { 
-            x: mouseEvent.clientX - containerRect.left, 
-            y: mouseEvent.clientY - containerRect.top 
-        };
+        let toPos;
+
+        if (snapTarget) {
+            const rect = snapTarget.getBoundingClientRect();
+            toPos = { 
+                x: (rect.left + rect.width / 2) - containerRect.left, 
+                y: (rect.top + rect.height / 2) - containerRect.top 
+            };
+        } else {
+            toPos = { 
+                x: mouseEvent.clientX - containerRect.left, 
+                y: mouseEvent.clientY - containerRect.top 
+            };
+        }
         drawLink(fromPos, toPos);
     }
 
@@ -998,8 +1054,14 @@ function drawLink(start, end, linkData = null) {
     corePath.style.strokeWidth = "3px";
     corePath.style.opacity = "0.8";
 
+    // Hitbox Path (Invisible but large hit area)
+    const hitboxPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    hitboxPath.setAttribute("d", d);
+    hitboxPath.setAttribute("class", "connection-hitbox");
+
     group.appendChild(glowPath);
     group.appendChild(corePath);
+    group.appendChild(hitboxPath);
 
     if (linkData) {
         const removeLink = (e) => {
@@ -1078,7 +1140,11 @@ function refreshNode(id) {
     const el = document.getElementById(id);
     if (el) el.remove();
     const node = store.nodes.find(n => n.id === id);
-    if (node) renderNode(node);
+    if (node) {
+        renderNode(node);
+        const newEl = document.getElementById(id);
+        if (newEl) newEl.classList.remove('node-appearing');
+    }
     needsRender = true;
 }
 

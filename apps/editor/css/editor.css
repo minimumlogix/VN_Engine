@@ -79,11 +79,21 @@ body {
     opacity: 0.8;
     pointer-events: stroke;
     cursor: pointer;
+    transition: stroke-width 0.2s, opacity 0.2s;
 }
 
-.connection-core:hover {
+.connection-hitbox {
+    stroke-width: 24px;
+    stroke: transparent;
+    fill: none;
+    pointer-events: stroke;
+    cursor: pointer;
+}
+
+.connection:hover .connection-core {
     opacity: 1;
-    stroke-width: 4.5px;
+    stroke-width: 5px;
+    stroke: #fff !important; /* Visual feedback on hover */
 }
 
 .connection-active .connection-core {
@@ -128,7 +138,19 @@ body {
     box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     z-index: 10;
     padding-bottom: 10px;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+}
+
+/* Deletion & Creation Animations */
+.node-deleting {
+    opacity: 0 !important;
+    transform: scale(0.8) translateY(-20px) !important;
+    pointer-events: none;
+}
+
+.node-appearing {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
 }
 
 .node:hover {
@@ -139,6 +161,7 @@ body {
 .node.selected {
     border-color: var(--accent);
     box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 30px rgba(0, 255, 204, 0.25);
+    z-index: 100;
 }
 
 .node-header {
@@ -152,14 +175,48 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    cursor: move;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .node-content {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    padding: 15px;
+}
+
+/* --- PORTS --- */
+.port {
+    width: 14px;
+    height: 14px;
+    background: #1a1f26;
+    border: 2px solid #555;
+    border-radius: 50%;
+    position: absolute;
+    cursor: crosshair;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    z-index: 20;
+}
+
+.port:hover, .port-snapping {
+    transform: scale(1.6);
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+.port-snapping {
+    animation: port-pulse 1s infinite alternate;
+}
+
+@keyframes port-pulse {
+    from { transform: scale(1.4); box-shadow: 0 0 10px var(--accent); }
+    to { transform: scale(1.8); box-shadow: 0 0 25px var(--accent); }
+}
+
+.port-in { left: -7px; top: 50%; transform: translateY(-50%); }
+.port-out { right: -7px; top: 50%; transform: translateY(-50%); }
+
+.port-connected {
+    background: var(--accent);
+    border-color: var(--accent);
 }
 
 .node input, .node textarea, .node select, .config-section input, .config-section select, .config-section textarea {

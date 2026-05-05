@@ -81,7 +81,18 @@
     </div>
 
     <div id="editor-container">
-        <svg id="connections-svg"></svg>
+        <svg id="connections-svg">
+            <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+                <filter id="heavy-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1.5 0" />
+                </filter>
+            </defs>
+        </svg>
         <div id="workspace"></div>
     </div>
 

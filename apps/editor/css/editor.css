@@ -63,43 +63,57 @@ body {
 
 .connection {
     fill: none;
-    stroke: var(--link-color, var(--accent));
-    stroke-width: 3.5px;
     stroke-linecap: round;
+    transition: stroke 0.3s, opacity 0.3s;
+    pointer-events: none;
+}
+
+.connection-glow {
+    stroke-width: 8px;
+    opacity: 0.35;
+    filter: url(#heavy-glow);
+}
+
+.connection-core {
+    stroke-width: 3px;
     opacity: 0.8;
-    transition: opacity 0.2s, stroke-width 0.2s, stroke 0.3s;
-    filter: drop-shadow(0 0 4px var(--link-color-dim, rgba(0, 255, 204, 0.4)));
-    cursor: pointer;
     pointer-events: stroke;
+    cursor: pointer;
 }
 
-.connection:hover {
+.connection-core:hover {
     opacity: 1;
-    stroke-width: 5.5px;
-    filter: drop-shadow(0 0 12px var(--link-color, var(--accent)));
+    stroke-width: 4.5px;
 }
 
-.connection-active {
-    stroke-dasharray: 8, 8;
-    animation: flow-line 25s linear infinite;
+.connection-active .connection-core {
+    stroke-dasharray: 10, 15;
+    animation: flow-line 30s linear infinite;
 }
 
-.connection-drag {
-    stroke-dasharray: 5, 5;
-    animation: flow-line-drag 0.5s linear infinite;
-    pointer-events: none !important;
+.connection-active .connection-glow {
+    animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.connection-drag .connection-core {
+    stroke-dasharray: 4, 4;
+    animation: flow-line-drag 0.4s linear infinite;
+    opacity: 0.6;
 }
 
 @keyframes flow-line {
-    to {
-        stroke-dashoffset: -1000;
-    }
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
 }
 
 @keyframes flow-line-drag {
-    to {
-        stroke-dashoffset: -20;
-    }
+    from { stroke-dashoffset: 16; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.2; stroke-width: 7px; }
+    50% { opacity: 0.5; stroke-width: 10px; }
 }
 
 /* --- NODES --- */

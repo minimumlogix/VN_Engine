@@ -860,7 +860,12 @@ function createLink(fromNode, fromPort, toNode, toPort) {
 }
 
 function renderLinks(mouseEvent = null) {
-    svg.innerHTML = '';
+    // Surgical clear: remove only groups and paths, keep defs
+    const children = Array.from(svg.childNodes);
+    children.forEach(child => {
+        if (child.tagName !== 'defs') child.remove();
+    });
+
     store.links.forEach(link => {
         const fromPos = getPortPos(link.fromNode, link.fromPort);
         const toPos = getPortPos(link.toNode, link.toPort);
@@ -869,7 +874,11 @@ function renderLinks(mouseEvent = null) {
 
     if (activeLink && mouseEvent) {
         const fromPos = getPortPos(activeLink.fromNode, activeLink.fromPort);
-        const toPos = { x: mouseEvent.clientX, y: mouseEvent.clientY };
+        const containerRect = editorContainer.getBoundingClientRect();
+        const toPos = { 
+            x: mouseEvent.clientX - containerRect.left, 
+            y: mouseEvent.clientY - containerRect.top 
+        };
         drawLink(fromPos, toPos);
     }
 
@@ -920,38 +929,77 @@ function getPortPos(nodeId, portId) {
 
     if (!portEl) return null;
     const rect = portEl.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const containerRect = editorContainer.getBoundingClientRect();
+    
+    return { 
+        x: (rect.left + rect.width / 2) - containerRect.left, 
+        y: (rect.top + rect.height / 2) - containerRect.top 
+    };
 }
 
 function drawLink(start, end, linkData = null) {
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    const dx = Math.min(Math.max(120, Math.abs(end.x - start.x) * 0.5), 250);
-    const d = `M ${start.x} ${start.y} C ${start.x + dx} ${start.y} ${end.x - dx} ${end.y} ${end.x} ${end.y}`;
-    path.setAttribute("d", d);
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    
+    // Spline Calculation
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+    
+    let cp1x, cp1y, cp2x, cp2y;
+    
+    if (dx >= 0) {
+        // Forward connection
+        const intensity = Math.min(Math.max(50, absDx * 0.5), 150);
+        cp1x = start.x + intensity;
+        cp1y = start.y;
+        cp2x = end.x - intensity;
+        cp2y = end.y;
+    } else {
+        // Backward connection - loopier
+        const intensityX = Math.max(100, absDx * 0.5);
+        const intensityY = Math.max(50, absDy * 0.2);
+        cp1x = start.x + intensityX;
+        cp1y = start.y + (dy > 0 ? -intensityY : intensityY);
+        cp2x = end.x - intensityX;
+        cp2y = end.y + (dy > 0 ? intensityY : -intensityY);
+    }
 
+    const d = `M ${start.x} ${start.y} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${end.x} ${end.y}`;
+
+    // Color Logic
     let color = '#00ffcc';
-    let dimColor = 'rgba(0, 255, 204, 0.4)';
-
     if (linkData) {
         const sourceNode = store.nodes.find(n => n.id === linkData.fromNode);
         if (sourceNode) {
-            if (sourceNode.type === 'dialogue') {
-                color = '#00ffcc'; dimColor = 'rgba(0, 255, 204, 0.4)';
-            } else if (sourceNode.type === 'choice') {
-                color = '#ff9d00'; dimColor = 'rgba(255, 157, 0, 0.4)';
-            } else if (sourceNode.type === 'condition') {
-                color = '#0084ff'; dimColor = 'rgba(0, 132, 255, 0.4)';
-            } else if (sourceNode.type === 'effect') {
-                color = '#c03cfc'; dimColor = 'rgba(192, 60, 252, 0.4)';
-            }
+            if (sourceNode.type === 'dialogue') color = '#00ffcc';
+            else if (sourceNode.type === 'choice') color = '#ff9d00';
+            else if (sourceNode.type === 'condition') color = '#0084ff';
+            else if (sourceNode.type === 'effect') color = '#c03cfc';
         }
-        path.setAttribute("class", "connection connection-active");
+        group.setAttribute("class", "connection connection-active");
     } else {
-        path.setAttribute("class", "connection connection-drag");
+        group.setAttribute("class", "connection connection-drag");
     }
 
-    path.style.setProperty('--link-color', color);
-    path.style.setProperty('--link-color-dim', dimColor);
+    // Glow Path
+    const glowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    glowPath.setAttribute("d", d);
+    glowPath.setAttribute("class", "connection-glow");
+    glowPath.style.stroke = color;
+    glowPath.style.strokeWidth = "8px";
+    glowPath.style.opacity = "0.3";
+
+    // Core Path
+    const corePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    corePath.setAttribute("d", d);
+    corePath.setAttribute("class", "connection-core");
+    corePath.style.stroke = color;
+    corePath.style.strokeWidth = "3px";
+    corePath.style.opacity = "0.8";
+
+    group.appendChild(glowPath);
+    group.appendChild(corePath);
 
     if (linkData) {
         const removeLink = (e) => {
@@ -962,11 +1010,11 @@ function drawLink(start, end, linkData = null) {
                 store.emit('links_changed');
             }
         };
-        path.addEventListener('click', removeLink);
-        path.addEventListener('mousedown', removeLink);
+        group.addEventListener('click', removeLink);
+        group.addEventListener('mousedown', removeLink);
     }
 
-    svg.appendChild(path);
+    svg.appendChild(group);
 }
 
 // --- CHOICE LOGIC ---

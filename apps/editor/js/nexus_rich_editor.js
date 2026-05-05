@@ -11,6 +11,15 @@
         { label: 'Cinzel',          value: '"Cinzel", serif' },
         { label: 'Playfair Display',value: '"Playfair Display", serif' },
         { label: 'Orbitron',        value: '"Orbitron", sans-serif' },
+        { label: 'Montserrat',      value: '"Montserrat", sans-serif' },
+        { label: 'Poppins',         value: '"Poppins", sans-serif' },
+        { label: 'Merriweather',    value: '"Merriweather", serif' },
+        { label: 'Lora',            value: '"Lora", serif' },
+        { label: 'Bebas Neue',      value: '"Bebas Neue", sans-serif' },
+        { label: 'Abril Fatface',   value: '"Abril Fatface", serif' },
+        { label: 'Dancing Script',  value: '"Dancing Script", cursive' },
+        { label: 'Caveat',          value: '"Caveat", cursive' },
+        { label: 'Press Start 2P',  value: '"Press Start 2P", system-ui' },
     ];
 
     // Inject Google Fonts for the new typefaces
@@ -20,7 +29,7 @@
             const link = document.createElement('link');
             link.id = id;
             link.rel = 'stylesheet';
-            link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;700&display=swap';
+            link.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Orbitron:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;700&family=Bebas+Neue&family=Abril+Fatface&family=Dancing+Script:wght@400;700&family=Caveat:wght@400;700&family=Press+Start+2P&display=swap';
             document.head.appendChild(link);
         }
     })();
@@ -133,9 +142,11 @@
             if (!isClosing) sc.style.display = 'none'; // Close shadow if opening outline
         });
 
-        // Prevent bar clicks from blurring the editor
+        // Prevent bar clicks from blurring the editor (except for the font select)
         barEl.addEventListener('mousedown', e => {
-            e.preventDefault();
+            if (e.target.tagName !== 'SELECT') {
+                e.preventDefault();
+            }
             clearTimeout(barHideTimer);
         });
 

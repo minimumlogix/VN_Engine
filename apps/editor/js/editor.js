@@ -401,6 +401,17 @@ function init() {
             e.preventDefault();
             store.redo();
         }
+        // Delete selected node with Delete or Backspace
+        if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNode) {
+            const active = document.activeElement;
+            const isEditing = active && (active.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName));
+            if (!isEditing) {
+                e.preventDefault();
+                const idToDelete = selectedNode;
+                selectedNode = null;
+                store.deleteNode(idToDelete);
+            }
+        }
     });
 
     window.onclick = () => {
@@ -420,6 +431,7 @@ function init() {
             needsRender = true;
         }
         needsRender = true;
+        updateNodeCountBadge();
     });
 
     // Try load autosave or use template
@@ -598,7 +610,7 @@ function addNode(type) {
 function renderNode(node) {
     const typeDef = NODE_TYPES[node.type];
     const div = document.createElement('div');
-    div.className = 'node';
+    div.className = `node node-${node.type}`;
     div.id = node.id;
     div.dataset.id = node.id;
     div.style.left = node.x + 'px';
@@ -695,14 +707,18 @@ function renderNode(node) {
 
     div.innerHTML = `
         <div class="node-header">
-            ${typeDef.title}
-            <span style="color:var(--text-dim); cursor:pointer" onclick="deleteNode('${node.id}')">✕</span>
+            <span class="node-header-title">${typeDef.title}</span>
+            <div class="node-header-actions">
+                <button class="node-action-btn" onclick="duplicateNode('${node.id}')" title="Duplicate Node">⧉</button>
+                <button class="node-action-btn" onclick="toggleCollapse('${node.id}')" title="${node.collapsed ? 'Expand' : 'Collapse'}">${node.collapsed ? '⊞' : '⊟'}</button>
+                <button class="node-action-btn node-delete-btn" onclick="deleteNode('${node.id}')" title="Delete">✕</button>
+            </div>
         </div>
-        <div class="node-content">${fieldsHtml}</div>
+        <div class="node-content"${node.collapsed ? ' style="display:none"' : ''}>${fieldsHtml}</div>
         ${typeDef.ports.in ? `<div class="port port-in port-${node.type}"></div>` : ''}
         ${typeDef.ports.out ? `<div class="port port-out port-${node.type}" onmousedown="startLink(event, '${node.id}', 'out')"></div>` : ''}
         ${typeDef.ports.branches ? typeDef.ports.branches.map((b, i) => `
-            <div class="branch-row">
+            <div class="branch-row"${node.collapsed ? ' style="display:none"' : ''}>
                 <span class="branch-label">${b}</span>
                 <div class="port port-out branch-port port-${node.type}" onmousedown="startLink(event, '${node.id}', 'branch_${b}')"></div>
             </div>
@@ -770,6 +786,30 @@ function updateNodeData(nodeId, field, value) {
 
 function deleteNode(id) {
     store.deleteNode(id);
+}
+
+function duplicateNode(id) {
+    const original = store.nodes.find(n => n.id === id);
+    if (!original) return;
+    store.pushSnapshot();
+    const newId = 'node_' + Date.now();
+    const clone = JSON.parse(JSON.stringify(original));
+    clone.id = newId;
+    clone.x = original.x + 30;
+    clone.y = original.y + 30;
+    clone.collapsed = false;
+    store.nodes.push(clone);
+    store.emit('nodes_changed');
+    showToast('Node duplicated');
+}
+
+function toggleCollapse(id) {
+    const node = store.nodes.find(n => n.id === id);
+    if (!node) return;
+    node.collapsed = !node.collapsed;
+    refreshNode(id);
+    store.save();
+    needsRender = true;
 }
 
 function clearWorkspace() {
@@ -1125,6 +1165,14 @@ function showToast(message, type = 'info') {
         toast.style.transform = 'translateX(-50%) translateY(10px)';
         setTimeout(() => toast.remove(), 300);
     }, 1500);
+}
+
+function updateNodeCountBadge() {
+    const badge = document.getElementById('node-count-badge');
+    if (!badge) return;
+    const count = store.nodes.length;
+    badge.textContent = count + (count === 1 ? ' NODE' : ' NODES');
+    badge.classList.toggle('has-nodes', count > 0);
 }
 
 function showSpritePreview(nodeId, charId) {

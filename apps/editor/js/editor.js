@@ -107,6 +107,8 @@ class NexusDataStore {
                 return true;
             } catch (e) {
                 console.error("Failed to load autosave", e);
+                showToast("Corrupted autosave cleared", "error");
+                localStorage.removeItem(this.autoSaveKey);
             }
         }
         return false;
@@ -138,6 +140,13 @@ class NexusDataStore {
 
     deleteNode(id) {
         this.pushSnapshot();
+        
+        // AAA Cleanup: Destroy and remove the rich editor instance for this node
+        if (window._nexusRichEditors && window._nexusRichEditors[id]) {
+            window._nexusRichEditors[id].destroy();
+            delete window._nexusRichEditors[id];
+        }
+
         this.nodes = this.nodes.filter(n => n.id !== id);
         this.links = this.links.filter(l => l.fromNode !== id && l.toNode !== id);
         this.emit('nodes_changed');
@@ -191,6 +200,45 @@ class NexusDataStore {
         }
     }
 
+    // --- Gate Logic ---
+    addGate(nodeId) {
+        this.pushSnapshot();
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node && node.type === 'condition') {
+            if (!node.data.gates) node.data.gates = [];
+            node.data.gates.push({ variable: Object.keys(this.config.initialState)[0] || 'new_var', operator: '==', value: 0 });
+            this.emit('node_refresh', nodeId);
+        }
+    }
+
+    updateGate(nodeId, idx, field, value) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node && node.data.gates && node.data.gates[idx]) {
+            if (!this.historyTimer) {
+                this.pushSnapshot();
+            }
+            clearTimeout(this.historyTimer);
+            this.historyTimer = setTimeout(() => {
+                this.historyTimer = null;
+            }, 1000);
+            node.data.gates[idx][field] = value;
+            this.emit('data_updated');
+            if (field === 'variable' || field === 'operator') {
+                this.emit('node_refresh', nodeId);
+            }
+        }
+    }
+
+    deleteGate(nodeId, idx) {
+        this.pushSnapshot();
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node && node.data.gates) {
+            node.data.gates.splice(idx, 1);
+            this.emit('node_refresh', nodeId);
+        }
+    }
+
+
     // --- Link Operations ---
     createLink(fromNode, fromPort, toNode, toPort) {
         this.pushSnapshot();
@@ -228,6 +276,13 @@ class NexusDataStore {
         }, 1000);
         if (oldKey !== newKey) {
             delete this.config.initialState[oldKey];
+            // Refactor node references
+            this.nodes.forEach(node => {
+                if (node.data && node.data.variable === oldKey) {
+                    node.data.variable = newKey;
+                }
+            });
+            this.emit('nodes_changed');
         }
         this.config.initialState[newKey] = value;
         this.emit('config_refresh');
@@ -258,6 +313,14 @@ class NexusDataStore {
             const char = this.config.characters[id];
             delete this.config.characters[id];
             this.config.characters[value] = char;
+            
+            // Refactor existing node references to this character
+            this.nodes.forEach(node => {
+                if (node.data && node.data.character === id) {
+                    node.data.character = value;
+                }
+            });
+            this.emit('nodes_changed');
         } else {
             this.config.characters[id][field] = value;
         }
@@ -291,7 +354,7 @@ const NODE_TYPES = {
         title: "DIALOGUE",
         fields: [
             { name: 'character', label: 'Character', type: 'select', options: 'chars' },
-            { name: 'spriteState', label: 'Sprite State (e.g. neutral, stern)', type: 'text' },
+            { name: 'spriteState', label: 'Sprite State', type: 'select', options: 'spriteStates' },
             { name: 'text', label: 'Dialogue Text', type: 'textarea' },
             { name: 'chapter', label: 'Chapter', type: 'number' },
             { name: 'scene', label: 'Scene', type: 'number' },
@@ -311,11 +374,9 @@ const NODE_TYPES = {
         ports: { in: true, choices: true }
     },
     condition: {
-        title: "VARIABLE CHECK",
+        title: "LOGIC GATE",
         fields: [
-            { name: 'variable', label: 'Variable', type: 'select', options: 'state' },
-            { name: 'operator', label: 'Operator', type: 'select', options: ['>', '<', '==', '>=', '<=', '!='] },
-            { name: 'value', label: 'Value', type: 'number' }
+            { name: 'logic', label: 'Match Logic', type: 'select', options: ['ALL (AND)', 'ANY (OR)'] }
         ],
         ports: { in: true, branches: ['True', 'False'] }
     }
@@ -376,6 +437,8 @@ function init() {
     renderAllNodes();
     renderConfig();
     requestAnimationFrame(tick);
+
+    showToast("Hint: Alt + Click a link to delete it", "info");
 
     // AAA Responsive Auto-Hide
     if (window.innerWidth < 1200) {
@@ -542,23 +605,39 @@ function renderNode(node) {
     div.style.top = node.y + 'px';
 
     let fieldsHtml = '';
+    // Track which fields need post-mount setup
+    const richFields = [];
+
     typeDef.fields.forEach(f => {
         fieldsHtml += `<label>${f.label}</label>`;
         if (f.type === 'textarea') {
-            fieldsHtml += `<textarea oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">${node.data[f.name] || ''}</textarea>`;
+            if (f.name === 'text') {
+                // Rich editor mounted after innerHTML is set
+                fieldsHtml += `<div class="nexus-re-mount" data-field="${f.name}" data-node="${node.id}"></div>`;
+                richFields.push(f.name);
+            } else {
+                fieldsHtml += `<textarea oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">${node.data[f.name] || ''}</textarea>`;
+            }
         } else if (f.type === 'select') {
-            const handlers = f.name === 'character' ? 
-                `onmouseenter="showSpritePreview('${node.id}', this.getAttribute('data-value'))" onmouseleave="hideSpritePreview()"` : '';
-            
+            let handlers = '';
+            if (f.name === 'character') {
+                handlers = `onmouseenter="showSpritePreview('${node.id}', this.getAttribute('data-value'))" onmouseleave="hideSpritePreview()"`;
+            } else if (f.name === 'spriteState') {
+                handlers = `onmouseenter="showSpritePreview('${node.id}')" onmouseleave="hideSpritePreview()"`;
+            }
+
             let options = f.options;
             if (f.options === 'chars') options = Object.keys(store.config.characters);
             if (f.options === 'state') options = Object.keys(store.config.initialState);
-            
+            if (f.options === 'spriteStates') {
+                const charId = node.data.character;
+                const char = charId && store.config.characters[charId];
+                options = char && char.sprites ? Object.keys(char.sprites) : ['neutral'];
+            }
+
             fieldsHtml += getDropdownHtml(node.id, f.name, options, node.data[f.name], handlers);
         } else {
-            const handlers = (f.name === 'spriteState') ? 
-                `onmouseenter="showSpritePreview('${node.id}')" onmouseleave="hideSpritePreview()"` : '';
-            fieldsHtml += `<input ${handlers} type="${f.type}" value="${node.data[f.name] || ''}" oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
+            fieldsHtml += `<input type="${f.type}" value="${node.data[f.name] || ''}" oninput="store.updateNodeData('${node.id}', '${f.name}', this.value)">`;
         }
     });
 
@@ -573,6 +652,45 @@ function renderNode(node) {
             `;
         });
         fieldsHtml += `<button class="btn btn-outline" style="width:100%; margin-top:5px; font-size:10px;" onclick="store.addChoice('${node.id}')">＋ ADD CHOICE</button>`;
+    }
+
+    if (node.type === 'condition') {
+        fieldsHtml += `<div class="section-title">CONDITIONS</div>`;
+        if (!node.data.gates || node.data.gates.length === 0) {
+            // Legacy migration: if old fields exist, migrate them to gates
+            if (node.data.variable) {
+                node.data.gates = [{ variable: node.data.variable, operator: node.data.operator || '==', value: node.data.value || 0 }];
+                delete node.data.variable; delete node.data.operator; delete node.data.value;
+            } else {
+                node.data.gates = [{ variable: Object.keys(store.config.initialState)[0] || 'var', operator: '==', value: 0 }];
+            }
+        }
+        
+        node.data.gates.forEach((gate, idx) => {
+            const dropdownId = `gate_${node.id}_${idx}`;
+            fieldsHtml += `
+                <div class="gate-row" style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.05)">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
+                        <label style="margin:0">#${idx + 1}</label>
+                        <span style="cursor:pointer; color:var(--text-dim); font-size:10px" onclick="store.deleteGate('${node.id}', ${idx})">✕ REMOVE</span>
+                    </div>
+                    <label>Variable</label>
+                    ${getDropdownHtml(dropdownId, 'variable', Object.keys(store.config.initialState), gate.variable)}
+                    
+                    <div style="display:flex; gap:8px; margin-top:5px">
+                        <div style="flex:1">
+                            <label>Operator</label>
+                            ${getDropdownHtml(dropdownId, 'operator', ['>', '<', '==', '>=', '<=', '!='], gate.operator)}
+                        </div>
+                        <div style="flex:1">
+                            <label>Value</label>
+                            <input type="number" value="${gate.value}" oninput="store.updateGate('${node.id}', ${idx}, 'value', this.value)">
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        fieldsHtml += `<button class="btn btn-outline" style="width:100%; margin-top:5px; font-size:10px;" onclick="store.addGate('${node.id}')">＋ ADD CONDITION</button>`;
     }
 
     div.innerHTML = `
@@ -623,6 +741,27 @@ function renderNode(node) {
     div.onclick = () => selectNode(node.id);
 
     workspace.appendChild(div);
+
+    // Mount rich editors after the node is in the DOM
+    richFields.forEach(fieldName => {
+        const mount = div.querySelector(`.nexus-re-mount[data-field="${fieldName}"]`);
+        if (!mount || !window.NexusRichEditor) return;
+        
+        // AAA Cleanup: Destroy existing instance for this node if it exists
+        if (window._nexusRichEditors && window._nexusRichEditors[node.id]) {
+            window._nexusRichEditors[node.id].destroy();
+        }
+
+        const initialHtml = node.data[fieldName] || '';
+        const re = new NexusRichEditor(node.id, initialHtml, ({ html }) => {
+            store.updateNodeData(node.id, fieldName, html);
+        });
+        re.getElement().querySelector('.nexus-re-editor').setAttribute('placeholder', 'Type dialogue here...');
+        mount.replaceWith(re.getElement());
+        
+        if (!window._nexusRichEditors) window._nexusRichEditors = {};
+        window._nexusRichEditors[node.id] = re;
+    });
 }
 
 function updateNodeData(nodeId, field, value) {
@@ -812,7 +951,7 @@ function getDropdownHtml(nodeId, fieldName, options, currentValue, handlers = ''
                 <span>${displayValue}</span>
                 <i class="bi bi-chevron-down"></i>
             </div>
-            <div class="nexus-dropdown-options">
+            <div class="nexus-dropdown-options" onwheel="event.stopPropagation()">
                 ${itemsHtml}
             </div>
         </div>
@@ -835,8 +974,15 @@ function updateDropdownValue(nodeId, fieldName, value) {
     } else if (nodeId.startsWith('char_')) {
         const charId = nodeId.replace('char_', '');
         store.updateCharacter(charId, fieldName, value);
+    } else if (nodeId.startsWith('gate_')) {
+        const parts = nodeId.split('_'); // gate_node_timestamp_idx
+        const idx = parseInt(parts.pop());
+        const actualNodeId = parts.slice(1).join('_');
+        store.updateGate(actualNodeId, idx, fieldName, value);
     } else {
         store.updateNodeData(nodeId, fieldName, value);
+        // Refresh the node so the dropdown display updates to the new value
+        refreshNode(nodeId);
     }
 }
 
@@ -1048,6 +1194,15 @@ function updateChapter(oldId, newId, field, value) {
         store.config.chapterNames[newId] = name;
         store.config.chapterBackgrounds[newId] = bg;
         store.config.chapterMusic[newId] = mus;
+
+        // Refactor node references
+        store.nodes.forEach(node => {
+            // Check both string and number for robustness
+            if (node.data && String(node.data.chapter) === String(oldId)) {
+                node.data.chapter = newId;
+            }
+        });
+        store.emit('nodes_changed');
     } else if (field === 'name') {
         store.config.chapterNames[oldId] = value;
     } else if (field === 'bg') {
@@ -1158,7 +1313,31 @@ function refreshAllNodes() {
 
 // --- EXPORT / IMPORT ---
 
+/**
+ * Convert rich editor HTML to LVNE-compatible output:
+ * - macro token spans → [name(intensity)] text
+ * - removes ZWS characters
+ * - preserves <b>, <i>, <u>, <span style="..."> etc.
+ */
+function serializeRichHtml(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    // Convert macro tokens
+    div.querySelectorAll('.nexus-macro-token').forEach(tok => {
+        const name = tok.dataset.macro;
+        const intensity = tok.dataset.intensity;
+        const text = window.macroToText
+            ? macroToText(name, intensity || null)
+            : `[${name}]`;
+        tok.replaceWith(document.createTextNode(text));
+    });
+    // Strip ZWS
+    div.innerHTML = div.innerHTML.replace(/\u200B/g, '');
+    return div.innerHTML;
+}
+
 function exportJSON() {
+
     const dialogue = [];
     
     store.nodes.forEach((node, index) => {
@@ -1170,7 +1349,7 @@ function exportJSON() {
             chapter: parseInt(node.data.chapter) || 0,
             scene: parseInt(node.data.scene) || 1,
             character: charName + spriteState,
-            text: node.data.text || ""
+            text: serializeRichHtml(node.data.text || '')
         };
 
         if (node.data.SpriteEffects && node.data.SpriteEffects !== 'None') entry.SpriteEffects = node.data.SpriteEffects;
@@ -1205,11 +1384,8 @@ function exportJSON() {
         // Handle logic branches
         if (node.type === 'condition') {
             entry.type = 'condition';
-            entry.condition = {
-                variable: node.data.variable,
-                operator: node.data.operator,
-                value: node.data.value
-            };
+            entry.logic = node.data.logic || 'ALL (AND)';
+            entry.gates = node.data.gates || [];
             entry.branches = {};
             const typeDef = NODE_TYPES[node.type];
             typeDef.ports.branches.forEach(b => {
@@ -1239,60 +1415,78 @@ function importJSON(e) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (re) => {
-        const data = JSON.parse(re.target.result);
-        store.nodes = [];
-        store.links = [];
-        workspace.innerHTML = '';
-        
-        // Load global config
-        store.config = { ...store.config, ...data };
-        delete store.config.storyDialogue;
-        
-        // Load nodes
-        data.storyDialogue.forEach((d, i) => {
-            const node = {
-                id: d.id || `node_${i}`,
-                type: d.choices ? 'choice' : (d.type === 'condition' ? 'condition' : 'dialogue'),
-                x: 100 + (i % 5) * 300,
-                y: 100 + Math.floor(i / 5) * 350,
-                data: {
-                    character: d.character,
-                    text: d.text,
-                    chapter: d.chapter,
-                    scene: d.scene,
-                    variable: d.condition?.variable,
-                    operator: d.condition?.operator,
-                    value: d.condition?.value
-                },
-                choices: d.choices || []
-            };
-            store.nodes.push(node);
-        });
+        try {
+            const data = JSON.parse(re.target.result);
+            if (!data.storyDialogue) throw new Error("Missing storyDialogue array");
 
-        // Re-create links
-        data.storyDialogue.forEach((d, i) => {
-            const fromId = d.id || `node_${i}`;
-            if (d.nextId) {
-                store.links.push({ fromNode: fromId, fromPort: 'out', toNode: d.nextId, toPort: 'in' });
-            }
-            if (d.choices) {
-                d.choices.forEach((c, cIdx) => {
-                    if (c.nextId) {
-                        store.links.push({ fromNode: fromId, fromPort: `choice_${cIdx}`, toNode: c.nextId, toPort: 'in' });
-                    }
-                });
-            }
-            if (d.branches) {
-                Object.entries(d.branches).forEach(([key, target]) => {
-                    if (target) {
-                        const portName = key.charAt(0).toUpperCase() + key.slice(1);
-                        store.links.push({ fromNode: fromId, fromPort: `branch_${portName}`, toNode: target, toPort: 'in' });
-                    }
-                });
-            }
-        });
+            this.store.pushSnapshot(); // Make import undoable
+            
+            store.nodes = [];
+            store.links = [];
+            workspace.innerHTML = '';
+            
+            // Load global config
+            store.config = { ...store.config, ...data };
+            delete store.config.storyDialogue;
+            
+            // Load nodes
+            data.storyDialogue.forEach((d, i) => {
+                let charId = d.character;
+                let spriteState = 'neutral';
+                
+                // Handle Name:State format from exporter
+                if (charId && charId.includes(':')) {
+                    [charId, spriteState] = charId.split(':');
+                }
 
-        store.emit('nodes_changed');
+                const node = {
+                    id: d.id || `node_${i}`,
+                    type: d.choices ? 'choice' : (d.type === 'condition' ? 'condition' : 'dialogue'),
+                    x: d.x || (100 + (i % 5) * 300),
+                    y: d.y || (100 + Math.floor(i / 5) * 350),
+                    data: {
+                        character: charId,
+                        spriteState: spriteState,
+                        text: d.text,
+                        chapter: d.chapter,
+                        scene: d.scene,
+                        logic: d.logic || 'ALL (AND)',
+                        gates: d.gates || (d.condition ? [{ variable: d.condition.variable, operator: d.condition.operator, value: d.condition.value }] : [])
+                    },
+                    choices: d.choices || []
+                };
+                store.nodes.push(node);
+            });
+
+            // Re-create links
+            data.storyDialogue.forEach((d, i) => {
+                const fromId = d.id || `node_${i}`;
+                if (d.nextId) {
+                    store.links.push({ fromNode: fromId, fromPort: 'out', toNode: d.nextId, toPort: 'in' });
+                }
+                if (d.choices) {
+                    d.choices.forEach((c, cIdx) => {
+                        if (c.nextId) {
+                            store.links.push({ fromNode: fromId, fromPort: `choice_${cIdx}`, toNode: c.nextId, toPort: 'in' });
+                        }
+                    });
+                }
+                if (d.branches) {
+                    Object.entries(d.branches).forEach(([key, target]) => {
+                        if (target) {
+                            const portName = key.charAt(0).toUpperCase() + key.slice(1);
+                            store.links.push({ fromNode: fromId, fromPort: `branch_${portName}`, toNode: target, toPort: 'in' });
+                        }
+                    });
+                }
+            });
+
+            store.emit('nodes_changed');
+            showToast("Import Successful");
+        } catch (err) {
+            console.error("Import failed", err);
+            showToast("Invalid Story File: " + err.message, "error");
+        }
     };
     reader.readAsText(file);
 }

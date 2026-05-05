@@ -1,0 +1,572 @@
+/* nexus_rich_editor.css — AAA Dialogue Editor Styles */
+
+/* ===============================================================
+   FORMAT BAR
+   Fixed position, no layout shift, smooth fade in/out
+   =============================================================== */
+
+#nexus-format-bar {
+    position: fixed;
+    z-index: 99998;
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: rgba(10, 12, 18, 0.97);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 204, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    max-width: calc(100vw - 12px);
+    user-select: none;
+}
+
+.nexus-format-bar {
+    /* alias for #nexus-format-bar */
+}
+
+.nfb-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.nfb-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 3px;
+    flex-shrink: 0;
+}
+
+.nfb-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nfb-btn:hover {
+    background: rgba(0, 255, 204, 0.12);
+    border-color: rgba(0, 255, 204, 0.4);
+    color: #00ffcc;
+}
+
+.nfb-btn.active {
+    background: rgba(0, 255, 204, 0.2);
+    border-color: var(--accent, #00ffcc);
+    color: #00ffcc;
+}
+
+.nfb-font-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    height: 28px;
+    outline: none;
+    transition: border-color 0.15s;
+    max-width: 130px;
+}
+
+.nfb-font-select:hover, .nfb-font-select:focus {
+    border-color: rgba(0, 255, 204, 0.4);
+}
+
+/* Color buttons */
+.nfb-color-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 3px 7px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    height: 34px;
+    min-width: 28px;
+    transition: all 0.15s ease;
+}
+
+.nfb-color-btn:hover {
+    border-color: rgba(0, 255, 204, 0.4);
+    background: rgba(0, 255, 204, 0.08);
+}
+
+.nfb-color-icon {
+    font-weight: 800;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1;
+}
+
+.nfb-shadow-icon {
+    text-shadow: 2px 2px 3px rgba(0,0,0,0.8);
+}
+
+.nfb-outline-icon {
+    -webkit-text-stroke: 1px rgba(255,255,255,0.6);
+    color: transparent;
+}
+
+.nfb-color-bar {
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    display: block;
+    min-width: 20px;
+}
+
+/* Shadow/Outline Controls */
+.nfb-shadow-controls,
+.nfb-outline-controls {
+    align-items: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+    animation: nfb-expand 0.15s ease;
+}
+
+@keyframes nfb-expand {
+    from { opacity: 0; transform: scaleY(0.8); }
+    to   { opacity: 1; transform: scaleY(1); }
+}
+
+.nfb-mini-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(0, 255, 204, 0.7);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.nfb-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    width: 60px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    outline: none;
+    cursor: pointer;
+}
+
+.nfb-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #00ffcc;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+
+/* Macro dropdown */
+.nfb-macro-wrap {
+    position: relative;
+}
+
+.nfb-macro-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: rgba(10, 12, 18, 0.98);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 260px;
+    max-height: 340px;
+    overflow-y: auto;
+    z-index: 99999;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9);
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nfb-macro-dropdown.open {
+    display: flex;
+}
+
+.nfb-macro-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: default;
+    transition: background 0.12s;
+}
+
+.nfb-macro-item:hover {
+    background: rgba(0, 255, 204, 0.08);
+}
+
+.nfb-macro-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.nfb-macro-name {
+    flex: 1;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nfb-macro-desc {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.nfb-macro-intensity {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.nfb-intensity-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    padding: 2px 5px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+}
+
+.nfb-intensity-btn:hover {
+    background: rgba(0, 255, 204, 0.2);
+    border-color: #00ffcc;
+    color: #00ffcc;
+}
+
+.nfb-divider-h {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+}
+
+.nfb-clear-all {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    color: rgba(255, 100, 100, 0.8);
+    border-color: rgba(255, 100, 100, 0.2);
+}
+
+.nfb-clear-all:hover {
+    background: rgba(255, 100, 100, 0.1);
+    border-color: rgba(255, 100, 100, 0.5);
+    color: #ff6464;
+}
+
+/* ===============================================================
+   RICH EDITOR CONTAINER (inside the node card)
+   =============================================================== */
+
+.nexus-re-container {
+    position: relative;
+    width: 100%;
+}
+
+.nexus-re-editor {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    min-height: 100px;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    line-height: 1.6;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    word-break: break-word;
+    white-space: pre-wrap;
+    cursor: text;
+    /* Enable text selection inside nodes */
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.nexus-re-editor:focus {
+    border-color: var(--accent, #00ffcc);
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.15), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nexus-re-editor:empty::before {
+    content: attr(placeholder);
+    color: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+    font-style: italic;
+}
+
+/* Macro tokens */
+.nexus-macro-token {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(0, 255, 204, 0.15), rgba(0, 130, 255, 0.15));
+    border: 1px solid rgba(0, 255, 204, 0.4);
+    border-radius: 5px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #00ffcc;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    margin: 0 2px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
+}
+
+.nexus-macro-token:hover {
+    background: linear-gradient(135deg, rgba(255, 80, 80, 0.2), rgba(255, 50, 50, 0.1));
+    border-color: rgba(255, 80, 80, 0.5);
+    color: #ff6464;
+    box-shadow: 0 0 8px rgba(255, 80, 80, 0.2);
+}
+
+.nexus-macro-token:hover::after {
+    content: ' ×';
+    opacity: 0.7;
+}
+
+/* ===============================================================
+   COLOR PICKER
+   =============================================================== */
+
+#nexus-color-picker {
+    position: fixed;
+    z-index: 100000;
+    background: rgba(10, 12, 18, 0.98);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    width: 216px;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 255, 204, 0.08);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Outfit', sans-serif;
+    user-select: none;
+}
+
+.ncp-sv-box {
+    position: relative;
+    width: 192px;
+    height: 150px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: crosshair;
+    flex-shrink: 0;
+}
+
+.ncp-sv-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 6px;
+}
+
+.ncp-sv-cursor {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 4px rgba(0,0,0,0.8);
+    top: 0;
+    left: 0;
+}
+
+.ncp-hue-bar {
+    position: relative;
+    width: 192px;
+    height: 14px;
+    border-radius: 7px;
+    overflow: visible;
+    cursor: crosshair;
+    flex-shrink: 0;
+}
+
+.ncp-hue-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 7px;
+    display: block;
+}
+
+.ncp-hue-cursor {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+.ncp-preview-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ncp-preview-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+}
+
+.ncp-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.ncp-hex-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.ncp-hex-input:focus { border-color: rgba(0,255,204,0.5); }
+
+.ncp-rgb-row {
+    display: flex;
+    gap: 4px;
+}
+
+.ncp-rgb-row input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 5px;
+    padding: 3px 4px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    outline: none;
+    text-align: center;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.ncp-rgb-row input:focus { border-color: rgba(0,255,204,0.5); }
+
+.ncp-section-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: rgba(0,255,204,0.5);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.ncp-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ncp-recent {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    min-height: 22px;
+}
+
+.ncp-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.12s, box-shadow 0.12s;
+    flex-shrink: 0;
+}
+
+.ncp-swatch:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    border-color: rgba(255,255,255,0.4);
+    z-index: 1;
+}
+
+.ncp-empty {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    font-style: italic;
+}
+
+.ncp-apply-btn {
+    background: linear-gradient(135deg, rgba(0,255,204,0.2), rgba(0,130,255,0.2));
+    border: 1px solid rgba(0,255,204,0.4);
+    color: #00ffcc;
+    border-radius: 7px;
+    padding: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-transform: uppercase;
+}
+
+.ncp-apply-btn:hover {
+    background: linear-gradient(135deg, rgba(0,255,204,0.35), rgba(0,130,255,0.25));
+    box-shadow: 0 0 12px rgba(0,255,204,0.3);
+}

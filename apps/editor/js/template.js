@@ -23,10 +23,10 @@ const DEFAULT_STORY_DATA = {
     chapterMusic: {
         "1": ""
     },
-    initialState: { 
-        sanity: 10,
-        gold: 0
-    },
+    initialState: [
+        { id: 'var_sanity', key: 'sanity', value: 10 },
+        { id: 'var_gold', key: 'gold', value: 0 }
+    ],
     storyDialogue: [
         {
             id: "node_1",

@@ -104,6 +104,17 @@ class NexusDataStore {
                 this.nodes = data.nodes || [];
                 this.links = data.links || [];
                 this.config = data.config || this.config;
+
+                // MIGRATION: Convert object initialState to array if needed
+                if (this.config.initialState && !Array.isArray(this.config.initialState)) {
+                    console.log("Migrating initialState to array structure...");
+                    const newInit = [];
+                    Object.entries(this.config.initialState).forEach(([k, v]) => {
+                        newInit.push({ id: 'var_' + Math.random().toString(36).substr(2, 9), key: k, value: v });
+                    });
+                    this.config.initialState = newInit;
+                }
+
                 return true;
             } catch (e) {
                 console.error("Failed to load autosave", e);
@@ -256,17 +267,18 @@ class NexusDataStore {
 
     addStateVar(key = "new_var", val = 0) {
         this.pushSnapshot();
-        this.config.initialState[key] = val;
+        const id = 'var_' + Date.now();
+        this.config.initialState.push({ id, key, value: val });
         this.emit('config_refresh');
     }
 
-    deleteStateVar(key) {
+    deleteStateVar(id) {
         this.pushSnapshot();
-        delete this.config.initialState[key];
+        this.config.initialState = this.config.initialState.filter(v => v.id !== id);
         this.emit('config_refresh');
     }
 
-    updateStateVar(oldKey, newKey, value) {
+    updateStateVar(id, newKey, newValue) {
         if (!this.historyTimer) {
             this.pushSnapshot();
         }
@@ -274,8 +286,15 @@ class NexusDataStore {
         this.historyTimer = setTimeout(() => {
             this.historyTimer = null;
         }, 1000);
+
+        const variable = this.config.initialState.find(v => v.id === id);
+        if (!variable) return;
+
+        const oldKey = variable.key;
+        variable.key = newKey;
+        variable.value = newValue;
+
         if (oldKey !== newKey) {
-            delete this.config.initialState[oldKey];
             // Refactor node references
             this.nodes.forEach(node => {
                 if (node.data && node.data.variable === oldKey) {
@@ -284,7 +303,6 @@ class NexusDataStore {
             });
             this.emit('nodes_changed');
         }
-        this.config.initialState[newKey] = value;
         this.emit('config_refresh');
     }
 
@@ -718,7 +736,7 @@ function renderNode(node) {
                         <span style="cursor:pointer; color:var(--text-dim); font-size:10px" onclick="store.deleteGate('${node.id}', ${idx})">✕ REMOVE</span>
                     </div>
                     <label>Variable</label>
-                    ${getDropdownHtml(dropdownId, 'variable', Object.keys(store.config.initialState), gate.variable)}
+                    ${getDropdownHtml(dropdownId, 'variable', store.config.initialState.map(v => v.key), gate.variable)}
                     
                     <div style="display:flex; gap:8px; margin-top:5px">
                         <div style="flex:1">
@@ -1397,6 +1415,20 @@ function updateGlobalConfig() {
 }
 
 function renderConfig() {
+    // Focus Persistence: Save current focus state
+    const active = document.activeElement;
+    let focusInfo = null;
+    if (active && active.closest('.config-section')) {
+        const section = active.closest('.config-section');
+        const inputs = Array.from(section.querySelectorAll('input, textarea, select'));
+        focusInfo = {
+            sectionId: section.id,
+            index: inputs.indexOf(active),
+            selectionStart: active.selectionStart,
+            selectionEnd: active.selectionEnd
+        };
+    }
+
     // Title & Basics
     document.getElementById('conf-title').value = store.config.storyTitle;
     document.getElementById('conf-subtitle').value = store.config.storySubtitle;
@@ -1407,13 +1439,13 @@ function renderConfig() {
 
     const stateList = document.getElementById('state-list');
     stateList.innerHTML = '';
-    Object.entries(store.config.initialState).forEach(([key, val]) => {
+    store.config.initialState.forEach((v) => {
         const div = document.createElement('div');
         div.className = 'list-item';
         div.innerHTML = `
-            <input value="${key}" style="width:70px" oninput="store.updateStateVar('${key}', this.value, ${val})">
-            <input type="number" value="${val}" style="width:40px" oninput="store.updateStateVar('${key}', '${key}', parseInt(this.value))">
-            <span style="cursor:pointer" onclick="deleteStateVar('${key}')">✕</span>
+            <input id="state-key-${v.id}" value="${v.key}" style="width:70px" oninput="store.updateStateVar('${v.id}', this.value, ${v.value})">
+            <input id="state-val-${v.id}" type="number" value="${v.value}" style="width:40px" oninput="store.updateStateVar('${v.id}', '${v.key}', parseInt(this.value))">
+            <span style="cursor:pointer" onclick="deleteStateVar('${v.id}')">✕</span>
         `;
         stateList.appendChild(div);
     });
@@ -1466,7 +1498,32 @@ function renderConfig() {
         charList.appendChild(div);
     });
 
-    // Background list removed as redundant
+    // Focus Persistence: Restore focus
+    if (focusInfo && focusInfo.sectionId) {
+        const section = document.getElementById(focusInfo.sectionId);
+        if (section) {
+            // Priority 1: Restore by ID (Stable)
+            if (active && active.id) {
+                const el = document.getElementById(active.id);
+                if (el) {
+                    el.focus();
+                    if (focusInfo.selectionStart !== undefined && el.setSelectionRange) {
+                        el.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+                    }
+                    return;
+                }
+            }
+            // Priority 2: Restore by Index (Fallback)
+            const inputs = Array.from(section.querySelectorAll('input, textarea, select'));
+            const el = inputs[focusInfo.index];
+            if (el) {
+                el.focus();
+                if (focusInfo.selectionStart !== undefined && el.setSelectionRange) {
+                    el.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+                }
+            }
+        }
+    }
 }
 
 function refreshAllNodes() {

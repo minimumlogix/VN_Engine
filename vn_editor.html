@@ -67,11 +67,23 @@
             </button>
         </div>
     </div>
+    
+    <div id="nav-sidebar" class="sidebar-panel">
+        <div class="sidebar-header">
+            <h3><i class="bi bi-compass-fill"></i> NAVIGATOR</h3>
+            <button class="btn-close-sidebar" onclick="toggleSidebar()"><i class="bi bi-x"></i></button>
+        </div>
+        <div id="nav-list"></div>
+    </div>
 
     <div id="toolbar" class="panel d-flex align-items-center gap-2">
         <button id="panel-toggle" class="btn btn-sm d-flex align-items-center justify-content-center" onclick="toggleConfigPanel()" title="Toggle Config Panel">
             <i class="bi bi-list"></i>
         </button>
+        <button class="btn btn-sm d-flex align-items-center justify-content-center" onclick="toggleSidebar()" title="Toggle Navigator Sidebar" style="background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-dim);">
+            <i class="bi bi-compass-fill"></i>
+        </button>
+        <div class="vr mx-1"></div>
         <button class="btn btn-outline-accent btn-sm d-flex align-items-center justify-content-center px-2" onclick="store.undo()" title="Undo (Ctrl+Z)">
             <i class="bi bi-arrow-counterclockwise"></i>
         </button>

@@ -135,8 +135,11 @@ class NexusDataStore {
         return false;
     }
 
-    clearAutosave() {
+    clearAutosave(isFactoryReset = false) {
         localStorage.removeItem(this.autoSaveKey);
+        if (isFactoryReset) {
+            localStorage.setItem('nexus_factory_reset', 'true');
+        }
         // Also clear undo/redo stacks so nothing is recoverable after reset
         this.undoStack = [];
         this.redoStack = [];
@@ -161,7 +164,7 @@ class NexusDataStore {
 
     deleteNode(id) {
         this.pushSnapshot();
-        
+
         // AAA Cleanup: Destroy and remove the rich editor instance for this node
         if (window._nexusRichEditors && window._nexusRichEditors[id]) {
             window._nexusRichEditors[id].destroy();
@@ -352,7 +355,7 @@ class NexusDataStore {
             const char = this.config.characters[id];
             delete this.config.characters[id];
             this.config.characters[value] = char;
-            
+
             // Refactor existing node references to this character
             this.nodes.forEach(node => {
                 if (node.data && node.data.character === id) {
@@ -410,7 +413,7 @@ class NexusDataStore {
     moveGroupNodes(groupId, dx, dy) {
         const group = this.groups.find(g => g.id === groupId);
         if (!group) return;
-        
+
         // Find nodes whose center is inside the group
         const containedNodes = this.getNodesInGroup(groupId);
 
@@ -418,7 +421,7 @@ class NexusDataStore {
             node.x += dx;
             node.y += dy;
         });
-        
+
         if (containedNodes.length > 0) {
             this.emit('nodes_changed');
         }
@@ -432,14 +435,14 @@ class NexusDataStore {
             const nx = node.x + nodeWidth / 2;
             const ny = node.y + 50; // Use top area for inclusion check
             return nx >= group.x && nx <= group.x + group.width &&
-                   ny >= group.y && ny <= group.y + group.height;
+                ny >= group.y && ny <= group.y + group.height;
         });
     }
 
     fitGroupToNodes(groupId) {
         const group = this.groups.find(g => g.id === groupId);
         if (!group) return;
-        
+
         const containedNodes = this.getNodesInGroup(groupId);
         if (containedNodes.length === 0) {
             showToast("No nodes found in group", "warn");
@@ -447,7 +450,7 @@ class NexusDataStore {
         }
 
         this.pushSnapshot();
-        
+
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         containedNodes.forEach(node => {
             minX = Math.min(minX, node.x);
@@ -461,7 +464,7 @@ class NexusDataStore {
         group.y = minY - (padding + 40); // Leave room for header
         group.width = (maxX - minX) + padding * 2;
         group.height = (maxY - minY) + padding * 2 + 40;
-        
+
         this.emit('groups_changed');
         showToast("Group auto-fitted");
     }
@@ -488,7 +491,7 @@ class NexusDataStore {
         });
 
         this.groups = this.groups.filter(g => g.id !== groupId);
-        
+
         this.emit('nodes_changed');
         this.emit('groups_changed');
         showToast(`Deleted group and ${nodesToDelete.length} nodes`);
@@ -500,7 +503,7 @@ class NexusDataStore {
         if (nodes.length < 2) return;
 
         this.pushSnapshot();
-        
+
         if (type === 'left') {
             const minX = Math.min(...nodes.map(n => n.x));
             nodes.forEach(n => n.x = minX);
@@ -556,6 +559,9 @@ let isDragging = false;
 let lastMousePos = { x: 0, y: 0 };
 let activeLink = null;
 let selectedNode = null;
+let selectedNodes = [];
+let selectionStart = null;
+let marqueeEl = null;
 
 let needsRender = true;
 let mouseEvent = null;
@@ -599,7 +605,7 @@ const NODE_TYPES = {
 
 function init() {
     updateWorkspace();
-    
+
     editorContainer.addEventListener('mousedown', startPan);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
@@ -630,13 +636,14 @@ function init() {
     window.onclick = () => {
         document.querySelectorAll('.nexus-dropdown').forEach(d => d.classList.remove('active'));
     };
-    
+
     // Subscribe UI to Data Changes
     store.subscribe((event, data) => {
         if (event === 'nodes_changed') {
             renderAllNodes();
         } else if (event === 'groups_changed') {
             renderAllGroups();
+            renderSidebar();
         } else if (event === 'node_refresh') {
             refreshNode(data);
         } else if (event === 'config_refresh' || event === 'config_updated') {
@@ -650,7 +657,22 @@ function init() {
     });
 
     // Try load autosave or use template
-    if (!store.load()) {
+    const isFactoryReset = localStorage.getItem('nexus_factory_reset') === 'true';
+    if (isFactoryReset) {
+        localStorage.removeItem('nexus_factory_reset');
+        store.config = {
+            storyTitle: "NEW PROJECT",
+            storySubtitle: "UNNAMED CHAPTER",
+            theme: "nasapunk.css",
+            characters: {},
+            backgrounds: {},
+            chapterNames: { "1": "Chapter 1" },
+            chapterBackgrounds: { "1": "" },
+            chapterMusic: { "1": "" },
+            initialState: []
+        };
+        store.nodes = [];
+    } else if (!store.load()) {
         if (DEFAULT_STORY_DATA.storyDialogue) {
             DEFAULT_STORY_DATA.storyDialogue.forEach(d => {
                 store.nodes.push({ ...d });
@@ -737,15 +759,15 @@ function renderGroup(group) {
         const onMouseMove = (me) => {
             const dx = (me.clientX - startX) / zoom;
             const dy = (me.clientY - startY) / zoom;
-            
+
             group.x += dx;
             group.y += dy;
             div.style.left = group.x + 'px';
             div.style.top = group.y + 'px';
-            
+
             // Move nodes inside
             store.moveGroupNodes(group.id, dx, dy);
-            
+
             startX = me.clientX;
             startY = me.clientY;
             needsRender = true;
@@ -771,12 +793,12 @@ function renderGroup(group) {
         const onMouseMove = (me) => {
             const dx = (me.clientX - startX) / zoom;
             const dy = (me.clientY - startY) / zoom;
-            
+
             group.width += dx;
             group.height += dy;
             div.style.width = group.width + 'px';
             div.style.height = group.height + 'px';
-            
+
             startX = me.clientX;
             startY = me.clientY;
             needsRender = true;
@@ -798,7 +820,7 @@ function renderGroup(group) {
 function selectAllInGroup(groupId) {
     const nodes = store.getNodesInGroup(groupId);
     if (nodes.length === 0) return;
-    
+
     // Clear current selection visual but nodes don't have a multi-select state yet
     // So we'll just pulse them all to show they are identified
     nodes.forEach(n => {
@@ -819,7 +841,7 @@ function toggleConfigPanel() {
     const panel = document.getElementById('config-panel');
     const toggle = document.getElementById('panel-toggle');
     if (!panel || !toggle) return;
-    
+
     panel.classList.toggle('collapsed');
     toggle.classList.toggle('active');
     toggle.innerHTML = panel.classList.contains('collapsed') ? '☰' : '✕';
@@ -827,7 +849,16 @@ function toggleConfigPanel() {
 
 function tick() {
     if (needsRender) {
-        workspace.style.transform = `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`;
+        const rx = Math.round(offset.x);
+        const ry = Math.round(offset.y);
+
+        workspace.style.transform = `translate3d(${rx}px, ${ry}px, 0) scale(${zoom})`;
+
+        // Sync background grid to avoid "pixely" or disconnected feel
+        const gridSize = 40 * zoom;
+        editorContainer.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+        editorContainer.style.backgroundPosition = `${rx}px ${ry}px`;
+
         renderLinks(mouseEvent);
         needsRender = false;
     }
@@ -846,15 +877,40 @@ function startPan(e) {
         }
         lastMiddleClick = now;
     }
-    
+
     if (e.target === editorContainer || e.target === svg) {
-        isDragging = true;
-        lastMousePos = { x: e.clientX, y: e.clientY };
+        if (e.shiftKey) {
+            selectionStart = { x: e.clientX, y: e.clientY };
+            marqueeEl = document.createElement('div');
+            marqueeEl.className = 'selection-marquee';
+            document.body.appendChild(marqueeEl);
+        } else {
+            isDragging = true;
+            lastMousePos = { x: e.clientX, y: e.clientY };
+            // Clear selection if clicking background without shift
+            document.querySelectorAll('.node-selected').forEach(n => n.classList.remove('node-selected'));
+            selectedNodes = [];
+            selectedNode = null;
+            renderConfig();
+        }
     }
 }
 
 function handleMouseMove(e) {
     mouseEvent = e;
+    if (selectionStart) {
+        const left = Math.min(selectionStart.x, e.clientX);
+        const top = Math.min(selectionStart.y, e.clientY);
+        const width = Math.abs(selectionStart.x - e.clientX);
+        const height = Math.abs(selectionStart.y - e.clientY);
+
+        marqueeEl.style.left = left + 'px';
+        marqueeEl.style.top = top + 'px';
+        marqueeEl.style.width = width + 'px';
+        marqueeEl.style.height = height + 'px';
+        return;
+    }
+
     if (isDragging) {
         const dx = e.clientX - lastMousePos.x;
         const dy = e.clientY - lastMousePos.y;
@@ -874,7 +930,7 @@ function handleMouseMove(e) {
             const rect = p.getBoundingClientRect();
             const px = rect.left + rect.width / 2;
             const py = rect.top + rect.height / 2;
-            const d = Math.sqrt((e.clientX - px)**2 + (e.clientY - py)**2);
+            const d = Math.sqrt((e.clientX - px) ** 2 + (e.clientY - py) ** 2);
             if (d < minDist) {
                 minDist = d;
                 closest = p;
@@ -893,6 +949,29 @@ function handleMouseMove(e) {
 }
 
 function handleMouseUp(e) {
+    if (selectionStart) {
+        const marqueeRect = marqueeEl.getBoundingClientRect();
+        selectedNodes = [];
+        store.nodes.forEach(node => {
+            const el = document.getElementById(node.id);
+            if (el) {
+                const rect = el.getBoundingClientRect();
+                // Check if node is fully inside marquee
+                if (rect.left >= marqueeRect.left && rect.right <= marqueeRect.right &&
+                    rect.top >= marqueeRect.top && rect.bottom <= marqueeRect.bottom) {
+                    selectedNodes.push(node.id);
+                    el.classList.add('node-selected');
+                }
+            }
+        });
+        selectedNode = selectedNodes[0] || null;
+        renderConfig();
+        marqueeEl.remove();
+        marqueeEl = null;
+        selectionStart = null;
+        return;
+    }
+
     isDragging = false;
     if (activeLink) {
         let port = snapTarget;
@@ -914,11 +993,11 @@ function handleMouseUp(e) {
 
 function handleWheel(e) {
     e.preventDefault();
-    
+
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
     const oldZoom = zoom;
     const newZoom = Math.min(Math.max(0.1, zoom * delta), 4);
-    
+
     if (oldZoom === newZoom) return;
 
     // Zoom relative to mouse position
@@ -959,22 +1038,22 @@ function zoomToExtents() {
     const padding = 100;
     const contentWidth = maxX - minX + padding * 2;
     const contentHeight = maxY - minY + padding * 2;
-    
+
     const containerRect = editorContainer.getBoundingClientRect();
     const targetZoom = Math.min(
         containerRect.width / contentWidth,
         containerRect.height / contentHeight,
         1.2 // Don't zoom in too much
     );
-    
+
     zoom = Math.max(0.2, targetZoom);
-    
+
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
-    
+
     offset.x = containerRect.width / 2 - centerX * zoom;
     offset.y = containerRect.height / 2 - centerY * zoom;
-    
+
     needsRender = true;
     showToast('Zoom to Extents');
 }
@@ -999,6 +1078,21 @@ function renderNode(node) {
     div.style.top = node.y + 'px';
 
     let fieldsHtml = '';
+
+    // AAA Expression Preview: Show character sprite thumbnail in dialogue nodes
+    if (node.type === 'dialogue') {
+        const charId = node.data.character;
+        const character = charId && store.config.characters[charId];
+        const state = node.data.spriteState || 'neutral';
+        let spriteUrl = '';
+        if (character && character.sprites) {
+            spriteUrl = character.sprites[state] || character.sprites['neutral'] || Object.values(character.sprites)[0];
+        }
+
+        if (spriteUrl) {
+            fieldsHtml += `<div class="node-sprite-preview" style="background-image: url('${spriteUrl}')"></div>`;
+        }
+    }
     // Track which fields need post-mount setup
     const richFields = [];
 
@@ -1059,7 +1153,7 @@ function renderNode(node) {
                 node.data.gates = [{ variable: Object.keys(store.config.initialState)[0] || 'var', operator: '==', value: 0 }];
             }
         }
-        
+
         node.data.gates.forEach((gate, idx) => {
             const dropdownId = `gate_${node.id}_${idx}`;
             fieldsHtml += `
@@ -1111,35 +1205,48 @@ function renderNode(node) {
     const header = div.querySelector('.node-header');
     header.onmousedown = (e) => {
         e.stopPropagation();
-        selectNode(node.id);
+        selectNode(node.id, e.shiftKey);
         let startX = e.clientX;
         let startY = e.clientY;
-        
+
         const onMouseMove = (me) => {
             const dx = (me.clientX - startX) / zoom;
             const dy = (me.clientY - startY) / zoom;
-            node.x += dx;
-            node.y += dy;
-            div.style.left = node.x + 'px';
-            div.style.top = node.y + 'px';
+
+            // Move all selected nodes
+            selectedNodes.forEach(sid => {
+                const snode = store.nodes.find(n => n.id === sid);
+                const sel = document.getElementById(sid);
+                if (snode && sel) {
+                    snode.x += dx;
+                    snode.y += dy;
+                    sel.style.left = snode.x + 'px';
+                    sel.style.top = snode.y + 'px';
+                }
+            });
+
             startX = me.clientX;
             startY = me.clientY;
             needsRender = true;
         };
-        
+
         const onMouseUp = () => {
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup', onMouseUp);
+            store.save(); // Save after drag
         };
-        
+
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mouseup', onMouseUp);
     };
 
-    div.onclick = () => selectNode(node.id);
+    div.onclick = (e) => {
+        e.stopPropagation();
+        selectNode(node.id, e.shiftKey);
+    };
 
     workspace.appendChild(div);
-    
+
     // Trigger appearing animation
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -1151,7 +1258,7 @@ function renderNode(node) {
     richFields.forEach(fieldName => {
         const mount = div.querySelector(`.nexus-re-mount[data-field="${fieldName}"]`);
         if (!mount || !window.NexusRichEditor) return;
-        
+
         // AAA Cleanup: Destroy existing instance for this node if it exists
         if (window._nexusRichEditors && window._nexusRichEditors[node.id]) {
             window._nexusRichEditors[node.id].destroy();
@@ -1163,7 +1270,7 @@ function renderNode(node) {
         });
         re.getElement().querySelector('.nexus-re-editor').setAttribute('placeholder', 'Type dialogue here...');
         mount.replaceWith(re.getElement());
-        
+
         if (!window._nexusRichEditors) window._nexusRichEditors = {};
         window._nexusRichEditors[node.id] = re;
     });
@@ -1216,7 +1323,7 @@ function clearWorkspace() {
         // Reset history so undo can't bring back cleared nodes
         store.undoStack = [];
         store.redoStack = [];
-        
+
         // Reset view for a truly "blank space"
         offset = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         zoom = 1;
@@ -1231,18 +1338,46 @@ function clearWorkspace() {
 }
 
 function clearCache() {
-    confirmAction('This will PERMANENTLY DELETE all autosaved progress and reset the editor to its default state. This cannot be undone.', () => {
-        store.clearAutosave();
-    });
+    const content = `
+        <div style="text-align:center; padding: 10px;">
+            <h3 style="color:var(--accent); margin-bottom:15px; letter-spacing: 2px;">🛰️ RESET WORKSPACE</h3>
+            <p style="color:white; margin-bottom:25px; font-size: 14px; line-height: 1.5;">Choose your reset level. This action cannot be undone.</p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <button class="btn btn-outline" style="width:100%; border-color:#ff9d00; color:#ff9d00;" onclick="store.clearAutosave(false)">
+                    <i class="bi bi-arrow-counterclockwise"></i> RESET TO TEMPLATE
+                </button>
+                <button class="btn btn-outline" style="width:100%; border-color:#ff4a4a; color:#ff4a4a;" onclick="store.clearAutosave(true)">
+                    <i class="bi bi-trash3-fill"></i> FACTORY RESET (BLANK)
+                </button>
+                <button class="btn" style="width:100%; margin-top:10px; background:rgba(255,255,255,0.1); color:white;" onclick="hideOverlay()">CANCEL</button>
+            </div>
+        </div>
+    `;
+    showModal(content);
 }
 
-function selectNode(id) {
-    if (selectedNode) {
-        const prev = document.getElementById(selectedNode);
-        if (prev) prev.classList.remove('selected');
+function selectNode(id, isShift = false) {
+    const nodeEl = document.getElementById(id);
+    if (!nodeEl) return;
+
+    if (isShift) {
+        if (selectedNodes.includes(id)) {
+            selectedNodes = selectedNodes.filter(n => n !== id);
+            nodeEl.classList.remove('node-selected');
+        } else {
+            selectedNodes.push(id);
+            nodeEl.classList.add('node-selected');
+        }
+    } else {
+        if (!selectedNodes.includes(id)) {
+            document.querySelectorAll('.node-selected').forEach(n => n.classList.remove('node-selected'));
+            selectedNodes = [id];
+            nodeEl.classList.add('node-selected');
+        }
     }
-    selectedNode = id;
-    document.getElementById(id).classList.add('selected');
+
+    selectedNode = selectedNodes[selectedNodes.length - 1] || null;
+    renderConfig();
 }
 
 // --- LINK LOGIC ---
@@ -1276,14 +1411,14 @@ function renderLinks(mouseEvent = null) {
 
         if (snapTarget) {
             const rect = snapTarget.getBoundingClientRect();
-            toPos = { 
-                x: (rect.left + rect.width / 2) - containerRect.left, 
-                y: (rect.top + rect.height / 2) - containerRect.top 
+            toPos = {
+                x: (rect.left + rect.width / 2) - containerRect.left,
+                y: (rect.top + rect.height / 2) - containerRect.top
             };
         } else {
-            toPos = { 
-                x: mouseEvent.clientX - containerRect.left, 
-                y: mouseEvent.clientY - containerRect.top 
+            toPos = {
+                x: mouseEvent.clientX - containerRect.left,
+                y: mouseEvent.clientY - containerRect.top
             };
         }
         drawLink(fromPos, toPos);
@@ -1321,7 +1456,7 @@ function updateConnectedPorts() {
 function getPortPos(nodeId, portId) {
     const nodeEl = document.getElementById(nodeId);
     if (!nodeEl) return null;
-    
+
     let portEl;
     if (portId === 'in') portEl = nodeEl.querySelector('.port-in');
     else if (portId === 'out') portEl = nodeEl.querySelector('.port-out');
@@ -1337,24 +1472,24 @@ function getPortPos(nodeId, portId) {
     if (!portEl) return null;
     const rect = portEl.getBoundingClientRect();
     const containerRect = editorContainer.getBoundingClientRect();
-    
-    return { 
-        x: (rect.left + rect.width / 2) - containerRect.left, 
-        y: (rect.top + rect.height / 2) - containerRect.top 
+
+    return {
+        x: (rect.left + rect.width / 2) - containerRect.left,
+        y: (rect.top + rect.height / 2) - containerRect.top
     };
 }
 
 function drawLink(start, end, linkData = null) {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    
+
     // Spline Calculation
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
-    
+
     let cp1x, cp1y, cp2x, cp2y;
-    
+
     if (dx >= 0) {
         // Forward connection
         const intensity = Math.min(Math.max(50, absDx * 0.5), 150);
@@ -1413,6 +1548,24 @@ function drawLink(start, end, linkData = null) {
     group.appendChild(glowPath);
     group.appendChild(corePath);
     group.appendChild(hitboxPath);
+
+    // --- Directional Arrow ---
+    if (linkData) {
+        const t = 0.5;
+        const midX = Math.pow(1 - t, 3) * start.x + 3 * Math.pow(1 - t, 2) * t * cp1x + 3 * (1 - t) * Math.pow(t, 2) * cp2x + Math.pow(t, 3) * end.x;
+        const midY = Math.pow(1 - t, 3) * start.y + 3 * Math.pow(1 - t, 2) * t * cp1y + 3 * (1 - t) * Math.pow(t, 2) * cp2y + Math.pow(t, 3) * end.y;
+
+        const tangentX = 3 * Math.pow(1 - t, 2) * (cp1x - start.x) + 6 * (1 - t) * t * (cp2x - cp1x) + 3 * Math.pow(t, 2) * (end.x - cp2x);
+        const tangentY = 3 * Math.pow(1 - t, 2) * (cp1y - start.y) + 6 * (1 - t) * t * (cp2y - cp1y) + 3 * Math.pow(t, 2) * (end.y - cp2y);
+        const angle = Math.atan2(tangentY, tangentX) * (180 / Math.PI);
+
+        const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        arrow.setAttribute("d", "M -6 -6 L 6 0 L -6 6 Z"); // Simple triangle
+        arrow.setAttribute("fill", color);
+        arrow.setAttribute("transform", `translate(${midX}, ${midY}) rotate(${angle})`);
+        arrow.style.opacity = "0.9";
+        group.appendChild(arrow);
+    }
 
     if (linkData) {
         const removeLink = (e) => {
@@ -1491,7 +1644,7 @@ function updateDropdownValue(nodeId, fieldName, value) {
 function refreshNode(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    
+
     const node = store.nodes.find(n => n.id === id);
     if (node) {
         const placeholder = document.createElement('div');
@@ -1534,10 +1687,17 @@ function editSprites(id) {
     let spriteHtml = '';
     Object.entries(char.sprites || {}).forEach(([key, url]) => {
         spriteHtml += `
-            <div class="list-item" style="margin-bottom: 5px;">
-                <input value="${key}" style="width:70px" onchange="store.pushSnapshot(); const v=store.config.characters['${id}'].sprites['${key}']; delete store.config.characters['${id}'].sprites['${key}']; store.config.characters['${id}'].sprites[this.value]=v; editSprites('${id}'); store.emit('config_refresh')">
-                <input value="${url}" placeholder="Sprite URL" style="flex:1" onchange="store.pushSnapshot(); store.config.characters['${id}'].sprites['${key}'] = this.value; store.emit('config_refresh')">
-                <span style="cursor:pointer" onclick="store.pushSnapshot(); delete store.config.characters['${id}'].sprites['${key}']; editSprites('${id}'); store.emit('config_refresh')">✕</span>
+            <div class="list-item" style="margin-bottom: 8px; align-items: center;">
+                <div class="sprite-editor-thumb" style="background-image: url('${url}')">
+                    ${!url ? '<i class="bi bi-image"></i>' : ''}
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; gap:4px">
+                    <div style="display:flex; gap:5px">
+                        <input value="${key}" style="width:100px; font-weight:bold; font-size:11px" placeholder="Expression" onchange="store.pushSnapshot(); const v=store.config.characters['${id}'].sprites['${key}']; delete store.config.characters['${id}'].sprites['${key}']; store.config.characters['${id}'].sprites[this.value]=v; editSprites('${id}'); store.emit('config_refresh')">
+                        <span class="btn-delete" style="padding: 2px 6px;" onclick="store.pushSnapshot(); delete store.config.characters['${id}'].sprites['${key}']; editSprites('${id}'); store.emit('config_refresh')"><i class="bi bi-trash3-fill"></i></span>
+                    </div>
+                    <input value="${url}" placeholder="Sprite URL" style="font-size:11px" onchange="store.pushSnapshot(); store.config.characters['${id}'].sprites['${key}'] = this.value; store.emit('config_refresh')">
+                </div>
             </div>
         `;
     });
@@ -1550,7 +1710,7 @@ function editSprites(id) {
             <button class="btn" style="width:100%; margin-top:20px;" onclick="hideOverlay(); store.emit('config_refresh')">DONE</button>
         </div>
     `;
-    
+
     showModal(content);
 }
 
@@ -1656,7 +1816,7 @@ function updateNodeCountBadge() {
 function showSpritePreview(nodeId, charId) {
     const node = store.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    
+
     const finalCharId = charId || node.data.character;
     const character = store.config.characters[finalCharId];
     if (!character) return;
@@ -1675,7 +1835,7 @@ function showSpritePreview(nodeId, charId) {
     }
 
     preview.style.backgroundImage = `url(${spriteUrl})`;
-    
+
     // Position it relative to the node
     const nodeEl = document.getElementById(nodeId);
     if (nodeEl) {
@@ -1713,7 +1873,7 @@ function updateChapter(oldId, newId, field, value) {
         const name = store.config.chapterNames[oldId];
         const bg = store.config.chapterBackgrounds[oldId];
         const mus = store.config.chapterMusic[oldId];
-        
+
         delete store.config.chapterNames[oldId];
         delete store.config.chapterBackgrounds[oldId];
         delete store.config.chapterMusic[oldId];
@@ -1749,8 +1909,8 @@ function deleteStateVar(id) {
 }
 
 const THEMES = [
-    'nasapunk.css', 'cyberpunk.css', 'anime1.css', 'anime2.css', 
-    'anime3.css', 'anime4.css', 'fantasy.css', 'gothic.css', 
+    'nasapunk.css', 'cyberpunk.css', 'anime1.css', 'anime2.css',
+    'anime3.css', 'anime4.css', 'fantasy.css', 'gothic.css',
     'romantic1.css', 'romantic2.css', 'warmui.css'
 ];
 
@@ -1765,10 +1925,10 @@ function updateGlobalConfig() {
 function toggleSection(sectionId, header) {
     const section = document.getElementById(sectionId);
     if (!section) return;
-    
+
     const isCollapsed = section.classList.toggle('collapsed');
     header.classList.toggle('collapsed', isCollapsed);
-    
+
     // Rotate icon
     const icon = header.querySelector('.bi-chevron-down');
     if (icon) {
@@ -1854,15 +2014,18 @@ function renderConfig() {
         div.style.alignItems = 'stretch';
         div.style.gap = '5px';
         div.innerHTML = `
-            <div style="display:grid; grid-template-columns: 44px 1fr; gap:10px; align-items: start; width: 100%">
+            <div style="display:grid; grid-template-columns: 44px 1fr; gap:12px; align-items: start; width: 100%">
                 ${c.sprites?.neutral ? `<img src="${c.sprites.neutral}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-person"></i></div>`}
-                <div style="display:flex; flex-direction:column; gap:6px; min-width: 0">
-                    <div style="display:flex; gap:5px; align-items:center">
-                        <input value="${id}" style="width:60px; font-weight:bold; color:var(--accent); font-size:11px; padding: 4px;" oninput="updateCharacter('${id}', 'id', this.value)">
-                        <input value="${c.name || ''}" placeholder="Display Name" style="flex:1; margin-right:5px" oninput="updateCharacter('${id}', 'name', this.value)">
-                        <span class="btn-delete" onclick="deleteCharacter('${id}')"><i class="bi bi-x-lg"></i></span>
+                <div style="display:flex; flex-direction:column; gap:8px; min-width: 0">
+                    <div style="display:flex; gap:6px; align-items:center">
+                        <input value="${id}" style="width:70px; font-weight:bold; color:var(--accent); font-size:11px; padding: 4px; border-color:var(--accent-dim)" oninput="updateCharacter('${id}', 'id', this.value)">
+                        <input value="${c.name || ''}" placeholder="Display Name" style="flex:1; margin-right:5px; font-weight: 600;" oninput="updateCharacter('${id}', 'name', this.value)">
+                        <span class="btn-delete" onclick="deleteCharacter('${id}')"><i class="bi bi-trash3-fill"></i></span>
                     </div>
-                    <div style="display:flex; gap:5px; align-items:center;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div class="expression-badge">
+                            <i class="bi bi-layers-fill"></i> ${Object.keys(c.sprites || {}).length}
+                        </div>
                         <div style="flex:1">
                             ${getDropdownHtml('char_' + id, 'position', ['left', 'center', 'right'], c.position || 'center')}
                         </div>
@@ -1936,11 +2099,11 @@ function serializeRichHtml(html) {
 function exportJSON() {
 
     const dialogue = [];
-    
+
     store.nodes.forEach((node, index) => {
         const charName = node.data.character || "NARRATION";
         const spriteState = node.data.spriteState ? `:${node.data.spriteState}` : "";
-        
+
         const entry = {
             id: node.id,
             chapter: parseInt(node.data.chapter) || 0,
@@ -2015,34 +2178,77 @@ function importJSON(e) {
     reader.onload = (re) => {
         try {
             const data = JSON.parse(re.target.result);
+
+            // MIGRATION: Handle initialState as object (from external JSONs)
+            if (data.initialState && !Array.isArray(data.initialState)) {
+                const newInit = [];
+                Object.entries(data.initialState).forEach(([k, v]) => {
+                    newInit.push({ id: 'var_' + Math.random().toString(36).substr(2, 9), key: k, value: v });
+                });
+                data.initialState = newInit;
+            }
+
             if (!data.storyDialogue) throw new Error("Missing storyDialogue array");
 
             store.pushSnapshot(); // Make import undoable
-            
+
             store.nodes = [];
             store.links = [];
             store.groups = data.groups || [];
             workspace.innerHTML = '';
-            
+
             // Load global config
             store.config = { ...store.config, ...data };
             delete store.config.storyDialogue;
-            
-            // Load nodes
+
+            // --- SMART LAYOUT & AUTO-GROUPING ---
+            const uniqueChapters = [...new Set(data.storyDialogue.map(d => d.chapter))].sort((a, b) => a - b);
+
+            // Auto-generate groups if missing
+            if ((!store.groups || store.groups.length === 0) && uniqueChapters.length > 0) {
+                uniqueChapters.forEach((ch, idx) => {
+                    const chName = data.chapterNames && data.chapterNames[ch] ? data.chapterNames[ch] : `CHAPTER ${ch}`;
+                    store.groups.push({
+                        id: `group_ch_${ch}`,
+                        title: chName.toUpperCase(),
+                        x: 50,
+                        y: 50 + idx * 1200,
+                        width: 15000,
+                        height: 1000,
+                        color: 'rgba(0, 255, 204, 0.05)'
+                    });
+                });
+            }
+
+            // Load nodes with smart positioning
             data.storyDialogue.forEach((d, i) => {
                 let charId = d.character;
                 let spriteState = 'neutral';
-                
-                // Handle Name:State format from exporter
                 if (charId && charId.includes(':')) {
                     [charId, spriteState] = charId.split(':');
+                }
+
+                const chIdx = uniqueChapters.indexOf(d.chapter);
+                const sceneIdxInChapter = data.storyDialogue.filter((node, index) => node.chapter === d.chapter && index < i).length;
+
+                // Smart X/Y if not provided
+                let x = d.x;
+                let y = d.y;
+                if (!x || !y) {
+                    if (chIdx !== -1) {
+                        x = 200 + sceneIdxInChapter * 600;
+                        y = 200 + chIdx * 1200;
+                    } else {
+                        x = 100 + (i % 5) * 300;
+                        y = 100 + Math.floor(i / 5) * 350;
+                    }
                 }
 
                 const node = {
                     id: d.id || `node_${i}`,
                     type: d.choices ? 'choice' : (d.type === 'condition' ? 'condition' : 'dialogue'),
-                    x: d.x || (100 + (i % 5) * 300),
-                    y: d.y || (100 + Math.floor(i / 5) * 350),
+                    x: x,
+                    y: y,
                     data: {
                         character: charId,
                         spriteState: spriteState,
@@ -2057,31 +2263,51 @@ function importJSON(e) {
                 store.nodes.push(node);
             });
 
-            // Re-create links
+            // --- SMART CONNECTION ALGORITHM ---
             data.storyDialogue.forEach((d, i) => {
                 const fromId = d.id || `node_${i}`;
+                let hasExplicitNext = false;
+
+                // 1. Explicit nextId
                 if (d.nextId) {
                     store.links.push({ fromNode: fromId, fromPort: 'out', toNode: d.nextId, toPort: 'in' });
+                    hasExplicitNext = true;
                 }
+
+                // 2. Choices
                 if (d.choices) {
                     d.choices.forEach((c, cIdx) => {
                         if (c.nextId) {
                             store.links.push({ fromNode: fromId, fromPort: `choice_${cIdx}`, toNode: c.nextId, toPort: 'in' });
+                            hasExplicitNext = true;
                         }
                     });
                 }
+
+                // 3. Branches (Logic)
                 if (d.branches) {
                     Object.entries(d.branches).forEach(([key, target]) => {
                         if (target) {
                             const portName = key.charAt(0).toUpperCase() + key.slice(1);
                             store.links.push({ fromNode: fromId, fromPort: `branch_${portName}`, toNode: target, toPort: 'in' });
+                            hasExplicitNext = true;
                         }
                     });
+                }
+
+                // 4. AUTO-LINK fallback (Sequential Progression)
+                // If no explicit connection is found, link to the next node in the array
+                if (!hasExplicitNext && i < data.storyDialogue.length - 1) {
+                    const nextNode = data.storyDialogue[i + 1];
+                    const nextId = nextNode.id || `node_${i + 1}`;
+                    store.links.push({ fromNode: fromId, fromPort: 'out', toNode: nextId, toPort: 'in' });
                 }
             });
 
             store.emit('nodes_changed');
             store.emit('groups_changed');
+            store.emit('links_changed');
+            store.emit('config_refresh');
             showToast("Import Successful");
         } catch (err) {
             console.error("Import failed", err);
@@ -2092,3 +2318,97 @@ function importJSON(e) {
 }
 
 init();
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('nav-sidebar');
+    sidebar.classList.toggle('active');
+    if (sidebar.classList.contains('active')) {
+        renderSidebar();
+    }
+}
+
+function renderSidebar() {
+    const navList = document.getElementById('nav-list');
+    if (!navList) return;
+
+    navList.innerHTML = '';
+
+    // Sort groups by Y position to match vertical chapter order
+    const sortedGroups = [...store.groups].sort((a, b) => a.y - b.y);
+
+    sortedGroups.forEach(group => {
+        const item = document.createElement('div');
+        item.className = 'nav-item';
+
+        // Count nodes in this group
+        const nodeCount = store.getNodesInGroup(group.id).length;
+
+        item.innerHTML = `
+            <i class="bi bi-folder2-open"></i>
+            <div class="nav-title">${group.title || 'Untitled Group'}</div>
+            <div class="nav-meta">${nodeCount} nodes</div>
+        `;
+
+        item.onclick = () => scrollToGroup(group.id);
+        navList.appendChild(item);
+    });
+
+    if (sortedGroups.length === 0) {
+        navList.innerHTML = '<div style="text-align:center; opacity:0.3; padding:40px; font-size:11px">No groups found</div>';
+    }
+}
+
+function scrollToGroup(groupId) {
+    const groupEl = document.getElementById(groupId);
+    if (!groupEl) return;
+
+    // Center the group in the workspace
+    const rect = groupEl.getBoundingClientRect();
+    const container = editorContainer.getBoundingClientRect();
+
+    // We need to account for current pan and zoom
+    // But since it's an SVG-based workspace, scrollIntoView might be tricky if it's not actually scrollable
+    // Our workspace uses CSS transform for panning.
+
+    const group = store.groups.find(g => g.id === groupId);
+    if (group) {
+        // Target offset to center the group
+        const targetX = (window.innerWidth / 2) - (group.x * zoom + (group.width * zoom) / 2);
+        const targetY = (window.innerHeight / 2) - (group.y * zoom + (group.height * zoom) / 2);
+
+        // Smooth transition for pan
+        animatePan(targetX, targetY);
+    }
+
+    // Highlight the group briefly
+    groupEl.style.outline = '4px solid var(--accent)';
+    groupEl.style.boxShadow = '0 0 50px var(--accent)';
+    setTimeout(() => {
+        groupEl.style.outline = '';
+        groupEl.style.boxShadow = '';
+    }, 1500);
+}
+
+function animatePan(targetX, targetY) {
+    const startX = offset.x;
+    const startY = offset.y;
+    const duration = 500;
+    const startTime = performance.now();
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Ease out quint
+        const ease = 1 - Math.pow(1 - progress, 5);
+
+        offset.x = startX + (targetX - startX) * ease;
+        offset.y = startY + (targetY - startY) * ease;
+
+        updateWorkspace();
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+    requestAnimationFrame(step);
+}

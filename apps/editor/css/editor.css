@@ -2,6 +2,7 @@
 
 :root {
     --accent: #00ffcc;
+    --accent-rgb: 0, 255, 204;
     --accent-dim: rgba(0, 255, 204, 0.2);
     --bg: #0a0c10;
     --panel: rgba(16, 20, 26, 0.85);
@@ -10,6 +11,21 @@
     --text-dim: rgba(255, 255, 255, 0.5);
     --node-bg: #1a1f26;
     --node-header: #252b35;
+}
+
+.selection-marquee {
+    position: fixed;
+    border: 1px solid var(--accent);
+    background: rgba(var(--accent-rgb), 0.15);
+    pointer-events: none;
+    z-index: 10000;
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);
+    border-radius: 2px;
+}
+
+.node-selected {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4) !important;
 }
 
 * {
@@ -48,6 +64,8 @@ body {
     left: 0;
     transform-origin: 0 0;
     will-change: transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* --- SVG OVERLAY --- */
@@ -59,6 +77,7 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 1;
+    shape-rendering: geometricPrecision;
 }
 
 .connection {
@@ -97,8 +116,7 @@ body {
 }
 
 .connection-active .connection-core {
-    stroke-dasharray: 10, 15;
-    animation: flow-line 30s linear infinite;
+    opacity: 0.9;
 }
 
 .connection-active .connection-glow {
@@ -180,6 +198,30 @@ body {
 
 .node-content {
     padding: 15px;
+}
+
+.node-sprite-preview {
+    width: 100%;
+    height: 120px;
+    background-size: contain;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+    transition: background-image 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.node-sprite-preview::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(0deg, rgba(0,255,204,0.05) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 /* --- PORTS --- */
@@ -515,6 +557,35 @@ body {
     justify-content: center;
     color: var(--text-dim);
     font-size: 16px;
+}
+
+.sprite-editor-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background-size: cover;
+    background-position: center top;
+    background-color: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+
+.expression-badge {
+    font-size: 9px;
+    font-weight: 800;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--accent-dim);
+    white-space: nowrap;
 }
 
 .btn-delete {
@@ -1284,4 +1355,99 @@ h2 {
 
 .node-group:hover .node-group-resizer { opacity: 0.6; }
 .node-group-resizer:hover { opacity: 1; background: linear-gradient(135deg, transparent 50%, var(--accent) 50%); }
+
+/* --- NAVIGATOR SIDEBAR --- */
+.sidebar-panel {
+    position: fixed;
+    right: -300px;
+    top: 80px;
+    bottom: 20px;
+    width: 280px;
+    background: rgba(10, 15, 25, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px 0 0 20px;
+    z-index: 1000;
+    transition: right 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-panel.active {
+    right: 0;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0;
+    color: var(--accent);
+}
+
+.btn-close-sidebar {
+    background: none;
+    border: none;
+    color: white;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.btn-close-sidebar:hover {
+    opacity: 1;
+}
+
+#nav-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.nav-item {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-item:hover {
+    background: rgba(var(--accent-rgb), 0.1);
+    border-color: var(--accent);
+    transform: translateX(-5px);
+}
+
+.nav-item i {
+    color: var(--accent);
+    font-size: 16px;
+}
+
+.nav-item .nav-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-item .nav-meta {
+    margin-left: auto;
+    font-size: 9px;
+    opacity: 0.5;
+}
 

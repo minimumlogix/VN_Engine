@@ -14,7 +14,7 @@
     <div id="config-panel" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:10px">
             <h2 style="font-size:18px; font-weight:800; letter-spacing:2px; margin:0; background:linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent">🛰️ NEXUS</h2>
-            <div id="node-count-badge" class="badge rounded-pill" style="font-size:10px; background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent)">0 NODES</div>
+            <div id="config-node-count-badge" class="badge rounded-pill" style="font-size:10px; background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent)">0 NODES</div>
         </div>
         <div class="section-header" onclick="toggleSection('global-config-section', this)">
             <h3><i class="bi bi-gear-fill"></i> GLOBAL CONFIG</h3>
@@ -87,6 +87,9 @@
         </button>
         <button class="btn btn-accent btn-sm d-flex align-items-center gap-1" onclick="addNode('condition')">
             <i class="bi bi-cpu"></i> LOGIC
+        </button>
+        <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="store.addGroup(window.innerWidth/2, window.innerHeight/2)">
+            <i class="bi bi-collection"></i> ADD GROUP
         </button>
 
         <div class="vr mx-1"></div>

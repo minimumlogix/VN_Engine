@@ -8,6 +8,7 @@ class NexusDataStore {
     constructor() {
         this.nodes = [];
         this.links = [];
+        this.groups = [];
         this.config = JSON.parse(JSON.stringify(DEFAULT_STORY_DATA)); // Deep clone
         this.listeners = [];
         this.autoSaveKey = 'nexus_editor_autosave';
@@ -21,6 +22,7 @@ class NexusDataStore {
         const snapshot = JSON.stringify({
             nodes: this.nodes,
             links: this.links,
+            groups: this.groups,
             config: this.config
         });
         const last = this.undoStack[this.undoStack.length - 1];
@@ -40,6 +42,7 @@ class NexusDataStore {
         const current = JSON.stringify({
             nodes: this.nodes,
             links: this.links,
+            groups: this.groups,
             config: this.config
         });
         this.redoStack.push(current);
@@ -47,8 +50,10 @@ class NexusDataStore {
         const prevState = JSON.parse(this.undoStack[this.undoStack.length - 1]);
         this.nodes = prevState.nodes || [];
         this.links = prevState.links || [];
+        this.groups = prevState.groups || [];
         this.config = prevState.config || this.config;
         this.emit('nodes_changed');
+        this.emit('groups_changed');
         this.emit('config_refresh');
         this.emit('links_changed');
         showToast('Undo');
@@ -62,14 +67,17 @@ class NexusDataStore {
         const current = JSON.stringify({
             nodes: this.nodes,
             links: this.links,
+            groups: this.groups,
             config: this.config
         });
         this.undoStack.push(current);
         const nextState = JSON.parse(this.redoStack.pop());
         this.nodes = nextState.nodes || [];
         this.links = nextState.links || [];
+        this.groups = nextState.groups || [];
         this.config = nextState.config || this.config;
         this.emit('nodes_changed');
+        this.emit('groups_changed');
         this.emit('config_refresh');
         this.emit('links_changed');
         showToast('Redo');
@@ -91,6 +99,7 @@ class NexusDataStore {
         const payload = {
             nodes: this.nodes,
             links: this.links,
+            groups: this.groups,
             config: this.config
         };
         localStorage.setItem(this.autoSaveKey, JSON.stringify(payload));
@@ -103,6 +112,7 @@ class NexusDataStore {
                 const data = JSON.parse(saved);
                 this.nodes = data.nodes || [];
                 this.links = data.links || [];
+                this.groups = data.groups || [];
                 this.config = data.config || this.config;
 
                 // MIGRATION: Convert object initialState to array if needed
@@ -136,7 +146,7 @@ class NexusDataStore {
     // --- Node Operations ---
     addNode(type, x, y) {
         this.pushSnapshot();
-        const id = 'node_' + Date.now();
+        const id = 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
         const node = {
             id, type,
             x: (x - offset.x) / zoom,
@@ -217,7 +227,8 @@ class NexusDataStore {
         const node = this.nodes.find(n => n.id === nodeId);
         if (node && node.type === 'condition') {
             if (!node.data.gates) node.data.gates = [];
-            node.data.gates.push({ variable: Object.keys(this.config.initialState)[0] || 'new_var', operator: '==', value: 0 });
+            const defaultVar = (this.config.initialState && this.config.initialState[0]) ? this.config.initialState[0].key : 'new_var';
+            node.data.gates.push({ variable: defaultVar, operator: '==', value: 0 });
             this.emit('node_refresh', nodeId);
         }
     }
@@ -267,7 +278,7 @@ class NexusDataStore {
 
     addStateVar(key = "new_var", val = 0) {
         this.pushSnapshot();
-        const id = 'var_' + Date.now();
+        const id = 'var_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
         this.config.initialState.push({ id, key, value: val });
         this.emit('config_refresh');
     }
@@ -297,8 +308,18 @@ class NexusDataStore {
         if (oldKey !== newKey) {
             // Refactor node references
             this.nodes.forEach(node => {
-                if (node.data && node.data.variable === oldKey) {
-                    node.data.variable = newKey;
+                if (node.data) {
+                    if (node.data.variable === oldKey) {
+                        node.data.variable = newKey;
+                    }
+                    // Also refactor condition gates
+                    if (node.data.gates && Array.isArray(node.data.gates)) {
+                        node.data.gates.forEach(gate => {
+                            if (gate.variable === oldKey) {
+                                gate.variable = newKey;
+                            }
+                        });
+                    }
                 }
             });
             this.emit('nodes_changed');
@@ -349,6 +370,179 @@ class NexusDataStore {
         this.pushSnapshot();
         delete this.config.characters[id];
         this.emit('config_refresh');
+    }
+
+    // --- Group Operations ---
+    addGroup(x, y) {
+        this.pushSnapshot();
+        const id = 'group_' + Date.now();
+        const group = {
+            id,
+            title: 'New Group',
+            x: (x - offset.x) / zoom,
+            y: (y - offset.y) / zoom,
+            width: 400,
+            height: 300,
+            color: 'rgba(0, 255, 204, 0.05)'
+        };
+        this.groups.push(group);
+        this.emit('groups_changed');
+        return group;
+    }
+
+    updateGroup(id, field, value) {
+        const group = this.groups.find(g => g.id === id);
+        if (group) {
+            if (field !== 'x' && field !== 'y' && !this.historyTimer) {
+                this.pushSnapshot();
+            }
+            group[field] = value;
+            this.emit('groups_changed');
+        }
+    }
+
+    deleteGroup(id) {
+        this.pushSnapshot();
+        this.groups = this.groups.filter(g => g.id !== id);
+        this.emit('groups_changed');
+    }
+
+    moveGroupNodes(groupId, dx, dy) {
+        const group = this.groups.find(g => g.id === groupId);
+        if (!group) return;
+        
+        // Find nodes whose center is inside the group
+        const containedNodes = this.getNodesInGroup(groupId);
+
+        containedNodes.forEach(node => {
+            node.x += dx;
+            node.y += dy;
+        });
+        
+        if (containedNodes.length > 0) {
+            this.emit('nodes_changed');
+        }
+    }
+
+    getNodesInGroup(groupId) {
+        const group = this.groups.find(g => g.id === groupId);
+        if (!group) return [];
+        return this.nodes.filter(node => {
+            const nodeWidth = 280; // Standard node width from CSS
+            const nx = node.x + nodeWidth / 2;
+            const ny = node.y + 50; // Use top area for inclusion check
+            return nx >= group.x && nx <= group.x + group.width &&
+                   ny >= group.y && ny <= group.y + group.height;
+        });
+    }
+
+    fitGroupToNodes(groupId) {
+        const group = this.groups.find(g => g.id === groupId);
+        if (!group) return;
+        
+        const containedNodes = this.getNodesInGroup(groupId);
+        if (containedNodes.length === 0) {
+            showToast("No nodes found in group", "warn");
+            return;
+        }
+
+        this.pushSnapshot();
+        
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        containedNodes.forEach(node => {
+            minX = Math.min(minX, node.x);
+            minY = Math.min(minY, node.y);
+            maxX = Math.max(maxX, node.x + 280);
+            maxY = Math.max(maxY, node.y + 350); // Estimated height
+        });
+
+        const padding = 40;
+        group.x = minX - padding;
+        group.y = minY - (padding + 40); // Leave room for header
+        group.width = (maxX - minX) + padding * 2;
+        group.height = (maxY - minY) + padding * 2 + 40;
+        
+        this.emit('groups_changed');
+        showToast("Group auto-fitted");
+    }
+
+    deleteGroupAndNodes(groupId) {
+        const group = this.groups.find(g => g.id === groupId);
+        if (!group) return;
+
+        if (!confirm("Are you sure? This will delete the group and ALL nodes inside it.")) return;
+
+        this.pushSnapshot();
+        const nodesToDelete = this.getNodesInGroup(groupId);
+        nodesToDelete.forEach(node => {
+            // Re-use existing delete logic for clean cleanup
+            const idx = this.nodes.findIndex(n => n.id === node.id);
+            if (idx !== -1) {
+                if (window._nexusRichEditors && window._nexusRichEditors[node.id]) {
+                    window._nexusRichEditors[node.id].destroy();
+                    delete window._nexusRichEditors[node.id];
+                }
+                this.nodes.splice(idx, 1);
+            }
+            this.links = this.links.filter(l => l.fromNode !== node.id && l.toNode !== node.id);
+        });
+
+        this.groups = this.groups.filter(g => g.id !== groupId);
+        
+        this.emit('nodes_changed');
+        this.emit('groups_changed');
+        showToast(`Deleted group and ${nodesToDelete.length} nodes`);
+    }
+
+    alignGroupNodes(groupId, type) {
+        const group = this.groups.find(g => g.id === groupId);
+        const nodes = this.getNodesInGroup(groupId);
+        if (nodes.length < 2) return;
+
+        this.pushSnapshot();
+        
+        if (type === 'left') {
+            const minX = Math.min(...nodes.map(n => n.x));
+            nodes.forEach(n => n.x = minX);
+        } else if (type === 'center') {
+            const avgX = nodes.reduce((a, b) => a + b.x, 0) / nodes.length;
+            nodes.forEach(n => n.x = avgX);
+        } else if (type === 'distribute-v') {
+            nodes.sort((a, b) => a.y - b.y);
+            const minY = nodes[0].y;
+            const maxY = nodes[nodes.length - 1].y;
+            const step = (maxY - minY) / (nodes.length - 1);
+            nodes.forEach((n, i) => n.y = minY + (i * step));
+        }
+
+        this.emit('nodes_changed');
+        showToast(`Aligned ${nodes.length} nodes`);
+    }
+
+    autoNameGroup(groupId) {
+        const nodes = this.getNodesInGroup(groupId);
+        if (nodes.length === 0) return;
+
+        // Count character mentions
+        const charCounts = {};
+        nodes.forEach(node => {
+            if (node.data && node.data.character) {
+                charCounts[node.data.character] = (charCounts[node.data.character] || 0) + 1;
+            }
+        });
+
+        const characters = Object.entries(charCounts).sort((a, b) => b[1] - a[1]);
+        let newName = "New Scene";
+        if (characters.length > 0) {
+            const mainChar = characters[0][0];
+            newName = `${mainChar.toUpperCase()} SCENE`;
+        } else if (nodes.some(n => n.type === 'choice')) {
+            newName = "CHOICE BRANCH";
+        }
+
+        this.updateGroup(groupId, 'title', newName);
+        this.emit('groups_changed');
+        showToast(`Renamed to: ${newName}`);
     }
 }
 
@@ -441,6 +635,8 @@ function init() {
     store.subscribe((event, data) => {
         if (event === 'nodes_changed') {
             renderAllNodes();
+        } else if (event === 'groups_changed') {
+            renderAllGroups();
         } else if (event === 'node_refresh') {
             refreshNode(data);
         } else if (event === 'config_refresh' || event === 'config_updated') {
@@ -466,6 +662,7 @@ function init() {
     store.pushSnapshot();
 
     renderAllNodes();
+    renderAllGroups();
     renderConfig();
     requestAnimationFrame(tick);
 
@@ -478,8 +675,144 @@ function init() {
 }
 
 function renderAllNodes() {
-    workspace.innerHTML = '';
+    // Only clear nodes, don't clear the whole workspace if we want to keep groups
+    document.querySelectorAll('.node').forEach(n => n.remove());
     store.nodes.forEach(n => renderNode(n));
+}
+
+function renderAllGroups() {
+    document.querySelectorAll('.node-group').forEach(g => g.remove());
+    store.groups.forEach(g => renderGroup(g));
+}
+
+function renderGroup(group) {
+    const div = document.createElement('div');
+    div.className = 'node-group';
+    div.id = group.id;
+    div.style.left = group.x + 'px';
+    div.style.top = group.y + 'px';
+    div.style.width = group.width + 'px';
+    div.style.height = group.height + 'px';
+    div.style.backgroundColor = group.color;
+    div.style.boxShadow = `0 10px 40px rgba(0,0,0,0.4), 0 0 20px ${group.color}22`;
+    div.style.borderColor = `${group.color}44`;
+
+    div.innerHTML = `
+        <div class="node-group-header" style="border-bottom-color: ${group.color}33">
+            <div class="d-flex align-items-center gap-2" style="flex:1">
+                <button class="node-group-btn" onclick="store.autoNameGroup('${group.id}')" title="Auto-Name Group">
+                    <i class="bi bi-magic"></i>
+                </button>
+                <input type="text" value="${group.title}" oninput="store.updateGroup('${group.id}', 'title', this.value)" class="node-group-title">
+            </div>
+            <div class="node-group-actions">
+                <div class="group-alignment-tools d-flex gap-1 me-2">
+                    <button class="node-group-btn sm" onclick="store.alignGroupNodes('${group.id}', 'left')" title="Align Left"><i class="bi bi-text-left"></i></button>
+                    <button class="node-group-btn sm" onclick="store.alignGroupNodes('${group.id}', 'center')" title="Align Center"><i class="bi bi-text-center"></i></button>
+                    <button class="node-group-btn sm" onclick="store.alignGroupNodes('${group.id}', 'distribute-v')" title="Distribute Vertically"><i class="bi bi-distribute-vertical"></i></button>
+                </div>
+                <button class="node-group-btn" onclick="store.fitGroupToNodes('${group.id}')" title="Fit to Nodes">
+                    <i class="bi bi-aspect-ratio"></i>
+                </button>
+                <button class="node-group-btn" onclick="selectAllInGroup('${group.id}')" title="Select All Nodes">
+                    <i class="bi bi-cursor-fill"></i>
+                </button>
+                <input type="color" value="${group.color}" oninput="store.updateGroup('${group.id}', 'color', this.value)" class="node-group-color-picker">
+                <button class="node-group-btn btn-danger-hover" onclick="store.deleteGroupAndNodes('${group.id}')" title="Delete Group & Nodes">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+            </div>
+        </div>
+        <div class="node-group-resizer"></div>
+    `;
+
+    // Group Dragging Logic
+    const header = div.querySelector('.node-group-header');
+    header.onmousedown = (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        e.stopPropagation();
+        let startX = e.clientX;
+        let startY = e.clientY;
+
+        const onMouseMove = (me) => {
+            const dx = (me.clientX - startX) / zoom;
+            const dy = (me.clientY - startY) / zoom;
+            
+            group.x += dx;
+            group.y += dy;
+            div.style.left = group.x + 'px';
+            div.style.top = group.y + 'px';
+            
+            // Move nodes inside
+            store.moveGroupNodes(group.id, dx, dy);
+            
+            startX = me.clientX;
+            startY = me.clientY;
+            needsRender = true;
+        };
+
+        const onMouseUp = () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            store.emit('groups_changed');
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    };
+
+    // Group Resizing Logic
+    const resizer = div.querySelector('.node-group-resizer');
+    resizer.onmousedown = (e) => {
+        e.stopPropagation();
+        let startX = e.clientX;
+        let startY = e.clientY;
+
+        const onMouseMove = (me) => {
+            const dx = (me.clientX - startX) / zoom;
+            const dy = (me.clientY - startY) / zoom;
+            
+            group.width += dx;
+            group.height += dy;
+            div.style.width = group.width + 'px';
+            div.style.height = group.height + 'px';
+            
+            startX = me.clientX;
+            startY = me.clientY;
+            needsRender = true;
+        };
+
+        const onMouseUp = () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            store.emit('groups_changed');
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    };
+
+    workspace.prepend(div); // Render behind nodes
+}
+
+function selectAllInGroup(groupId) {
+    const nodes = store.getNodesInGroup(groupId);
+    if (nodes.length === 0) return;
+    
+    // Clear current selection visual but nodes don't have a multi-select state yet
+    // So we'll just pulse them all to show they are identified
+    nodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (el) {
+            el.style.transform = 'scale(1.05)';
+            el.style.borderColor = 'var(--accent)';
+            setTimeout(() => {
+                el.style.transform = '';
+                el.style.borderColor = '';
+            }, 1000);
+        }
+    });
+    showToast(`Identified ${nodes.length} nodes`);
 }
 
 function toggleConfigPanel() {
@@ -1136,6 +1469,7 @@ function toggleDropdown(id) {
 
 function updateDropdownValue(nodeId, fieldName, value) {
     if (nodeId === 'global') {
+        store.pushSnapshot();
         store.config[fieldName] = value;
         store.save();
         renderConfig();
@@ -1156,12 +1490,22 @@ function updateDropdownValue(nodeId, fieldName, value) {
 
 function refreshNode(id) {
     const el = document.getElementById(id);
-    if (el) el.remove();
+    if (!el) return;
+    
     const node = store.nodes.find(n => n.id === id);
     if (node) {
+        const placeholder = document.createElement('div');
+        el.replaceWith(placeholder);
         renderNode(node);
         const newEl = document.getElementById(id);
-        if (newEl) newEl.classList.remove('node-appearing');
+        if (newEl) {
+            newEl.classList.remove('node-appearing');
+            placeholder.replaceWith(newEl);
+        } else {
+            placeholder.remove();
+        }
+    } else {
+        el.remove();
     }
     needsRender = true;
 }
@@ -1191,9 +1535,9 @@ function editSprites(id) {
     Object.entries(char.sprites || {}).forEach(([key, url]) => {
         spriteHtml += `
             <div class="list-item" style="margin-bottom: 5px;">
-                <input value="${key}" style="width:70px" onchange="const v=store.config.characters['${id}'].sprites['${key}']; delete store.config.characters['${id}'].sprites['${key}']; store.config.characters['${id}'].sprites[this.value]=v; editSprites('${id}')">
-                <input value="${url}" placeholder="Sprite URL" style="flex:1" onchange="store.config.characters['${id}'].sprites['${key}'] = this.value">
-                <span style="cursor:pointer" onclick="delete store.config.characters['${id}'].sprites['${key}']; editSprites('${id}')">✕</span>
+                <input value="${key}" style="width:70px" onchange="store.pushSnapshot(); const v=store.config.characters['${id}'].sprites['${key}']; delete store.config.characters['${id}'].sprites['${key}']; store.config.characters['${id}'].sprites[this.value]=v; editSprites('${id}'); store.emit('config_refresh')">
+                <input value="${url}" placeholder="Sprite URL" style="flex:1" onchange="store.pushSnapshot(); store.config.characters['${id}'].sprites['${key}'] = this.value; store.emit('config_refresh')">
+                <span style="cursor:pointer" onclick="store.pushSnapshot(); delete store.config.characters['${id}'].sprites['${key}']; editSprites('${id}'); store.emit('config_refresh')">✕</span>
             </div>
         `;
     });
@@ -1202,7 +1546,7 @@ function editSprites(id) {
         <div style="padding: 10px;">
             <h3>EXPRESSIONS: ${char.name}</h3>
             <div id="sprites-editor">${spriteHtml}</div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="store.config.characters['${id}'].sprites['new_expr'] = ''; editSprites('${id}')">＋ ADD EXPRESSION</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="store.pushSnapshot(); store.config.characters['${id}'].sprites['new_expr'] = ''; editSprites('${id}'); store.emit('config_refresh')">＋ ADD EXPRESSION</button>
             <button class="btn" style="width:100%; margin-top:20px;" onclick="hideOverlay(); store.emit('config_refresh')">DONE</button>
         </div>
     `;
@@ -1300,11 +1644,13 @@ function showToast(message, type = 'info') {
 }
 
 function updateNodeCountBadge() {
-    const badge = document.getElementById('node-count-badge');
-    if (!badge) return;
+    const badges = [document.getElementById('node-count-badge'), document.getElementById('config-node-count-badge')];
     const count = store.nodes.length;
-    badge.textContent = count + (count === 1 ? ' NODE' : ' NODES');
-    badge.classList.toggle('has-nodes', count > 0);
+    badges.forEach(badge => {
+        if (!badge) return;
+        badge.textContent = count + (count === 1 ? ' NODE' : ' NODES');
+        badge.classList.toggle('has-nodes', count > 0);
+    });
 }
 
 function showSpritePreview(nodeId, charId) {
@@ -1316,6 +1662,7 @@ function showSpritePreview(nodeId, charId) {
     if (!character) return;
 
     const state = node.data.spriteState || 'neutral';
+    if (!character.sprites) return;
     const spriteUrl = character.sprites[state] || character.sprites['neutral'] || Object.values(character.sprites)[0];
 
     if (!spriteUrl || spriteUrl === "") return;
@@ -1397,8 +1744,8 @@ function addStateVar(key = "new_var", val = 0) {
     store.addStateVar(key, val);
 }
 
-function deleteStateVar(key) {
-    store.deleteStateVar(key);
+function deleteStateVar(id) {
+    store.deleteStateVar(id);
 }
 
 const THEMES = [
@@ -1408,6 +1755,7 @@ const THEMES = [
 ];
 
 function updateGlobalConfig() {
+    store.pushSnapshot();
     store.config.storyTitle = document.getElementById('conf-title').value;
     store.config.storySubtitle = document.getElementById('conf-subtitle').value;
     store.config.loadScreenBackground = document.getElementById('conf-loadbg').value;
@@ -1648,7 +1996,8 @@ function exportJSON() {
 
     const output = {
         ...store.config,
-        storyDialogue: dialogue
+        storyDialogue: dialogue,
+        groups: store.groups
     };
 
     const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
@@ -1668,10 +2017,11 @@ function importJSON(e) {
             const data = JSON.parse(re.target.result);
             if (!data.storyDialogue) throw new Error("Missing storyDialogue array");
 
-            this.store.pushSnapshot(); // Make import undoable
+            store.pushSnapshot(); // Make import undoable
             
             store.nodes = [];
             store.links = [];
+            store.groups = data.groups || [];
             workspace.innerHTML = '';
             
             // Load global config
@@ -1731,6 +2081,7 @@ function importJSON(e) {
             });
 
             store.emit('nodes_changed');
+            store.emit('groups_changed');
             showToast("Import Successful");
         } catch (err) {
             console.error("Import failed", err);

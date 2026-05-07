@@ -134,6 +134,9 @@ function showToast(message) {
 }
 
 const FORM_TEMPLATES = {
+    'image': [
+        { label: 'Image URL', id: 'image-url', type: 'text', placeholder: 'https://.../image.png' }
+    ],
     'music': [
         { label: 'YouTube URL', id: 'yt-url', type: 'text', placeholder: 'https://www.youtube.com/watch?v=...' }
     ],
@@ -1063,6 +1066,8 @@ function renderCanvas() {
         let editBtn = '';
         if (item.type === 'music') {
             editBtn = `<button class="control-btn edit" onclick="editMusicLink(${index})"><i class="bi bi-pencil"></i></button>`;
+        } else if (item.type === 'image') {
+            editBtn = `<button class="control-btn edit" onclick="editImageLink(${index})"><i class="bi bi-pencil"></i></button>`;
         }
 
         el.innerHTML = `<div class="item-label">${item.type.replace('-', ' ')}</div><div class="item-controls">${editBtn}<button class="control-btn" onclick="moveItem(${index}, -1)"><i class="bi bi-chevron-up"></i></button><button class="control-btn" onclick="moveItem(${index}, 1)"><i class="bi bi-chevron-down"></i></button><button class="control-btn delete" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></div><div class="item-preview">${getPreviewHTML(item)}</div>`;
@@ -1154,6 +1159,8 @@ function getPreviewHTML(item) {
     const themeColor = getThemePrimaryHex();
 
     switch(item.type) {
+        case 'image':
+            return `<img src="${item['image-url']}" style="width:100vw;max-width:100%;height:auto;display:block;">`;
         case 'music':
             return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>`;
         case 'character':
@@ -1245,6 +1252,56 @@ function editMusicLink(index) {
     });
 }
 
+function editImageLink(index) {
+    const item = canvasItems[index];
+    const currentUrl = item['image-url'] || '';
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.display = 'flex';
+    
+    overlay.innerHTML = `
+        <div class="modal-content" style="width: min(100%, 500px);">
+            <div class="modal-header">
+                <h2>UPDATE IMAGE LINK</h2>
+                <p>Enter the new URL for this full-width image.</p>
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" id="edit-image-url" value="${currentUrl}">
+            </div>
+            <div style="display: flex; gap: var(--space-md); margin-top: var(--space-xl);">
+                <button id="save-image-btn" class="btn-success" style="flex: 1;">SAVE</button>
+                <button class="btn-outline" style="flex: 1;" onclick="this.closest('.modal-overlay').remove()">CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Focus the input
+    const input = document.getElementById('edit-image-url');
+    input.focus();
+    input.select();
+    
+    document.getElementById('save-image-btn').addEventListener('click', () => {
+        const newUrl = input.value.trim();
+        
+        if (newUrl === '') {
+            showToast('Operation cancelled (Empty URL)');
+            overlay.remove();
+            return;
+        }
+
+        canvasItems[index]['image-url'] = newUrl;
+        renderCanvas();
+        updateCodeView();
+        saveToCache();
+        showToast('Image updated successfully!');
+        overlay.remove();
+    });
+}
+
 function removeItem(index) {
     canvasItems.splice(index, 1);
     renderCanvas();
@@ -1313,6 +1370,9 @@ function generateFullHTML(minified) {
 
     canvasItems.forEach(item => {
         switch(item.type) {
+            case 'image':
+                html += `<img src="${item['image-url']}" style="width:100vw;max-width:100%;height:auto;display:block;">${newline}`;
+                break;
             case 'music':
                 html += `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>${newline}`;
                 break;

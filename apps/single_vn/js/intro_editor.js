@@ -1,3 +1,4 @@
+const COLOR_REGEX = /(#[A-Fa-f0-9]{6}|#[A-Fa-f0-9]{3}|rgba?\(\d+,\s*\d+,\s*\d+(?:,\s*[0-9.]+)?\))/g;
 let canvasItems = [];
 let currentType = null;
 
@@ -167,13 +168,6 @@ function openComponentModal(type) {
                 const textarea = group.querySelector('textarea');
                 textarea.addEventListener('mouseup', handleTextSelection);
                 textarea.addEventListener('keyup', handleTextSelection);
-                textarea.addEventListener('blur', () => {
-                    setTimeout(() => {
-                        if (document.activeElement !== textarea) {
-                            document.getElementById('rich-text-toolbar').style.display = 'none';
-                        }
-                    }, 200);
-                });
             }
         });
     }
@@ -226,47 +220,232 @@ function addCharacterRow(name = '', sprite = '') {
 
 /* --- RICH TEXT LOGIC --- */
 function handleTextSelection(e) {
-    const textarea = e.target;
+    const selection = window.getSelection();
     const toolbar = document.getElementById('rich-text-toolbar');
     
-    if (textarea.selectionStart !== textarea.selectionEnd) {
-        const { left, top } = textarea.getBoundingClientRect();
+    if (selection.toString().trim().length > 0 && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
         toolbar.style.display = 'flex';
+        
+        // Intelligent Positioning: Center above selection
+        const toolbarWidth = toolbar.offsetWidth || 180; 
+        let left = rect.left + (rect.width / 2) - (toolbarWidth / 2);
+        let top = rect.top - 55;
+        
+        // Boundary checks
+        if (left < 10) left = 10;
+        if (left + toolbarWidth > window.innerWidth - 10) left = window.innerWidth - toolbarWidth - 10;
+        if (rect.top < 70) top = rect.bottom + 15;
+        
         toolbar.style.left = `${left}px`;
-        toolbar.style.top = `${top - 50}px`;
+        toolbar.style.top = `${top}px`;
+        
+        // Update active states for Markdown
+        const selectedText = selection.toString().trim();
+        const isBold = selectedText.startsWith('**') && selectedText.endsWith('**');
+        const isItalic = (selectedText.startsWith('*') && selectedText.endsWith('*')) && !isBold;
+        
+        const colorMatch = selectedText.match(/color:\s*(.*?)[;"]/);
+        const activeColor = colorMatch ? colorMatch[1] : null;
+        
+        document.getElementById('btn-bold').classList.toggle('active', isBold);
+        document.getElementById('btn-italic').classList.toggle('active', isItalic);
+        document.getElementById('btn-color').style.color = activeColor || '';
+        document.getElementById('btn-color').classList.toggle('active', !!activeColor);
     } else {
         toolbar.style.display = 'none';
     }
 }
 
 function applyFormat(type, value) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    
+    // Check if we are in a contenteditable or the modal textarea
+    const editable = (container.nodeType === 3 ? container.parentNode : container).closest('[contenteditable="true"]');
     const textarea = document.querySelector('#form-fields textarea');
-    if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    let newText = selectedText;
+    if (editable) {
+        const selection = window.getSelection();
+        const selectedText = selection.toString();
+        
+        if (!selectedText) return;
 
-    switch(type) {
-        case 'bold': newText = `**${selectedText}**`; break;
-        case 'italic': newText = `*${selectedText}*`; break;
-        case 'color': newText = `<span style="color:${value}">${selectedText}</span>`; break;
-        case 'shadow': newText = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${selectedText}</span>`; break;
+        let newText = selectedText;
+        switch(type) {
+            case 'bold': 
+                newText = selectedText.startsWith('**') && selectedText.endsWith('**') ? 
+                          selectedText.slice(2, -2) : `**${selectedText}**`;
+                break;
+            case 'italic': 
+                newText = selectedText.startsWith('*') && selectedText.endsWith('*') ? 
+                          selectedText.slice(1, -1) : `*${selectedText}*`;
+                break;
+            case 'color': 
+                // Prevent nested spans by replacing the outermost one if it exists
+                if (selectedText.startsWith('<span style="color:') && selectedText.endsWith('</span>')) {
+                    const content = selectedText.replace(/^<span style="color:.*?>/, '').replace(/<\/span>$/, '');
+                    newText = `<span style="color:${value}">${content}</span>`;
+                } else {
+                    newText = `<span style="color:${value}">${selectedText}</span>`;
+                }
+                break;
+            case 'shadow': 
+                if (selectedText.startsWith('<span style="text-shadow:') && selectedText.endsWith('</span>')) {
+                    newText = selectedText.replace(/^<span style="text-shadow:.*?>/, '').replace(/<\/span>$/, '');
+                } else {
+                    newText = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${selectedText}</span>`;
+                }
+                break;
+        }
+
+        // Use insertText to preserve undo history and handle selection correctly
+        document.execCommand('insertText', false, newText);
+        
+        const itemEl = editable.closest('.canvas-item');
+        if (itemEl) {
+            const index = Array.from(itemEl.parentNode.children).indexOf(itemEl) - 1; // -1 because of empty state or tabs? No, index is passed in renderCanvas.
+            // Wait, I don't have the index here easily. I'll get it from the itemEl.
+            const allItems = Array.from(document.querySelectorAll('.canvas-item'));
+            const realIndex = allItems.indexOf(itemEl);
+            if (realIndex !== -1) {
+                canvasItems[realIndex]['dialogue-text'] = editable.innerText;
+                saveToCache();
+                updateCodeView();
+            }
+        }
+        
+        // Refresh toolbar state
+        handleTextSelection();
+    } else if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        let newText = selectedText;
+
+        switch(type) {
+            case 'bold': 
+                if (selectedText.startsWith('**') && selectedText.endsWith('**')) {
+                    newText = selectedText.slice(2, -2);
+                } else {
+                    newText = `**${selectedText}**`;
+                }
+                break;
+            case 'italic': 
+                // Check for ** first to avoid misidentifying bold as italic
+                if (selectedText.startsWith('***') && selectedText.endsWith('***')) {
+                     newText = `**${selectedText.slice(3, -3)}**`;
+                } else if (selectedText.startsWith('*') && !selectedText.startsWith('**') && selectedText.endsWith('*') && !selectedText.endsWith('**')) {
+                    newText = selectedText.slice(1, -1);
+                } else {
+                    newText = `*${selectedText}*`;
+                }
+                break;
+            case 'color': newText = `<span style="color:${value}">${selectedText}</span>`; break;
+            case 'shadow': newText = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${selectedText}</span>`; break;
+        }
+
+        textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
+        textarea.focus();
+        textarea.setSelectionRange(start, start + newText.length);
     }
+}
 
-    textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-    textarea.focus();
-    textarea.setSelectionRange(start, start + newText.length);
+function syncInlineChange(index, newContent) {
+    // If it's a dialogue, we store the content
+    // We try to keep it as raw as possible
+    canvasItems[index]['dialogue-text'] = newContent;
+    updateCodeView();
+    saveToCache();
 }
 
 function parseMarkdown(text) {
     if (!text) return '';
-    return text
+    
+    // First, preserve our color decorators if they exist (though usually we parse raw text)
+    // But for the live preview, we want the rendered version.
+    
+    // Convert to HTML
+    let html = text
+        // Headings (supporting optional surrounding spans for color/shadow)
+        .replace(/^(<span.*?>)?### (.*?)(<\/span>)?$/gm, '$1<h3>$2</h3>$3')
+        .replace(/^(<span.*?>)?## (.*?)(<\/span>)?$/gm, '$1<h2>$2</h2>$3')
+        .replace(/^(<span.*?>)?# (.*?)(<\/span>)?$/gm, '$1<h1>$2</h1>$3')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^> (.*?)$/gm, '<blockquote>$1</blockquote>')
         .replace(/^---$/gm, '<hr>')
         .replace(/\n/g, '<br>');
+        
+    return html;
+}
+
+function _scanAndDecorateColors(el) {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    const nodesToReplace = [];
+    let node;
+    while (node = walk.nextNode()) {
+        if (node.parentNode.closest('.nexus-color-decorator')) continue;
+        if (COLOR_REGEX.test(node.textContent)) {
+            nodesToReplace.push(node);
+        }
+    }
+
+    nodesToReplace.forEach(node => {
+        const text = node.textContent;
+        const frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        let match;
+        COLOR_REGEX.lastIndex = 0;
+        while (match = COLOR_REGEX.exec(text)) {
+            frag.appendChild(document.createTextNode(text.substring(lastIdx, match.index)));
+            const color = match[0];
+            const decorator = document.createElement('span');
+            decorator.className = 'nexus-color-decorator';
+            decorator.contentEditable = 'false';
+            decorator.dataset.color = color;
+            decorator.innerHTML = `<span class="nexus-color-swatch" style="background:${color}"></span><span class="nexus-color-text">${color}</span>`;
+            
+            decorator.querySelector('.nexus-color-swatch').addEventListener('mousedown', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.NexusColorPicker.open(swatch, color, (newHex) => {
+                    decorator.querySelector('.nexus-color-swatch').style.background = newHex;
+                    decorator.querySelector('.nexus-color-text').innerText = newHex;
+                    decorator.dataset.color = newHex;
+                    // Trigger a change
+                    const itemEl = el.closest('.canvas-item');
+                    if (itemEl) {
+                        const allItems = Array.from(document.querySelectorAll('.canvas-item'));
+                        const idx = allItems.indexOf(itemEl);
+                        if (idx !== -1) {
+                            canvasItems[idx]['dialogue-text'] = _serializeDecorated(el);
+                            saveToCache();
+                            updateCodeView();
+                        }
+                    }
+                });
+            });
+
+            frag.appendChild(decorator);
+            lastIdx = COLOR_REGEX.lastIndex;
+        }
+        frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+    });
+}
+
+function _serializeDecorated(el) {
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('.nexus-color-decorator').forEach(dec => {
+        dec.replaceWith(document.createTextNode(dec.dataset.color));
+    });
+    return clone.innerText;
 }
 
 function closeModal() {
@@ -343,6 +522,51 @@ function renderCanvas() {
                 ${getPreviewHTML(item)}
             </div>
         `;
+        
+        // Enable inline editing for dialogue
+        if (item.type === 'dialogue') {
+            const content = el.querySelector('.vn-dialogue-content');
+            if (content) {
+                content.contentEditable = true;
+                content.classList.add('inline-edit');
+                
+                content.addEventListener('focus', (e) => {
+                    // Switch to raw markdown for editing
+                    e.target.innerText = item['dialogue-text'];
+                    e.target.classList.add('raw-mode');
+                    _scanAndDecorateColors(e.target);
+                });
+                
+                content.addEventListener('blur', (e) => {
+                    // Render markdown when finished editing
+                    item['dialogue-text'] = _serializeDecorated(e.target);
+                    e.target.innerHTML = parseMarkdown(item['dialogue-text']);
+                    e.target.classList.remove('raw-mode');
+                    saveToCache();
+                    updateCodeView();
+                });
+
+                content.addEventListener('mouseup', handleTextSelection);
+                content.addEventListener('keyup', handleTextSelection);
+
+                content.addEventListener('input', (e) => {
+                    // Optional: re-scan for colors on a long pause
+                    clearTimeout(content._decorateTimer);
+                    content._decorateTimer = setTimeout(() => {
+                        const sel = window.getSelection();
+                        let range = null;
+                        if (sel.rangeCount > 0) range = sel.getRangeAt(0).cloneRange();
+                        
+                        _scanAndDecorateColors(e.target);
+                        
+                        if (range) {
+                            try { sel.removeAllRanges(); sel.addRange(range); } catch(err){}
+                        }
+                    }, 1000);
+                });
+            }
+        }
+        
         canvas.appendChild(el);
     });
 }
@@ -368,8 +592,7 @@ function getPreviewHTML(item) {
             return `
                 <div class="vn-dialogue-box">
                     <div class="vn-dialogue-content">
-                        <div class="vn-dialogue-text"></div>
-                        ${item['dialogue-text'].replace(/\n/g, '<br>')}
+                        ${parseMarkdown(item['dialogue-text'])}
                     </div>
                 </div>`;
         case 'lore':
@@ -437,7 +660,7 @@ function generateFullHTML(minified) {
                 html += `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine?story=${item['story-id']}" style="width:100%;height:${item['iframe-height']}px;border:none"></iframe>\n`;
                 break;
             case 'dialogue':
-                html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content"><div class="vn-dialogue-text"></div>${item['dialogue-text'].replace(/\n/g, '<br>')}</div></div>\n`;
+                html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n${item['dialogue-text']}\n</div></div>\n`;
                 break;
             case 'lore':
                 html += `<details class="vn-lore-details"><summary class="vn-lore-summary"><span>Lore Database</span><svg class="vn-lore-icon" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" /></svg></summary><div class="vn-lore-content"><iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/lore?world=${item['lore-link']}" style="width:100%;height:${item['lore-height']}px;border:none;border-radius: 5px;"></iframe></div></details>\n`;
@@ -543,3 +766,31 @@ function copyToClipboard(text) {
         alert('URL copied to clipboard!');
     });
 }
+
+// Global Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && (e.key === 'b' || e.key === 'i')) {
+        const type = e.key === 'b' ? 'bold' : 'italic';
+        const selection = window.getSelection();
+        
+        // Check if we are in an editable context
+        const textarea = document.querySelector('#form-fields textarea');
+        const isTextareaActive = textarea && document.activeElement === textarea;
+        
+        let isEditable = false;
+        if (selection.rangeCount > 0) {
+            const container = selection.getRangeAt(0).commonAncestorContainer;
+            isEditable = (container.nodeType === 3 ? container.parentNode : container).closest('[contenteditable="true"]');
+        }
+
+        if (isEditable || isTextareaActive) {
+            e.preventDefault();
+            applyFormat(type);
+            
+            // Visual feedback via toast for shortcut usage
+            if (!isTextareaActive) {
+                handleTextSelection(); 
+            }
+        }
+    }
+});

@@ -13,7 +13,7 @@
     <!-- SIDEBAR -->
     <aside id="sidebar">
         <div class="sidebar-header">
-            <h1 class="sidebar-title">🛰️ ARCHITECT</h1>
+            <h1 class="sidebar-title">🎭 INTRO MAKER</h1>
         </div>
 
         <div class="sidebar-section-label">GLOBAL SETTINGS</div>
@@ -122,12 +122,12 @@
     </main>
 
     <div id="rich-text-toolbar">
-        <button class="toolbar-btn" onclick="applyFormat('bold')" title="Bold (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
-        <button class="toolbar-btn" onclick="applyFormat('italic')" title="Italic (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
+        <button id="btn-bold" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('bold')" title="Bold (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
+        <button id="btn-italic" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('italic')" title="Italic (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" onclick="document.getElementById('text-color-picker').click()" title="Text Color"><i class="bi bi-palette"></i></button>
+        <button id="btn-color" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="document.getElementById('text-color-picker').click()" title="Text Color"><i class="bi bi-palette"></i></button>
         <input type="color" id="text-color-picker" style="display: none;" onchange="applyFormat('color', this.value)">
-        <button class="toolbar-btn" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
+        <button id="btn-shadow" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
     </div>
 
     <!-- CONFIG MODAL -->
@@ -185,6 +185,7 @@
         </div>
     </div>
 
+    <script src="../editor/js/nexus_colorpicker.js"></script>
     <script src="js/intro_editor.js"></script>
 </body>
 </html>

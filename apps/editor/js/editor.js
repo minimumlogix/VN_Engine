@@ -2319,20 +2319,29 @@ function exportJSON() {
 async function exportZip() {
     const zip = new JSZip();
     const output = getSerializedData();
+    const storySlug = store.slugify(output.storyTitle || "unnamed_story");
 
-    // Add main story JSON
-    zip.file("VN1.json", JSON.stringify(output, null, 2));
+    // Create the main story folder as the ZIP root
+    const baseFolder = zip.folder(storySlug);
 
-    // Create assets folder
-    const assetFolder = zip.folder("assets");
+    // Add main story JSON inside the story folder
+    baseFolder.file("VN1.json", JSON.stringify(output, null, 2));
+
+    // Create an assets subfolder for flat assets
+    const assetFolder = baseFolder.folder("assets");
 
     // Add all assets
     for (const asset of store.assets) {
         if (asset.exportPath) {
-            // Use the nested path, e.g. "stories/my_story/assets/images/characters/char_happy.png"
-            zip.file(asset.exportPath, asset.file);
+            // Remove the 'stories/<slug>/' prefix from the export path to place it correctly inside baseFolder
+            const prefix = `stories/${storySlug}/`;
+            let cleanPath = asset.exportPath;
+            if (cleanPath.startsWith(prefix)) {
+                cleanPath = cleanPath.substring(prefix.length);
+            }
+            baseFolder.file(cleanPath, asset.file);
         } else {
-            // Default flat structure in assets/ folder
+            // General assets go into <story_slug>/assets/
             assetFolder.file(asset.name, asset.file);
         }
     }

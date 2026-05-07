@@ -543,7 +543,7 @@ function applyFormat(type, value) {
             case 'italic':
                 // Check for ** first to avoid misidentifying bold as italic
                 if (selectedText.startsWith('***') && selectedText.endsWith('***')) {
-                     newText = `**${selectedText.slice(3, -3)}**`;
+                    newText = `**${selectedText.slice(3, -3)}**`;
                 } else if (selectedText.startsWith('*') && !selectedText.startsWith('**') && selectedText.endsWith('*') && !selectedText.endsWith('**')) {
                     newText = selectedText.slice(1, -1);
                 } else {
@@ -1059,7 +1059,13 @@ function renderCanvas() {
     canvasItems.forEach((item, index) => {
         const el = document.createElement('div');
         el.className = 'canvas-item';
-        el.innerHTML = `<div class="item-label">${item.type.replace('-', ' ')}</div><div class="item-controls"><button class="control-btn" onclick="moveItem(${index}, -1)"><i class="bi bi-chevron-up"></i></button><button class="control-btn" onclick="moveItem(${index}, 1)"><i class="bi bi-chevron-down"></i></button><button class="control-btn delete" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></div><div class="item-preview">${getPreviewHTML(item)}</div>`;
+        
+        let editBtn = '';
+        if (item.type === 'music') {
+            editBtn = `<button class="control-btn edit" onclick="editMusicLink(${index})"><i class="bi bi-pencil"></i></button>`;
+        }
+
+        el.innerHTML = `<div class="item-label">${item.type.replace('-', ' ')}</div><div class="item-controls">${editBtn}<button class="control-btn" onclick="moveItem(${index}, -1)"><i class="bi bi-chevron-up"></i></button><button class="control-btn" onclick="moveItem(${index}, 1)"><i class="bi bi-chevron-down"></i></button><button class="control-btn delete" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></div><div class="item-preview">${getPreviewHTML(item)}</div>`;
 
         // Enable inline editing for dialogue
         if (item.type === 'dialogue') {
@@ -1097,46 +1103,46 @@ function renderCanvas() {
                     _commitSourceValue(e.target);
                 });
 
-                    // Sync for main content
-                    content.addEventListener('input', (e) => {
-                        e.target._sourceValue = _serializeDecorated(e.target);
-                        _commitSourceValue(e.target);
+                // Sync for main content
+                content.addEventListener('input', (e) => {
+                    e.target._sourceValue = _serializeDecorated(e.target);
+                    _commitSourceValue(e.target);
 
-                        clearTimeout(content._decorateTimer);
-                        content._decorateTimer = setTimeout(() => {
-                            if (e.target._isComposing) return;
-                            if (document.activeElement !== e.target) return;
-                            const sel = window.getSelection();
-                            if (!sel || sel.rangeCount === 0 || !sel.getRangeAt(0).collapsed) return;
-                            requestAnimationFrame(() => {
-                                if (!e.target._isComposing && document.activeElement === e.target) {
-                                    _scanAndDecorateColors(e.target, { force: true });
-                                }
-                            });
-                        }, 1000);
-                    });
-
-                    // Sync for speaker name if it exists
-                    const speakerEdit = el.querySelector('.speaker-edit');
-                    if (speakerEdit) {
-                        speakerEdit.addEventListener('input', (e) => {
-                            const itemEl = e.target.closest('.canvas-item');
-                            const allItems = Array.from(document.querySelectorAll('.canvas-item'));
-                            const idx = allItems.indexOf(itemEl);
-                            if (idx !== -1) {
-                                canvasItems[idx]['speaker-name'] = e.target.innerText;
-                                updateCodeView();
-                                saveToCache();
+                    clearTimeout(content._decorateTimer);
+                    content._decorateTimer = setTimeout(() => {
+                        if (e.target._isComposing) return;
+                        if (document.activeElement !== e.target) return;
+                        const sel = window.getSelection();
+                        if (!sel || sel.rangeCount === 0 || !sel.getRangeAt(0).collapsed) return;
+                        requestAnimationFrame(() => {
+                            if (!e.target._isComposing && document.activeElement === e.target) {
+                                _scanAndDecorateColors(e.target, { force: true });
                             }
                         });
+                    }, 1000);
+                });
 
-                        speakerEdit.addEventListener('focus', (e) => {
-                            e.target.classList.add('editing-mode');
-                        });
-                        speakerEdit.addEventListener('blur', (e) => {
-                            e.target.classList.remove('editing-mode');
-                        });
-                    }
+                // Sync for speaker name if it exists
+                const speakerEdit = el.querySelector('.speaker-edit');
+                if (speakerEdit) {
+                    speakerEdit.addEventListener('input', (e) => {
+                        const itemEl = e.target.closest('.canvas-item');
+                        const allItems = Array.from(document.querySelectorAll('.canvas-item'));
+                        const idx = allItems.indexOf(itemEl);
+                        if (idx !== -1) {
+                            canvasItems[idx]['speaker-name'] = e.target.innerText;
+                            updateCodeView();
+                            saveToCache();
+                        }
+                    });
+
+                    speakerEdit.addEventListener('focus', (e) => {
+                        e.target.classList.add('editing-mode');
+                    });
+                    speakerEdit.addEventListener('blur', (e) => {
+                        e.target.classList.remove('editing-mode');
+                    });
+                }
             }
         }
 
@@ -1180,6 +1186,63 @@ function getPreviewHTML(item) {
         default:
             return '';
     }
+}
+
+function editMusicLink(index) {
+    const item = canvasItems[index];
+    const currentUrl = item['yt-url'] || `https://www.youtube.com/watch?v=${item.ytId}`;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.display = 'flex';
+    
+    overlay.innerHTML = `
+        <div class="modal-content" style="width: 500px;">
+            <div class="modal-header">
+                <h2>UPDATE MUSIC LINK</h2>
+                <p>Enter the new YouTube URL for this track.</p>
+            </div>
+            <div class="form-group">
+                <label>YouTube URL</label>
+                <input type="text" id="edit-music-url" value="${currentUrl}" style="width: 100%; box-sizing: border-box;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="save-music-btn" class="btn-success" style="flex: 1;">SAVE</button>
+                <button class="btn-outline" style="flex: 1;" onclick="this.closest('.modal-overlay').remove()">CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Focus the input
+    const input = document.getElementById('edit-music-url');
+    input.focus();
+    input.select();
+    
+    document.getElementById('save-music-btn').addEventListener('click', () => {
+        const newUrl = input.value;
+        const trimmedUrl = newUrl.trim();
+        
+        if (trimmedUrl === '') {
+            showToast('Operation cancelled (Empty URL)');
+            overlay.remove();
+            return;
+        }
+
+        const ytId = extractYoutubeId(trimmedUrl);
+        if (ytId) {
+            canvasItems[index].ytId = ytId;
+            canvasItems[index]['yt-url'] = trimmedUrl;
+            renderCanvas();
+            updateCodeView();
+            saveToCache();
+            showToast('Music updated successfully!');
+            overlay.remove();
+        } else {
+            alert('Could not detect a valid YouTube ID from that link. Please check the URL format.');
+        }
+    });
 }
 
 function removeItem(index) {

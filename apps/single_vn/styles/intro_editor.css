@@ -362,6 +362,18 @@ body {
     color: #fff;
 }
 
+.control-btn.edit {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.control-btn.edit:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+}
+
 .item-label {
     position: absolute;
     top: -12px;

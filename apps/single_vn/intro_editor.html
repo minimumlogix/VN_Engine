@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link id="dynamic-theme" rel="stylesheet" href="styles/vn_yellow1.css">
     <link rel="stylesheet" href="styles/intro_editor.css">
+    <link rel="stylesheet" href="styles/nexus_colorpicker.css">
 </head>
 <body>
 
@@ -32,7 +33,7 @@
         </div>
 
         <div class="sidebar-section-label">COMPONENT LIBRARY</div>
-        
+
         <div class="component-btn" onclick="openComponentModal('music')">
             <i class="bi bi-music-note-beamed"></i>
             <div class="info">
@@ -125,8 +126,11 @@
         <button id="btn-bold" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('bold')" title="Bold (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
         <button id="btn-italic" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('italic')" title="Italic (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
         <div class="toolbar-divider"></div>
-        <button id="btn-color" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="document.getElementById('text-color-picker').click()" title="Text Color"><i class="bi bi-palette"></i></button>
-        <input type="color" id="text-color-picker" style="display: none;" onchange="applyFormat('color', this.value)">
+        <button id="btn-color" class="toolbar-btn" style="flex-direction: column; height: 38px; gap: 2px;" onmousedown="event.preventDefault()"
+            onclick="openToolbarColorPicker(this)" title="Text Color">
+            <i class="bi bi-palette" style="font-size: 12px;"></i>
+            <div class="color-bar" style="width: 20px; height: 3px; background: #ffffff; border-radius: 2px;"></div>
+        </button>
         <button id="btn-shadow" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
     </div>
 
@@ -137,7 +141,7 @@
                 <h2 id="modal-title">CONFIGURE COMPONENT</h2>
                 <p id="modal-desc">Fill in the details for your new element.</p>
             </div>
-            
+
             <form id="config-form">
                 <div id="form-fields">
                     <!-- Fields will be dynamically injected -->
@@ -166,7 +170,7 @@
                 <h2>📦 ASSET LIBRARY</h2>
                 <p>Quickly copy sample asset URLs for your project.</p>
             </div>
-            
+
             <div id="asset-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
                 <button class="btn-outline" onclick="showAssetTab('bg')" style="font-size: 11px;">BACKGROUNDS</button>
                 <button class="btn-outline" onclick="showAssetTab('char')" style="font-size: 11px;">CHARACTERS</button>
@@ -185,7 +189,7 @@
         </div>
     </div>
 
-    <script src="../editor/js/nexus_colorpicker.js"></script>
+    <script src="js/nexus_colorpicker.js"></script>
     <script src="js/intro_editor.js"></script>
 </body>
 </html>

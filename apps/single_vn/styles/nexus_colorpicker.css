@@ -1,0 +1,270 @@
+/* nexus_colorpicker.css — AAA Premium Color Picker */
+
+#nexus-color-picker {
+    position: fixed;
+    z-index: 100000;
+    background: rgba(10, 15, 25, 0.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 24px;
+    padding: 20px;
+    width: 260px;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 243, 255, 0.1);
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    font-family: 'Outfit', sans-serif;
+    user-select: none;
+    animation: ncp-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes ncp-pop {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* --- HEADER --- */
+.ncp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ncp-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--accent, #00f3ff);
+    text-transform: uppercase;
+}
+
+.ncp-close {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.ncp-close:hover { opacity: 1; color: #ff4757; }
+
+/* --- THE WHEEL --- */
+.ncp-wheel-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ncp-hue-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    cursor: crosshair;
+}
+
+.ncp-sv-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.ncp-sv-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* --- CURSORS --- */
+.ncp-hue-cursor {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 10;
+    transform: translate(-50%, -50%);
+}
+
+.ncp-sv-cursor {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 5px rgba(0,0,0,0.8);
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+/* --- PREVIEW & INPUTS --- */
+.ncp-preview-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+}
+
+.ncp-preview-swatch {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.ncp-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.ncp-hex-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    outline: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.ncp-hex-input:focus {
+    border-color: var(--accent, #00f3ff);
+    background: rgba(0, 243, 255, 0.05);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+}
+
+.ncp-rgb-row {
+    display: flex;
+    gap: 6px;
+}
+
+.ncp-rgb-row input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 4px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    width: 100%;
+    text-align: center;
+    outline: none;
+}
+
+.ncp-rgb-row input:focus {
+    border-color: var(--accent, #00f3ff);
+    color: #fff;
+}
+
+/* --- SWATCHES --- */
+.ncp-section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.ncp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.ncp-swatch {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ncp-swatch:hover {
+    transform: scale(1.15);
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    z-index: 2;
+}
+
+.ncp-swatch.active {
+    border: 2px solid #fff;
+    transform: scale(1.1);
+}
+
+/* --- ACTION --- */
+.ncp-apply-btn {
+    margin-top: 5px;
+    background: var(--accent, #00f3ff);
+    color: #050a14;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.ncp-apply-btn:hover {
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* --- CUSTOM SLIDER FOR VALUE/BRIGHTNESS --- */
+.ncp-v-bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.ncp-v-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    display: block;
+}
+
+.ncp-v-cursor {
+    position: absolute;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}

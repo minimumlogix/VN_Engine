@@ -1160,7 +1160,7 @@ function getPreviewHTML(item) {
 
     switch(item.type) {
         case 'image':
-            return `<img src="${item['image-url']}" style="width:100vw;max-width:100%;height:auto;display:block;">`;
+            return `<div class="vn-image-wrapper"><img src="${item['image-url']}"></div>`;
         case 'music':
             return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>`;
         case 'character':
@@ -1371,7 +1371,9 @@ function generateFullHTML(minified) {
     canvasItems.forEach(item => {
         switch(item.type) {
             case 'image':
-                html += `<img src="${item['image-url']}" style="width:100vw;max-width:100%;height:auto;display:block;">${newline}`;
+                html += `<div class="vn-image-wrapper">${newline}`;
+                html += `${indent}<img src="${item['image-url']}">${newline}`;
+                html += `</div>${newline}`;
                 break;
             case 'music':
                 html += `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>${newline}`;

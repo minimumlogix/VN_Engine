@@ -367,3 +367,55 @@ details[open] .vn-lore-icon {
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
+
+/* Full-width professional image component */
+.vn-image-wrapper {
+  width: 100vw;
+  max-width: 100%;
+  position: relative;
+  margin: 2rem 0;
+  border-top: 3px solid var(--primary-color);
+  border-bottom: 3px solid var(--primary-color);
+  box-shadow: 0 0 30px var(--glow-color), inset 0 0 50px rgba(0,0,0,0.8);
+  background: #000;
+  overflow: hidden;
+}
+
+.vn-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.85;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.vn-image-wrapper:hover img {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+/* Full-width professional image component */
+.vn-image-wrapper {
+  width: 100vw;
+  max-width: 100%;
+  position: relative;
+  margin: 2rem 0;
+  border-top: 3px solid var(--primary-color);
+  border-bottom: 3px solid var(--primary-color);
+  box-shadow: 0 0 30px var(--glow-color), inset 0 0 50px rgba(0,0,0,0.8);
+  background: #000;
+  overflow: hidden;
+}
+
+.vn-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.85;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.vn-image-wrapper:hover img {
+  opacity: 1;
+  transform: scale(1.03);
+}

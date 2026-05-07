@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="apps/editor/css/editor.css">
     <link rel="stylesheet" href="apps/editor/css/nexus_rich_editor.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
 
@@ -66,6 +68,22 @@
                 <i class="bi bi-plus-lg"></i> ADD CHAPTER
             </button>
         </div>
+
+        <div class="section-header" onclick="toggleSection('asset-manager-section', this)">
+            <h3><i class="bi bi-folder-fill"></i> ASSET MANAGER</h3>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div id="asset-manager-section" class="config-section-container">
+            <div id="asset-dropzone" class="asset-dropzone">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span>DROP ASSETS HERE</span>
+                <small>Images, Audio, Video</small>
+                <input type="file" id="asset-input" multiple style="display:none" onchange="handleAssetInput(event)">
+            </div>
+            <div id="asset-list" class="config-section" style="margin-top:10px">
+                <!-- Assets will appear here -->
+            </div>
+        </div>
     </div>
     
     <div id="nav-sidebar" class="sidebar-panel">
@@ -105,9 +123,15 @@
         </button>
 
         <div class="vr mx-1"></div>
-        <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="exportJSON()">
-            <i class="bi bi-download"></i> EXPORT
-        </button>
+        <div class="dropdown">
+            <button class="btn btn-outline-accent btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-download"></i> EXPORT
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-accent-dim" style="background: var(--panel); backdrop-filter: blur(20px); border: 1px solid var(--border);">
+                <li><a class="dropdown-item py-2" href="#" onclick="exportJSON()"><i class="bi bi-filetype-json me-2 text-accent"></i> Export JSON Only</a></li>
+                <li><a class="dropdown-item py-2" href="#" onclick="exportZip()"><i class="bi bi-file-earmark-zip me-2 text-accent"></i> Export Story File (.zip)</a></li>
+            </ul>
+        </div>
         <button class="btn btn-outline-accent btn-sm d-flex align-items-center gap-1" onclick="document.getElementById('import-input').click()">
             <i class="bi bi-upload"></i> IMPORT
         </button>
@@ -138,6 +162,7 @@
         <div id="workspace"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="apps/editor/js/nexus_macros.js" defer></script>
     <script src="apps/editor/js/nexus_colorpicker.js" defer></script>
     <script src="apps/editor/js/nexus_rich_editor.js" defer></script>

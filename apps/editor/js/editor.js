@@ -9,6 +9,7 @@ class NexusDataStore {
         this.nodes = [];
         this.links = [];
         this.groups = [];
+        this.assets = []; // Store assets as { id, file, type, name, url }
         this.config = JSON.parse(JSON.stringify(DEFAULT_STORY_DATA)); // Deep clone
         this.listeners = [];
         this.autoSaveKey = 'nexus_editor_autosave';
@@ -16,6 +17,15 @@ class NexusDataStore {
         this.redoStack = [];
         this.maxHistorySize = 100;
         this.historyTimer = null;
+    }
+
+    slugify(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^\w\-]+/g, '')
+            .replace(/\-\-+/g, '_')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '');
     }
 
     pushSnapshot() {
@@ -547,6 +557,34 @@ class NexusDataStore {
         this.emit('groups_changed');
         showToast(`Renamed to: ${newName}`);
     }
+
+    // --- Asset Operations ---
+    async addAsset(file, exportPath = null) {
+        const id = 'asset_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+        const asset = {
+            id,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            file: file,
+            url: URL.createObjectURL(file),
+            exportPath: exportPath // If set, use this full path in ZIP
+        };
+        this.assets.push(asset);
+        this.emit('assets_changed');
+        showToast(`Imported: ${file.name}`);
+        return asset;
+    }
+
+    deleteAsset(id) {
+        const asset = this.assets.find(a => a.id === id);
+        if (asset) {
+            URL.revokeObjectURL(asset.url);
+            this.assets = this.assets.filter(a => a.id !== id);
+            this.emit('assets_changed');
+            showToast(`Deleted: ${asset.name}`);
+        }
+    }
 }
 
 const store = new NexusDataStore();
@@ -651,6 +689,8 @@ function init() {
             refreshAllNodes(); // Character selects etc
         } else if (event === 'links_changed') {
             needsRender = true;
+        } else if (event === 'assets_changed') {
+            renderAssets();
         }
         needsRender = true;
         updateNodeCountBadge();
@@ -1090,7 +1130,7 @@ function renderNode(node) {
         }
 
         if (spriteUrl) {
-            fieldsHtml += `<div class="node-sprite-preview" style="background-image: url('${spriteUrl}')"></div>`;
+            fieldsHtml += `<div class="node-sprite-preview" style="background-image: url('${resolveSpriteUrl(spriteUrl)}')"></div>`;
         }
     }
     // Track which fields need post-mount setup
@@ -1686,10 +1726,15 @@ function editSprites(id) {
     const char = store.config.characters[id];
     let spriteHtml = '';
     Object.entries(char.sprites || {}).forEach(([key, url]) => {
+        const displayUrl = resolveSpriteUrl(url);
+
         spriteHtml += `
             <div class="list-item" style="margin-bottom: 8px; align-items: center;">
-                <div class="sprite-editor-thumb" style="background-image: url('${url}')">
-                    ${!url ? '<i class="bi bi-image"></i>' : ''}
+                <div class="sprite-editor-thumb" 
+                     style="background-image: url('${displayUrl}'); cursor: pointer;" 
+                     onclick="importSpriteFor('${id}', '${key}')"
+                     id="thumb-${store.slugify(id)}-${store.slugify(key)}">
+                    ${!url ? '<i class="bi bi-cloud-arrow-up" style="font-size:20px; opacity:0.5"></i>' : ''}
                 </div>
                 <div style="flex:1; display:flex; flex-direction:column; gap:4px">
                     <div style="display:flex; gap:5px">
@@ -1704,14 +1749,101 @@ function editSprites(id) {
 
     const content = `
         <div style="padding: 10px;">
-            <h3>EXPRESSIONS: ${char.name}</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <h3 style="margin:0">EXPRESSIONS: ${char.name}</h3>
+                <small style="opacity:0.5; font-size:9px">CLICK THUMBNAIL TO IMPORT</small>
+            </div>
             <div id="sprites-editor">${spriteHtml}</div>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="store.pushSnapshot(); store.config.characters['${id}'].sprites['new_expr'] = ''; editSprites('${id}'); store.emit('config_refresh')">＋ ADD EXPRESSION</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px;" onclick="addExpressionTo('${id}')">＋ ADD EXPRESSION</button>
             <button class="btn" style="width:100%; margin-top:20px;" onclick="hideOverlay(); store.emit('config_refresh')">DONE</button>
+            <input type="file" id="sprite-import-input" style="display:none" onchange="handleSpriteFileSelected(event)">
         </div>
     `;
 
     showModal(content);
+    setupSpriteDropzones(id);
+}
+
+function addExpressionTo(charId) {
+    store.pushSnapshot();
+    const char = store.config.characters[charId];
+    if (!char.sprites) char.sprites = {};
+    
+    // Find a unique key
+    let base = "new_expr";
+    let counter = 1;
+    let key = base;
+    while (char.sprites[key] !== undefined) {
+        key = `${base}_${counter++}`;
+    }
+    
+    char.sprites[key] = "";
+    editSprites(charId);
+    store.emit('config_refresh');
+}
+
+let activeSpriteImport = null;
+
+function importSpriteFor(charId, expression) {
+    activeSpriteImport = { charId, expression };
+    document.getElementById('sprite-import-input').click();
+}
+
+async function handleSpriteFileSelected(e) {
+    if (!activeSpriteImport) return;
+    const file = e.target.files[0];
+    if (!file) return;
+
+    await processSpriteImport(file, activeSpriteImport.charId, activeSpriteImport.expression);
+    activeSpriteImport = null;
+    e.target.value = '';
+}
+
+async function processSpriteImport(file, charId, expression) {
+    const storySlug = store.slugify(store.config.storyTitle || "unnamed_story");
+    const ext = file.name.split('.').pop();
+    const exportPath = `stories/${storySlug}/assets/images/characters/${store.slugify(charId)}_${store.slugify(expression)}.${ext}`;
+    
+    const asset = await store.addAsset(file, exportPath);
+    
+    store.pushSnapshot();
+    store.config.characters[charId].sprites[expression] = exportPath;
+    
+    // We also need to keep track of the local URL for the preview in the editor
+    // But the user specifically asked for the URL to be the story path.
+    // So the editor's preview logic should handle both local blobs and paths.
+    
+    editSprites(charId);
+    store.emit('config_refresh');
+}
+
+function setupSpriteDropzones(charId) {
+    const char = store.config.characters[charId];
+    Object.keys(char.sprites || {}).forEach(key => {
+        const thumb = document.getElementById(`thumb-${store.slugify(charId)}-${store.slugify(key)}`);
+        if (!thumb) return;
+
+        thumb.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            thumb.style.borderColor = 'var(--accent)';
+            thumb.style.background = 'var(--accent-dim)';
+        });
+
+        thumb.addEventListener('dragleave', () => {
+            thumb.style.borderColor = '';
+            thumb.style.background = '';
+        });
+
+        thumb.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            thumb.style.borderColor = '';
+            thumb.style.background = '';
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await processSpriteImport(file, charId, key);
+            }
+        });
+    });
 }
 
 function showModal(html) {
@@ -1989,7 +2121,7 @@ function renderConfig() {
         div.style.gap = '5px';
         div.innerHTML = `
             <div style="display:grid; grid-template-columns: 44px 1fr; gap:10px; align-items: start; width: 100%">
-                ${bg ? `<img src="${bg}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-image"></i></div>`}
+                ${bg ? `<img src="${resolveSpriteUrl(bg)}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-image"></i></div>`}
                 <div style="display:flex; flex-direction:column; gap:6px; min-width: 0">
                     <div style="display:flex; gap:5px; align-items:center">
                         <input type="number" value="${id}" style="width:35px; font-weight:bold; color:var(--accent); text-align:center; padding: 4px;" onchange="updateChapter('${id}', this.value, 'id')">
@@ -2015,7 +2147,7 @@ function renderConfig() {
         div.style.gap = '5px';
         div.innerHTML = `
             <div style="display:grid; grid-template-columns: 44px 1fr; gap:12px; align-items: start; width: 100%">
-                ${c.sprites?.neutral ? `<img src="${c.sprites.neutral}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-person"></i></div>`}
+                ${c.sprites?.neutral ? `<img src="${resolveSpriteUrl(c.sprites.neutral)}" class="config-thumb">` : `<div class="config-thumb-placeholder"><i class="bi bi-person"></i></div>`}
                 <div style="display:flex; flex-direction:column; gap:8px; min-width: 0">
                     <div style="display:flex; gap:6px; align-items:center">
                         <input value="${id}" style="width:70px; font-weight:bold; color:var(--accent); font-size:11px; padding: 4px; border-color:var(--accent-dim)" oninput="updateCharacter('${id}', 'id', this.value)">
@@ -2067,6 +2199,15 @@ function renderConfig() {
     }
 }
 
+// --- UI UTILITIES ---
+
+function resolveSpriteUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('blob:') || url.startsWith('http')) return url;
+    const asset = store.assets.find(a => a.exportPath === url);
+    return asset ? asset.url : url;
+}
+
 function refreshAllNodes() {
     store.nodes.forEach(n => refreshNode(n.id));
 }
@@ -2096,8 +2237,7 @@ function serializeRichHtml(html) {
     return div.innerHTML;
 }
 
-function exportJSON() {
-
+function getSerializedData() {
     const dialogue = [];
 
     store.nodes.forEach((node, index) => {
@@ -2109,7 +2249,9 @@ function exportJSON() {
             chapter: parseInt(node.data.chapter) || 0,
             scene: parseInt(node.data.scene) || 1,
             character: charName + spriteState,
-            text: serializeRichHtml(node.data.text || '')
+            text: serializeRichHtml(node.data.text || ''),
+            x: node.x, // Include positioning
+            y: node.y
         };
 
         if (node.data.SpriteEffects && node.data.SpriteEffects !== 'None') entry.SpriteEffects = node.data.SpriteEffects;
@@ -2157,18 +2299,49 @@ function exportJSON() {
         dialogue.push(entry);
     });
 
-    const output = {
+    return {
         ...store.config,
         storyDialogue: dialogue,
         groups: store.groups
     };
+}
 
+function exportJSON() {
+    const output = getSerializedData();
     const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'story.json';
     a.click();
+}
+
+async function exportZip() {
+    const zip = new JSZip();
+    const output = getSerializedData();
+
+    // Add main story JSON
+    zip.file("VN1.json", JSON.stringify(output, null, 2));
+
+    // Create assets folder
+    const assetFolder = zip.folder("assets");
+
+    // Add all assets
+    for (const asset of store.assets) {
+        if (asset.exportPath) {
+            // Use the nested path, e.g. "stories/my_story/assets/images/characters/char_happy.png"
+            zip.file(asset.exportPath, asset.file);
+        } else {
+            // Default flat structure in assets/ folder
+            assetFolder.file(asset.name, asset.file);
+        }
+    }
+
+    // Generate zip and save
+    showToast("Generating Story Package...", "info");
+    const content = await zip.generateAsync({ type: "blob" });
+    saveAs(content, `${output.storyTitle || 'Nexus_Story'}.zip`);
+    showToast("Story Package Exported!", "success");
 }
 
 function importJSON(e) {
@@ -2316,6 +2489,96 @@ function importJSON(e) {
     };
     reader.readAsText(file);
 }
+
+
+// --- ASSET MANAGER UI ---
+
+function renderAssets() {
+    const assetList = document.getElementById('asset-list');
+    if (!assetList) return;
+
+    assetList.innerHTML = '';
+
+    if (store.assets.length === 0) {
+        assetList.innerHTML = '<div style="text-align:center; opacity:0.3; padding:20px; font-size:11px">No assets imported</div>';
+        return;
+    }
+
+    store.assets.forEach(asset => {
+        const div = document.createElement('div');
+        div.className = 'asset-item';
+
+        const isImage = asset.type.startsWith('image/');
+        const isAudio = asset.type.startsWith('audio/');
+        const isVideo = asset.type.startsWith('video/');
+
+        let thumbHtml = '';
+        if (isImage) {
+            thumbHtml = `<img src="${asset.url}" class="asset-thumb">`;
+        } else {
+            let icon = 'bi-file-earmark';
+            if (isAudio) icon = 'bi-music-note-beamed';
+            if (isVideo) icon = 'bi-film';
+            thumbHtml = `<div class="asset-icon-placeholder"><i class="bi ${icon}"></i></div>`;
+        }
+
+        const sizeStr = (asset.size / 1024).toFixed(1) + ' KB';
+
+        div.innerHTML = `
+            ${thumbHtml}
+            <div class="asset-info">
+                <div class="asset-name" title="${asset.name}">${asset.name}</div>
+                <div class="asset-meta">
+                    <span>${asset.type.split('/')[1].toUpperCase()}</span>
+                    <span>${sizeStr}</span>
+                </div>
+            </div>
+            <div class="asset-delete" onclick="store.deleteAsset('${asset.id}')">
+                <i class="bi bi-trash3-fill"></i>
+            </div>
+        `;
+
+        assetList.appendChild(div);
+    });
+}
+
+function handleAssetInput(e) {
+    const files = Array.from(e.target.files);
+    files.forEach(file => store.addAsset(file));
+    e.target.value = ''; // Reset input
+}
+
+// Drag & Drop Handlers
+function setupAssetDropzone() {
+    const dropzone = document.getElementById('asset-dropzone');
+    if (!dropzone) return;
+
+    dropzone.onclick = () => document.getElementById('asset-input').click();
+
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files);
+        files.forEach(file => store.addAsset(file));
+    });
+}
+
+// Add to init
+const originalInit = init;
+init = function() {
+    originalInit();
+    setupAssetDropzone();
+    renderAssets();
+};
 
 init();
 

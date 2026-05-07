@@ -1,0 +1,466 @@
+{
+  "storyTitle": "THE HOLLOW CROWN",
+  "storySubtitle": "CHAPTER 1: INITIALIZATION",
+  "theme": "fantasy.css",
+  "characters": {
+    "MAREN": {
+      "name": "Maren",
+      "sprite": "https://i.imgur.com/JRFNwGx.png",
+      "position": "left",
+      "sfx": "",
+      "sprites": {
+        "new_expr": "stories/the_hollow_crown/assets/images/characters/maren_new_expr.png"
+      }
+    },
+    "THERON": {
+      "name": "Theron",
+      "sprite": "https://i.imgur.com/dM7GS8y.png",
+      "position": "right",
+      "sfx": "",
+      "sprites": {
+        "new_expr": "stories/the_hollow_crown/assets/images/characters/theron_new_expr.png"
+      }
+    },
+    "NARRATOR": {
+      "name": "Narrator",
+      "sprite": "",
+      "position": "center",
+      "sfx": ""
+    }
+  },
+  "backgrounds": {
+    "1": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920"
+  },
+  "chapterNames": {
+    "1": "The Beginning"
+  },
+  "chapterBackgrounds": {
+    "1": "https://images.unsplash.com/photo-1440964829947-ca3277bd37f8?q=80&w=1920&auto=format&fit=crop",
+    "2": "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?q=80&w=1920&auto=format&fit=crop",
+    "3": "https://images.unsplash.com/photo-1507400492013-162706c8c05e?q=80&w=1920&auto=format&fit=crop"
+  },
+  "chapterMusic": {},
+  "initialState": [
+    {
+      "id": "var_sanity",
+      "key": "sanity",
+      "value": 10
+    },
+    {
+      "id": "var_gold",
+      "key": "gold",
+      "value": 0
+    }
+  ],
+  "loadScreenBackground": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop",
+  "storyDialogue": [
+    {
+      "id": "node_0",
+      "chapter": 1,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "The Kingdom of Ashenmere had not seen rain in seven hundred days. The rivers were dust. The forests were bone.",
+      "x": 200,
+      "y": 200,
+      "nextId": "node_1"
+    },
+    {
+      "id": "node_1",
+      "chapter": 1,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "And in the great hall of the crumbling palace, the last heir to a dying throne knelt before a mirror that showed her nothing.",
+      "x": 800,
+      "y": 200,
+      "nextId": "node_2"
+    },
+    {
+      "id": "node_2",
+      "chapter": 1,
+      "scene": 1,
+      "character": "MAREN:new_expr",
+      "text": "The mirror used to show the future. My grandmother could see empires rise and fall in its surface. My mother saw the plague that would take her.",
+      "x": 1405.8299039780525,
+      "y": 194.85596707818922,
+      "nextId": "node_3"
+    },
+    {
+      "id": "node_3",
+      "chapter": 1,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "I see nothing. Only glass. Whatever magic ran through this bloodline, it chose to end with me.",
+      "x": 2000,
+      "y": 200,
+      "nextId": "node_4"
+    },
+    {
+      "id": "node_4",
+      "chapter": 1,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "The doors groaned open. A figure in tattered armor stepped through, trailing dried blood and the smell of smoke.",
+      "x": 2600,
+      "y": 200,
+      "nextId": "node_5"
+    },
+    {
+      "id": "node_5",
+      "chapter": 1,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Your Majesty. The eastern garrison has fallen. Lord Vael's forces hold the Ashen Bridge.",
+      "x": 3200,
+      "y": 200,
+      "nextId": "node_6"
+    },
+    {
+      "id": "node_6",
+      "chapter": 1,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "How many did we lose?",
+      "x": 3800,
+      "y": 200,
+      "nextId": "node_7"
+    },
+    {
+      "id": "node_7",
+      "chapter": 1,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Two hundred and thirty-one souls. I know because I buried them myself, one by one, in soil too dry to accept the dead.",
+      "x": 4400,
+      "y": 200,
+      "nextId": "node_8"
+    },
+    {
+      "id": "node_8",
+      "chapter": 1,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "And the survivors?",
+      "x": 5000,
+      "y": 200,
+      "nextId": "node_9"
+    },
+    {
+      "id": "node_9",
+      "chapter": 1,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Seventeen. They're in the courtyard now, drinking the last of the well water. By tomorrow, there won't be enough for anyone.",
+      "x": 5600,
+      "y": 200,
+      "nextId": "node_10"
+    },
+    {
+      "id": "node_10",
+      "chapter": 1,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "Then we have until tomorrow to find a way to save what's left of this kingdom.",
+      "x": 6200,
+      "y": 200,
+      "nextId": "node_11"
+    },
+    {
+      "id": "node_11",
+      "chapter": 2,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "The vault beneath the palace held secrets older than the kingdom itself. Maren descended alone, carrying a torch that guttered in the stale air.",
+      "x": 200,
+      "y": 1400,
+      "nextId": "node_12"
+    },
+    {
+      "id": "node_12",
+      "chapter": 2,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "My ancestors sealed this place after the Sundering. They said the things down here were too dangerous to use, and too important to destroy.",
+      "x": 800,
+      "y": 1400,
+      "nextId": "node_13"
+    },
+    {
+      "id": "node_13",
+      "chapter": 2,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "I always thought it was superstition. Stories to frighten children into obedience.",
+      "x": 1400,
+      "y": 1400,
+      "nextId": "node_14"
+    },
+    {
+      "id": "node_14",
+      "chapter": 2,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "The torch illuminated a chamber lined with crystallized tears — each one containing a frozen scream from the age before memory.",
+      "x": 2000,
+      "y": 1400,
+      "nextId": "node_15"
+    },
+    {
+      "id": "node_15",
+      "chapter": 2,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "Gods above and below.",
+      "x": 2600,
+      "y": 1400,
+      "nextId": "node_16"
+    },
+    {
+      "id": "node_16",
+      "chapter": 2,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "You shouldn't have come down here alone. There are wards on these walls that haven't been maintained in centuries.",
+      "x": 3200,
+      "y": 1400,
+      "nextId": "node_17"
+    },
+    {
+      "id": "node_17",
+      "chapter": 2,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "I ordered you to stay above.",
+      "x": 3800,
+      "y": 1400,
+      "nextId": "node_18"
+    },
+    {
+      "id": "node_18",
+      "chapter": 2,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "And I disobeyed. Court-martial me when we're not facing extinction. Look — there, on the pedestal.",
+      "x": 4400,
+      "y": 1400,
+      "nextId": "node_19"
+    },
+    {
+      "id": "node_19",
+      "chapter": 2,
+      "scene": 2,
+      "character": "NARRATOR:neutral",
+      "text": "A crown. Not gold, not silver — but carved from a single piece of midnight stone, veined with something that pulsed like a dying heartbeat.",
+      "x": 5000,
+      "y": 1400,
+      "nextId": "node_20"
+    },
+    {
+      "id": "node_20",
+      "chapter": 2,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "The Hollow Crown. I thought it was a myth.",
+      "x": 5600,
+      "y": 1400,
+      "nextId": "node_21"
+    },
+    {
+      "id": "node_21",
+      "chapter": 2,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Every myth in this vault seems uncomfortably real.",
+      "x": 6200,
+      "y": 1400,
+      "nextId": "node_22"
+    },
+    {
+      "id": "node_22",
+      "chapter": 2,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "The old texts say it grants dominion over drought and storm. But the price... the wearer surrenders their mortality. Not death. Something worse. An eternity of conscious silence.",
+      "x": 6800,
+      "y": 1400,
+      "nextId": "node_23"
+    },
+    {
+      "id": "node_23",
+      "chapter": 2,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Then we leave it. We'll find another way.",
+      "x": 7400,
+      "y": 1400,
+      "nextId": "node_24"
+    },
+    {
+      "id": "node_24",
+      "chapter": 2,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "There is no other way, Theron. You know that as well as I do.",
+      "x": 8000,
+      "y": 1400,
+      "nextId": "node_25"
+    },
+    {
+      "id": "node_25",
+      "chapter": 3,
+      "scene": 1,
+      "character": "NARRATOR:neutral",
+      "text": "They stood in the throne room as the last light of the dying sun bled through cracked stained glass. The crown sat between them like a wound.",
+      "x": 200,
+      "y": 2600,
+      "nextId": "node_26"
+    },
+    {
+      "id": "node_26",
+      "chapter": 3,
+      "scene": 1,
+      "character": "THERON:neutral",
+      "text": "I've served three rulers of Ashenmere. Your grandfather was cruel. Your mother was kind. You are neither — you are necessary.",
+      "x": 800,
+      "y": 2600,
+      "nextId": "node_27"
+    },
+    {
+      "id": "node_27",
+      "chapter": 3,
+      "scene": 1,
+      "character": "THERON:neutral",
+      "text": "And I am telling you, as the last soldier who still draws breath for this kingdom: do not put on that crown.",
+      "x": 1400,
+      "y": 2600,
+      "nextId": "node_28"
+    },
+    {
+      "id": "node_28",
+      "chapter": 3,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "If I don't, seventeen people die of thirst by morning. The kingdom dies with them. Everything my family built across three hundred years becomes dust.",
+      "x": 2000,
+      "y": 2600,
+      "nextId": "node_29"
+    },
+    {
+      "id": "node_29",
+      "chapter": 3,
+      "scene": 1,
+      "character": "THERON:neutral",
+      "text": "Better dust than what that thing will make of you.",
+      "x": 2600,
+      "y": 2600,
+      "nextId": "node_30"
+    },
+    {
+      "id": "node_30",
+      "chapter": 3,
+      "scene": 1,
+      "character": "MAREN:neutral",
+      "text": "You buried two hundred and thirty-one people today, Theron. Look me in the eye and tell me their deaths were acceptable.",
+      "x": 3200,
+      "y": 2600,
+      "nextId": "node_31"
+    },
+    {
+      "id": "node_31",
+      "chapter": 3,
+      "scene": 1,
+      "character": "THERON:neutral",
+      "text": "...",
+      "x": 3800,
+      "y": 2600,
+      "nextId": "node_32"
+    },
+    {
+      "id": "node_32",
+      "chapter": 3,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "I'm not asking your permission. I'm not asking for your blessing. I'm asking you to remember me as I am now. Before the crown takes what's left.",
+      "x": 4400,
+      "y": 2600,
+      "nextId": "node_33"
+    },
+    {
+      "id": "node_33",
+      "chapter": 3,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "Maren—",
+      "x": 5000,
+      "y": 2600,
+      "nextId": "node_34"
+    },
+    {
+      "id": "node_34",
+      "chapter": 3,
+      "scene": 2,
+      "character": "MAREN:neutral",
+      "text": "Promise me.",
+      "x": 5600,
+      "y": 2600,
+      "nextId": "node_35"
+    },
+    {
+      "id": "node_35",
+      "chapter": 3,
+      "scene": 2,
+      "character": "THERON:neutral",
+      "text": "I promise.",
+      "x": 6200,
+      "y": 2600,
+      "nextId": "node_36"
+    },
+    {
+      "id": "node_36",
+      "chapter": 3,
+      "scene": 2,
+      "character": "NARRATOR:neutral",
+      "text": "She lifted the Hollow Crown with both hands. It was lighter than air and heavier than grief. The stone pulsed once — twice — and went still.",
+      "x": 6800,
+      "y": 2600,
+      "nextId": "node_37"
+    },
+    {
+      "id": "node_37",
+      "chapter": 3,
+      "scene": 2,
+      "character": "NARRATOR:neutral",
+      "text": "Maren placed it upon her head. The drought broke. The sky wept. And the queen of Ashenmere never spoke again.",
+      "x": 7400,
+      "y": 2600
+    }
+  ],
+  "groups": [
+    {
+      "id": "group_ch_1",
+      "title": "CHAPTER 1",
+      "x": 50,
+      "y": 50,
+      "width": 15000,
+      "height": 1000,
+      "color": "rgba(0, 255, 204, 0.05)"
+    },
+    {
+      "id": "group_ch_2",
+      "title": "CHAPTER 2",
+      "x": 50,
+      "y": 1250,
+      "width": 15000,
+      "height": 1000,
+      "color": "rgba(0, 255, 204, 0.05)"
+    },
+    {
+      "id": "group_ch_3",
+      "title": "CHAPTER 3",
+      "x": 50,
+      "y": 2450,
+      "width": 15000,
+      "height": 1000,
+      "color": "rgba(0, 255, 204, 0.05)"
+    }
+  ]
+}

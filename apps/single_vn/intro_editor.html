@@ -8,6 +8,7 @@
     <link id="dynamic-theme" rel="stylesheet" href="styles/vn_yellow1.css">
     <link rel="stylesheet" href="styles/intro_editor.css">
     <link rel="stylesheet" href="styles/nexus_colorpicker.css">
+    <link rel="stylesheet" href="styles/intro_effects.css">
 </head>
 <body>
 
@@ -82,14 +83,6 @@
             </div>
         </div>
 
-        <div class="component-btn" onclick="openAssetLibrary()">
-            <i class="bi bi-folder2-open"></i>
-            <div class="info">
-                <span>Asset Library</span>
-                <small>Preset Assets & URLs</small>
-            </div>
-        </div>
-
         <div class="actions">
             <button class="btn-success" onclick="copyMinifiedCode()">
                 <i class="bi bi-code-square"></i> COPY MINIFIED
@@ -143,6 +136,17 @@
             <div class="color-bar" style="width: 20px; height: 3px; background: #ffffff; border-radius: 2px;"></div>
         </button>
         <button id="btn-shadow" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
+        <div class="toolbar-divider"></div>
+        <div class="macro-dropdown" onmouseleave="this.classList.remove('active')">
+            <button class="toolbar-btn" onclick="this.parentElement.classList.toggle('active')" title="Effects Macros">
+                <i class="bi bi-magic"></i>
+            </button>
+            <div class="macro-dropdown-content">
+                <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-glitch'); this.parentElement.parentElement.classList.remove('active')">Glitch</button>
+                <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-shake'); this.parentElement.parentElement.classList.remove('active')">Shake</button>
+                <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-neon'); this.parentElement.parentElement.classList.remove('active')">Neon Glow</button>
+            </div>
+        </div>
     </div>
 
     <!-- CONFIG MODAL -->
@@ -171,32 +175,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- ASSET LIBRARY MODAL -->
-    <div id="asset-modal" class="modal-overlay">
-        <div class="modal-content" style="width: 700px;">
-            <div class="modal-header">
-                <h2>📦 ASSET LIBRARY</h2>
-                <p>Quickly copy sample asset URLs for your project.</p>
-            </div>
-
-            <div id="asset-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                <button class="btn-outline" onclick="showAssetTab('bg')" style="font-size: 11px;">BACKGROUNDS</button>
-                <button class="btn-outline" onclick="showAssetTab('char')" style="font-size: 11px;">CHARACTERS</button>
-                <button class="btn-outline" onclick="showAssetTab('music')" style="font-size: 11px;">MUSIC</button>
-            </div>
-
-            <div id="asset-tab-content" style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
-                <!-- Assets will be injected here -->
-            </div>
-
-            <div style="margin-top: 30px;">
-                <button type="button" class="btn-primary" style="width: 100%;" onclick="closeAssetLibrary()">
-                    CLOSE
-                </button>
-            </div>
         </div>
     </div>
 

@@ -598,23 +598,68 @@ body {
 
 /* --- RICH TEXT TOOLBAR --- */
 #rich-text-toolbar {
-    position: fixed;
+    position: absolute;
     display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform: translateY(-100%);
     background: rgba(10, 18, 30, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--accent);
-    border-radius: var(--radius-md);
-    padding: clamp(2px, 0.5vw, 8px);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: clamp(2px, 0.5vw, 8px) clamp(10px, 1.5vw, 20px);
     z-index: 2000;
-    box-shadow: 0 clamp(5px, 1vh, 15px) clamp(15px, 3vh, 40px) rgba(0,0,0,0.5), 0 0 clamp(5px, 1vh, 15px) var(--accent-dim);
+    box-shadow: 0 clamp(5px, 1vh, 15px) clamp(15px, 3vh, 40px) rgba(0,0,0,0.5);
     gap: clamp(2px, 0.5vw, 6px);
-    transition: opacity 0.2s ease, transform 0.2s ease, left 0.1s ease, top 0.1s ease;
+    transition: opacity 0.2s ease, top 0.1s ease;
     animation: toolbar-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes toolbar-in {
-    from { opacity: 0; transform: translateY(clamp(5px, 1vh, 15px)); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(calc(-100% + 15px)); }
+    to { opacity: 1; transform: translateY(-100%); }
+}
+
+/* Macro Dropdown Styles */
+.macro-dropdown {
+    position: relative;
+    display: flex;
+}
+
+.macro-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    min-width: 120px;
+    z-index: 2001;
+    flex-direction: column;
+}
+
+.macro-dropdown:hover .macro-dropdown-content,
+.macro-dropdown.active .macro-dropdown-content {
+    display: flex;
+}
+
+.macro-btn {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 10px 15px;
+    text-align: left;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    transition: background 0.2s;
+}
+
+.macro-btn:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
 }
 
 .toolbar-btn {

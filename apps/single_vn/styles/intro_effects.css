@@ -1,0 +1,82 @@
+/* 
+ * Intro Effects Macros
+ * Used by the rich-text editor for dynamic text styling
+ */
+
+.effect-glitch {
+    position: relative;
+    display: inline-block;
+    animation: glitch-anim 2s infinite linear;
+}
+
+@keyframes glitch-anim {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 1px) }
+    40% { transform: translate(-1px, -1px) }
+    60% { transform: translate(2px, 1px) }
+    80% { transform: translate(1px, -1px) }
+    100% { transform: translate(0) }
+}
+
+.effect-glitch::before,
+.effect-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.effect-glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+.effect-glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip-path: inset(10% 0 80% 0); }
+    20% { clip-path: inset(80% 0 10% 0); }
+    40% { clip-path: inset(30% 0 50% 0); }
+    60% { clip-path: inset(50% 0 30% 0); }
+    80% { clip-path: inset(5% 0 90% 0); }
+    100% { clip-path: inset(90% 0 5% 0); }
+}
+
+/* Shake Effect */
+.effect-shake {
+    display: inline-block;
+    animation: shake-anim 0.5s infinite;
+}
+
+@keyframes shake-anim {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2px) rotate(-2deg); }
+    50% { transform: translateX(2px) rotate(2deg); }
+    75% { transform: translateX(-2px) rotate(1deg); }
+    100% { transform: translateX(0); }
+}
+
+/* Neon Glow Effect */
+.effect-neon {
+    color: #fff;
+    text-shadow:
+        0 0 5px #fff,
+        0 0 10px #fff,
+        0 0 20px var(--accent, #0ff),
+        0 0 40px var(--accent, #0ff),
+        0 0 80px var(--accent, #0ff);
+    animation: neon-pulse 1.5s infinite alternate;
+}
+
+@keyframes neon-pulse {
+    0% { opacity: 1; }
+    100% { opacity: 0.8; text-shadow: 0 0 2px #fff, 0 0 5px var(--accent, #0ff), 0 0 10px var(--accent, #0ff); }
+}

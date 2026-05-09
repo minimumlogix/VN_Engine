@@ -53,14 +53,15 @@ window.onload = loadFromCache;
 
 function updateTheme() {
     const theme = document.getElementById('global-theme-select').value;
-    document.getElementById('dynamic-theme').href = `styles/${theme}`;
+    const link = document.getElementById('dynamic-theme');
 
     // Wait for CSS to apply before re-rendering
-    setTimeout(() => {
+    link.onload = () => {
         renderCanvas();
         updateCodeView();
         saveToCache();
-    }, 50);
+    };
+    link.href = `styles/${theme}`;
 }
 
 function switchTab(tab) {
@@ -150,7 +151,6 @@ const FORM_TEMPLATES = {
         { label: 'Height (px)', id: 'iframe-height', type: 'number', value: 450 }
     ],
     'dialogue': [
-        { label: 'Speaker Name (Optional)', id: 'speaker-name', type: 'text', placeholder: 'e.g. Hero' },
         { label: 'Initial Dialogue', id: 'dialogue-text', type: 'textarea', placeholder: 'Enter your dialogue here... (Markdown supported)' }
     ],
     'lore': [
@@ -306,36 +306,15 @@ function _getActiveStyle(range, editable) {
 
 function handleTextSelection(e) {
     const selection = window.getSelection();
-    const toolbar = document.getElementById('rich-text-toolbar');
 
     if (selection.toString().trim().length > 0 && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         const editable = _getEditableFromRange(range);
         const textarea = document.querySelector('#form-fields textarea');
         const isTextareaRange = textarea && document.activeElement === textarea;
-        if (!editable && !isTextareaRange) {
-            toolbar.style.display = 'none';
-            return;
-        }
+        if (!editable && !isTextareaRange) return;
 
         window.lastSavedSelectionRange = range.cloneRange();
-        const rect = range.getBoundingClientRect();
-
-        toolbar.style.display = 'flex';
-
-        // Intelligent Positioning: Center above selection
-        const toolbarWidth = toolbar.offsetWidth || 180;
-        let left = rect.left + (rect.width / 2) - (toolbarWidth / 2);
-        let top = rect.top - 55;
-
-        // Boundary checks
-        if (left < 10) left = 10;
-        if (left + toolbarWidth > window.innerWidth - 10) left = window.innerWidth - toolbarWidth - 10;
-        if (rect.top < 70) top = rect.bottom + 15;
-
-        toolbar.style.left = `${left}px`;
-        toolbar.style.top = `${top}px`;
-
         const active = editable ? _getActiveStyle(range, editable) : {};
 
         document.getElementById('btn-bold').classList.toggle('active', !!active.bold);
@@ -343,8 +322,6 @@ function handleTextSelection(e) {
         document.getElementById('btn-shadow').classList.toggle('active', !!active.shadow);
         document.getElementById('btn-color').style.color = active.color || '';
         document.getElementById('btn-color').classList.toggle('active', !!active.color);
-    } else {
-        toolbar.style.display = 'none';
     }
 }
 
@@ -438,6 +415,9 @@ function _applySourceFormat(editable, range, type, value) {
         replacement = `<span style="color:${value}">${sourceRange.text}</span>`;
     } else if (type === 'shadow') {
         replacement = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${sourceRange.text}</span>`;
+    } else if (type === 'effect') {
+        const dataAttr = value === 'effect-glitch' ? ` data-text="${sourceRange.text}"` : '';
+        replacement = `<span class="${value}"${dataAttr}>${sourceRange.text}</span>`;
     }
 
     _replaceSourceRange(editable, range, replacement);
@@ -501,6 +481,26 @@ function _applyInlineDomFormat(editable, range, type, value) {
         _wrapRange(range, 'span', { style, clearStyle: prop });
         _syncRichEditable(editable);
         handleTextSelection();
+        return;
+    }
+
+    if (type === 'effect') {
+        const existingSpan = _closestWithin(activeNode, `span.${value}`, editable);
+        if (existingSpan && existingSpan.contains(range.endContainer)) {
+            _unwrapElement(existingSpan);
+            _syncRichEditable(editable);
+            handleTextSelection();
+            return;
+        }
+        
+        const textContent = range.toString();
+        const wrapper = _wrapRange(range, 'span', {});
+        wrapper.className = value;
+        if (value === 'effect-glitch') {
+            wrapper.setAttribute('data-text', textContent);
+        }
+        _syncRichEditable(editable);
+        handleTextSelection();
     }
 }
 
@@ -555,6 +555,10 @@ function applyFormat(type, value) {
                 break;
             case 'color': newText = `<span style="color:${value}">${selectedText}</span>`; break;
             case 'shadow': newText = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${selectedText}</span>`; break;
+            case 'effect': 
+                const dataAttr = value === 'effect-glitch' ? ` data-text="${selectedText}"` : '';
+                newText = `<span class="${value}"${dataAttr}>${selectedText}</span>`; 
+                break;
         }
 
         textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
@@ -949,7 +953,16 @@ function _serializeRichContent(el) {
             const styles = [];
             if (node.style.color) styles.push(`color:${node.style.color}`);
             if (node.style.textShadow) styles.push(`text-shadow:${node.style.textShadow}`);
-            return styles.length ? `<span style="${_escapeAttr(styles.join(';'))}">${inner}</span>` : inner;
+            
+            const classes = Array.from(node.classList).filter(c => c.startsWith('effect-')).join(' ');
+            const dataText = node.getAttribute('data-text') ? ` data-text="${_escapeAttr(node.getAttribute('data-text'))}"` : '';
+            
+            let attrs = '';
+            if (styles.length) attrs += ` style="${_escapeAttr(styles.join(';'))}"`;
+            if (classes) attrs += ` class="${classes}"`;
+            if (dataText) attrs += dataText;
+            
+            return attrs ? `<span${attrs}>${inner}</span>` : inner;
         }
 
         if (['DIV', 'P'].includes(tag)) {
@@ -995,6 +1008,10 @@ function _maybeFinishSourceEdit(el) {
         if (active === el) return;
         if (toolbar && toolbar.contains(active)) return;
         if (picker && picker.contains(active)) return;
+        if (toolbar && toolbar.parentElement !== document.body) {
+            toolbar.style.display = 'none';
+            document.body.appendChild(toolbar);
+        }
         _finishSourceEdit(el);
     });
 }
@@ -1051,6 +1068,11 @@ function renderCanvas() {
 
     // Clear current canvas (except empty state)
     const items = canvas.querySelectorAll('.canvas-item');
+    const toolbar = document.getElementById('rich-text-toolbar');
+    if (toolbar && toolbar.parentElement !== document.body) {
+        toolbar.style.display = 'none';
+        document.body.appendChild(toolbar);
+    }
     items.forEach(i => i.remove());
 
     if (canvasItems.length > 0) {
@@ -1080,6 +1102,11 @@ function renderCanvas() {
                 content.classList.add('inline-edit');
 
                 content.addEventListener('focus', (e) => {
+                    const toolbar = document.getElementById('rich-text-toolbar');
+                    const itemEl = e.target.closest('.canvas-item');
+                    itemEl.insertBefore(toolbar, itemEl.firstChild);
+                    toolbar.style.display = 'flex';
+
                     e.target._sourceValue = item['dialogue-text'] || '';
                     e.target.innerText = e.target._sourceValue;
                     e.target.classList.add('editing-mode', 'source-editing');
@@ -1127,27 +1154,6 @@ function renderCanvas() {
                     }, 1000);
                 });
 
-                // Sync for speaker name if it exists
-                const speakerEdit = el.querySelector('.speaker-edit');
-                if (speakerEdit) {
-                    speakerEdit.addEventListener('input', (e) => {
-                        const itemEl = e.target.closest('.canvas-item');
-                        const allItems = Array.from(document.querySelectorAll('.canvas-item'));
-                        const idx = allItems.indexOf(itemEl);
-                        if (idx !== -1) {
-                            canvasItems[idx]['speaker-name'] = e.target.innerText;
-                            updateCodeView();
-                            saveToCache();
-                        }
-                    });
-
-                    speakerEdit.addEventListener('focus', (e) => {
-                        e.target.classList.add('editing-mode');
-                    });
-                    speakerEdit.addEventListener('blur', (e) => {
-                        e.target.classList.remove('editing-mode');
-                    });
-                }
             }
         }
 
@@ -1177,8 +1183,7 @@ function getPreviewHTML(item) {
         case 'vn-iframe':
             return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine?story=${item['story-id']}" style="width:100%;height:${item['iframe-height']}px;border:none"></iframe>`;
         case 'dialogue':
-            const speaker = item['speaker-name'] ? `<div class="vn-character-name inline-edit speaker-edit" contenteditable="true" style="margin-bottom: 5px; font-size: 0.9em; width: auto; display: inline-block; cursor: text;">${item['speaker-name']}</div>` : '';
-            return `<div class="vn-dialogue-box">${speaker}<div class="vn-dialogue-content" style="color: #fff !important;">${parseMarkdown(item['dialogue-text'])}</div></div>`;
+            return `<div class="vn-dialogue-box"><div class="vn-dialogue-content" style="color: #fff !important;">${parseMarkdown(item['dialogue-text'])}</div></div>`;
         case 'lore':
             return `
                 <details class="vn-lore-details" open>
@@ -1394,12 +1399,9 @@ function generateFullHTML(minified) {
             case 'dialogue':
                 const dialogueText = (item['dialogue-text'] || '').replace(/\r\n/g, '\n');
                 if (minified) {
-                    const spk = item['speaker-name'] ? `<div class="vn-character-name">${item['speaker-name']}</div>` : '';
-                    html += `<div class="vn-dialogue-box">${spk}<div class="vn-dialogue-content">\n\n${dialogueText}\n</div></div>${newline}`;
+                    html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n\n${dialogueText}\n</div></div>${newline}`;
                 } else {
-                    const spk = item['speaker-name'] ? `${indent}<div class="vn-character-name">${item['speaker-name']}</div>${newline}` : '';
                     html += `<div class="vn-dialogue-box">${newline}`;
-                    html += spk;
                     html += `${indent}<div class="vn-dialogue-content">${newline}${newline}`;
                     html += `${dialogueText}${newline}`;
                     html += `${indent}</div>${newline}`;
@@ -1471,54 +1473,7 @@ function fallbackCopyTextToClipboard(text) {
     document.body.removeChild(textArea);
 }
 
-// ASSET LIBRARY LOGIC
-const SAMPLE_ASSETS = {
-    bg: [
-        { name: 'Neon Alley', url: 'https://minimumlogix.github.io/VN_Engine/stories/earth_002/assets/images/backgrounds/bg1.png' },
-        { name: 'Control Room', url: 'https://minimumlogix.github.io/VN_Engine/stories/earth_002/assets/images/backgrounds/bg2.png' }
-    ],
-    char: [
-        { name: 'Jax (Neutral)', url: 'https://minimumlogix.github.io/VN_Engine/stories/earth_002/assets/images/characters/Jax.png' },
-        { name: 'Luna', url: 'https://minimumlogix.github.io/VN_Engine/stories/earth_002/assets/images/characters/Luna.png' }
-    ],
-    music: [
-        { name: 'Cyberpunk Theme', url: 'https://www.youtube.com/watch?v=Pz287bSmJnU' },
-        { name: 'Relaxing Lo-Fi', url: 'https://www.youtube.com/watch?v=5qap5aO4i9A' }
-    ]
-};
 
-function openAssetLibrary() {
-    document.getElementById('asset-modal').style.display = 'flex';
-    showAssetTab('bg');
-}
-
-function closeAssetLibrary() {
-    document.getElementById('asset-modal').style.display = 'none';
-}
-
-function showAssetTab(tab) {
-    const container = document.getElementById('asset-tab-content');
-    container.innerHTML = '';
-
-    SAMPLE_ASSETS[tab].forEach(asset => {
-        const item = document.createElement('div');
-        item.style = 'display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;';
-        item.innerHTML = `
-            <div>
-                <b style="color:var(--accent);">${asset.name}</b><br>
-                <small style="opacity:0.6; font-size:10px;">${asset.url}</small>
-            </div>
-            <button class="btn-outline" style="padding:5px 10px; font-size:10px;" onclick="copyToClipboard('${asset.url}')">COPY URL</button>
-        `;
-        container.appendChild(item);
-    });
-}
-
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert('URL copied to clipboard!');
-    });
-}
 
 // Global Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {

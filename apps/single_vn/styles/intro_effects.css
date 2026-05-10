@@ -80,3 +80,35 @@
     0% { opacity: 1; }
     100% { opacity: 0.8; text-shadow: 0 0 2px #fff, 0 0 5px var(--accent, #0ff), 0 0 10px var(--accent, #0ff); }
 }
+
+/* Premium Gradient Loop */
+.effect-gradient-loop {
+    background: linear-gradient(
+        to right, 
+        var(--grad-c1, #00f3ff), 
+        var(--grad-c2, #ff00ff), 
+        var(--grad-c1, #00f3ff)
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: grad-loop-anim 3s linear infinite;
+    display: inline-block;
+}
+
+@keyframes grad-loop-anim {
+    to { background-position: 200% center; }
+}
+
+/* Bounce Effect */
+.effect-bounce {
+    display: inline-block;
+    animation: bounce-anim 1s infinite;
+}
+
+@keyframes bounce-anim {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+

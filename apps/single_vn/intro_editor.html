@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="styles/intro_editor.css">
     <link rel="stylesheet" href="styles/nexus_colorpicker.css">
     <link rel="stylesheet" href="styles/intro_effects.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Orbitron:wght@400..900&family=Cinzel:wght@400..900&family=Montserrat:wght@400..900&family=Special+Elite&family=Dancing+Script:wght@400..700&family=Creepster&family=Press+Start+2P&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -127,15 +131,49 @@
     </main>
 
     <div id="rich-text-toolbar">
-        <button id="btn-bold" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('bold')" title="Bold (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
-        <button id="btn-italic" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('italic')" title="Italic (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
+        <div class="toolbar-group">
+            <button id="btn-undo" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="historyManager.undo()" title="Undo (Ctrl+Z)"><i class="bi bi-arrow-90deg-left"></i></button>
+            <button id="btn-redo" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="historyManager.redo()" title="Redo (Ctrl+Y)"><i class="bi bi-arrow-90deg-right"></i></button>
+        </div>
         <div class="toolbar-divider"></div>
-        <button id="btn-color" class="toolbar-btn" style="flex-direction: column; height: 38px; gap: 2px;" onmousedown="event.preventDefault()"
-            onclick="openToolbarColorPicker(this)" title="Text Color">
-            <i class="bi bi-palette" style="font-size: 12px;"></i>
-            <div class="color-bar" style="width: 20px; height: 3px; background: #ffffff; border-radius: 2px;"></div>
-        </button>
-        <button id="btn-shadow" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
+        <div class="toolbar-group">
+            <button id="btn-bold" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('bold')" title="Bold (Ctrl+B)"><i class="bi bi-type-bold"></i></button>
+            <button id="btn-italic" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('italic')" title="Italic (Ctrl+I)"><i class="bi bi-type-italic"></i></button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="font-dropdown" onmouseleave="this.classList.remove('active')">
+            <button class="toolbar-btn font-current" onclick="this.parentElement.classList.toggle('active')" title="Font Family">
+                Inter <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+            </button>
+            <div class="font-dropdown-content">
+                <button class="font-item" style="font-family: 'Inter'" onclick="applyFont('Inter')">Inter</button>
+                <button class="font-item" style="font-family: 'Playfair Display'" onclick="applyFont('Playfair Display')">Playfair Display</button>
+                <button class="font-item" style="font-family: 'Orbitron'" onclick="applyFont('Orbitron')">Orbitron</button>
+                <button class="font-item" style="font-family: 'Cinzel'" onclick="applyFont('Cinzel')">Cinzel</button>
+                <button class="font-item" style="font-family: 'Montserrat'" onclick="applyFont('Montserrat')">Montserrat</button>
+                <button class="font-item" style="font-family: 'Special Elite'" onclick="applyFont('Special Elite')">Special Elite</button>
+                <button class="font-item" style="font-family: 'Dancing Script'" onclick="applyFont('Dancing Script')">Dancing Script</button>
+                <button class="font-item" style="font-family: 'Creepster'" onclick="applyFont('Creepster')">Creepster</button>
+                <button class="font-item" style="font-family: 'Press Start 2P'" onclick="applyFont('Press Start 2P')">Press Start 2P</button>
+                <button class="font-item" style="font-family: 'Lora'" onclick="applyFont('Lora')">Lora</button>
+            </div>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button id="btn-color" class="toolbar-btn" style="flex-direction: column; height: 32px; gap: 2px;" onmousedown="event.preventDefault()"
+                onclick="openToolbarColorPicker(this)" title="Text Color">
+                <i class="bi bi-palette" style="font-size: 12px;"></i>
+                <div class="color-bar" style="width: 18px; height: 3px; background: #ffffff; border-radius: 1px;"></div>
+            </button>
+            <button id="btn-gradient" class="toolbar-btn btn-gradient" onmousedown="event.preventDefault()" onclick="applyGradient()" title="Apply Text Gradient"><i class="bi bi-palette2"></i></button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button id="btn-shadow" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="applyFormat('shadow')" title="Add Shadow"><i class="bi bi-shadows"></i></button>
+            <button id="btn-image" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="insertImage()" title="Insert Image"><i class="bi bi-image"></i></button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <button id="btn-clear" class="toolbar-btn" onmousedown="event.preventDefault()" onclick="clearFormatting()" title="Clear Formatting"><i class="bi bi-eraser"></i></button>
         <div class="toolbar-divider"></div>
         <div class="macro-dropdown" onmouseleave="this.classList.remove('active')">
             <button class="toolbar-btn" onclick="this.parentElement.classList.toggle('active')" title="Effects Macros">
@@ -145,6 +183,8 @@
                 <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-glitch'); this.parentElement.parentElement.classList.remove('active')">Glitch</button>
                 <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-shake'); this.parentElement.parentElement.classList.remove('active')">Shake</button>
                 <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-neon'); this.parentElement.parentElement.classList.remove('active')">Neon Glow</button>
+                <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-gradient-loop'); this.parentElement.parentElement.classList.remove('active')">Gradient Loop</button>
+                <button class="macro-btn" onmousedown="event.preventDefault()" onclick="applyFormat('effect', 'effect-bounce'); this.parentElement.parentElement.classList.remove('active')">Bounce</button>
             </div>
         </div>
     </div>
@@ -175,6 +215,56 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- GRADIENT MODAL -->
+    <div id="gradient-modal" class="modal-overlay">
+        <div class="modal-content" style="width: min(100%, 500px);">
+            <div class="modal-header">
+                <h2>GRADIENT DESIGNER</h2>
+                <p>Craft a premium text gradient with live preview.</p>
+            </div>
+
+            <div class="gradient-preview-container">
+                <div id="gradient-preview-text">PREVIEW TEXT</div>
+            </div>
+
+            <div class="gradient-controls">
+                <div class="stop-control">
+                    <label>COLOR STOP 1</label>
+                    <div class="color-row">
+                        <div id="grad-stop-1" class="color-swatch" onclick="pickGradColor(1)"></div>
+                        <input type="text" id="grad-hex-1" class="hex-input" readonly>
+                    </div>
+                </div>
+                <div class="stop-control">
+                    <label>COLOR STOP 2</label>
+                    <div class="color-row">
+                        <div id="grad-stop-2" class="color-swatch" onclick="pickGradColor(2)"></div>
+                        <input type="text" id="grad-hex-2" class="hex-input" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>GRADIENT ANGLE (<span id="angle-val">90</span>°)</label>
+                <input type="range" id="grad-angle" min="0" max="360" value="90" oninput="updateGradPreview()">
+            </div>
+
+            <div class="sidebar-section-label">PREMIUM PALETTES</div>
+            <div id="gradient-palettes" class="palette-grid">
+                <!-- Palettes injected via JS -->
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button type="button" class="btn-primary" style="flex: 1;" onclick="saveGradient()">
+                    APPLY GRADIENT
+                </button>
+                <button type="button" class="btn-outline" onclick="closeGradientModal()">
+                    CANCEL
+                </button>
+            </div>
         </div>
     </div>
 

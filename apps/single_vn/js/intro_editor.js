@@ -21,12 +21,82 @@ function getThemePrimaryHex() {
     return '00f3ff';
 }
 
+class HistoryManager {
+    constructor(maxSize = 50) {
+        this.undoStack = [];
+        this.redoStack = [];
+        this.maxSize = maxSize;
+        this.isApplying = false;
+    }
+
+    push(state) {
+        if (this.isApplying) return;
+        const serialized = JSON.stringify(state);
+        if (this.undoStack.length > 0 && this.undoStack[this.undoStack.length - 1] === serialized) return;
+        
+        this.undoStack.push(serialized);
+        if (this.undoStack.length > this.maxSize) this.undoStack.shift();
+        this.redoStack = [];
+        this.updateButtons();
+    }
+
+    undo() {
+        if (this.undoStack.length <= 1) return;
+        this.isApplying = true;
+        const current = this.undoStack.pop();
+        this.redoStack.push(current);
+        const previous = JSON.parse(this.undoStack[this.undoStack.length - 1]);
+        this.applyState(previous);
+        this.isApplying = false;
+        this.updateButtons();
+    }
+
+    redo() {
+        if (this.redoStack.length === 0) return;
+        this.isApplying = true;
+        const next = JSON.parse(this.redoStack.pop());
+        this.undoStack.push(JSON.stringify(next));
+        this.applyState(next);
+        this.isApplying = false;
+        this.updateButtons();
+    }
+
+    applyState(state) {
+        canvasItems = JSON.parse(JSON.stringify(state.canvasItems));
+        if (state.theme && document.getElementById('global-theme-select').value !== state.theme) {
+            document.getElementById('global-theme-select').value = state.theme;
+            updateTheme(true); // Skip history push
+        } else {
+            renderCanvas();
+            updateCodeView();
+            saveToCache();
+        }
+    }
+
+    updateButtons() {
+        const undoBtn = document.getElementById('btn-undo');
+        const redoBtn = document.getElementById('btn-redo');
+        if (undoBtn) undoBtn.disabled = this.undoStack.length <= 1;
+        if (redoBtn) redoBtn.disabled = this.redoStack.length === 0;
+    }
+}
+
+const historyManager = new HistoryManager();
+
 function saveToCache() {
     const state = {
         canvasItems,
         theme: document.getElementById('global-theme-select').value
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(state));
+}
+
+function recordHistory() {
+    const state = {
+        canvasItems,
+        theme: document.getElementById('global-theme-select').value
+    };
+    historyManager.push(state);
 }
 
 function loadFromCache() {
@@ -41,6 +111,8 @@ function loadFromCache() {
             }
             renderCanvas();
             updateCodeView();
+            saveToCache();
+            recordHistory();
             showToast('Previous project restored from cache!');
         } catch (e) {
             console.error('Failed to load cache:', e);
@@ -49,9 +121,20 @@ function loadFromCache() {
 }
 
 
-window.onload = loadFromCache;
+window.onload = () => {
+    loadFromCache();
+    window.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+            e.preventDefault();
+            historyManager.undo();
+        } else if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+            e.preventDefault();
+            historyManager.redo();
+        }
+    });
+};
 
-function updateTheme() {
+function updateTheme(skipHistory = false) {
     const theme = document.getElementById('global-theme-select').value;
     const link = document.getElementById('dynamic-theme');
 
@@ -59,7 +142,7 @@ function updateTheme() {
     link.onload = () => {
         renderCanvas();
         updateCodeView();
-        saveToCache();
+        saveToCache(skipHistory);
     };
     link.href = `styles/${theme}`;
 }
@@ -300,6 +383,7 @@ function _getActiveStyle(range, editable) {
         bold: !!_closestWithin(node, 'strong,b', editable),
         italic: !!_closestWithin(node, 'em,i', editable),
         color: span && span.style.color ? span.style.color : '',
+        fontFamily: span && span.style.fontFamily ? span.style.fontFamily.replace(/['"]/g, '') : '',
         shadow: !!(span && span.style.textShadow)
     };
 }
@@ -320,7 +404,16 @@ function handleTextSelection(e) {
         document.getElementById('btn-bold').classList.toggle('active', !!active.bold);
         document.getElementById('btn-italic').classList.toggle('active', !!active.italic);
         document.getElementById('btn-shadow').classList.toggle('active', !!active.shadow);
-        document.getElementById('btn-color').style.color = active.color || '';
+        
+        const colorBar = document.querySelector('#btn-color .color-bar');
+        if (colorBar) {
+            colorBar.style.background = active.color || '#ffffff';
+        }
+        const fontCurrent = document.querySelector('.font-current');
+        if (fontCurrent) {
+            const fontName = active.fontFamily || 'Inter';
+            fontCurrent.innerHTML = `${fontName} <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>`;
+        }
         document.getElementById('btn-color').classList.toggle('active', !!active.color);
     }
 }
@@ -398,21 +491,47 @@ function _replaceSourceRange(editable, range, replacement) {
 }
 
 function _applySourceFormat(editable, range, type, value) {
-    if (!editable || range.collapsed) return;
+    if (!editable) return;
+    const isImage = type === 'image';
+    if (range.collapsed && !isImage) return;
+    
     const sourceRange = _getSourceRange(editable, range);
-    if (!sourceRange.text) return;
+    if (!sourceRange.text && !isImage) return;
 
-    let replacement = sourceRange.text;
+    let replacement = sourceRange.text || '';
+    const source = _getSourceValue(editable);
+    
+    // Improved detection: check if text is ALREADY wrapped in the source
+    const before = source.slice(0, sourceRange.start);
+    const after = source.slice(sourceRange.end);
+
+    const isBold = (t) => t.startsWith('**') && t.endsWith('**');
+    const isItalic = (t) => t.startsWith('*') && !t.startsWith('**') && t.endsWith('*') && !t.endsWith('**');
+    
     if (type === 'bold') {
-        replacement = sourceRange.text.startsWith('**') && sourceRange.text.endsWith('**')
-            ? sourceRange.text.slice(2, -2)
-            : `**${sourceRange.text}**`;
+        if (isBold(sourceRange.text)) replacement = sourceRange.text.slice(2, -2);
+        else if (before.endsWith('**') && after.startsWith('**')) {
+            // Selection is inside bold, we need to split it
+            // For simplicity, let's just use the standard wrapping if not perfectly aligned
+            replacement = `**${sourceRange.text}**`;
+        } else replacement = `**${sourceRange.text}**`;
     } else if (type === 'italic') {
-        replacement = sourceRange.text.startsWith('*') && !sourceRange.text.startsWith('**') && sourceRange.text.endsWith('*') && !sourceRange.text.endsWith('**')
-            ? sourceRange.text.slice(1, -1)
-            : `*${sourceRange.text}*`;
+        if (isItalic(sourceRange.text)) replacement = sourceRange.text.slice(1, -1);
+        else replacement = `*${sourceRange.text}*`;
     } else if (type === 'color') {
-        replacement = `<span style="color:${value}">${sourceRange.text}</span>`;
+        // Remove existing spans of same type if they exist exactly around selection
+        const spanRegex = /<span style="color:[^"]+">(.*?)<\/span>/;
+        if (spanRegex.test(sourceRange.text)) {
+            replacement = sourceRange.text.replace(spanRegex, '$1');
+        }
+        replacement = `<span style="color:${value}">${replacement}</span>`;
+    } else if (type === 'gradient') {
+        // Replace existing style/gradient
+        replacement = `<span style="${value}">${sourceRange.text.replace(/<span style="[^"]+">(.*?)<\/span>/g, '$1')}</span>`;
+    } else if (type === 'font') {
+        replacement = `<span style="font-family: '${value}'">${sourceRange.text}</span>`;
+    } else if (type === 'image') {
+        replacement = `![image](${value})`;
     } else if (type === 'shadow') {
         replacement = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${sourceRange.text}</span>`;
     } else if (type === 'effect') {
@@ -461,13 +580,18 @@ function _applyInlineDomFormat(editable, range, type, value) {
         return;
     }
 
-    if (type === 'color' || type === 'shadow') {
-        const prop = type === 'color' ? 'color' : 'textShadow';
+    if (type === 'color' || type === 'shadow' || type === 'gradient') {
+        const prop = type === 'color' ? 'color' : type === 'shadow' ? 'textShadow' : 'style';
         const existingSpan = _closestWithin(activeNode, 'span[style]', editable);
 
         if (existingSpan && existingSpan.contains(range.endContainer)) {
             if (type === 'color') existingSpan.style.color = value;
-            if (type === 'shadow') existingSpan.style.textShadow = existingSpan.style.textShadow ? '' : '2px 2px 4px rgba(0,0,0,0.5)';
+            else if (type === 'shadow') existingSpan.style.textShadow = existingSpan.style.textShadow ? '' : '2px 2px 4px rgba(0,0,0,0.5)';
+            else if (type === 'gradient') {
+                // Apply gradient style string
+                existingSpan.setAttribute('style', value);
+            }
+
             if (!existingSpan.getAttribute('style')) _unwrapElement(existingSpan);
             _selectNodeContents(existingSpan.parentNode && existingSpan.isConnected ? existingSpan : editable);
             _syncRichEditable(editable);
@@ -475,19 +599,33 @@ function _applyInlineDomFormat(editable, range, type, value) {
             return;
         }
 
-        const style = type === 'color'
-            ? { color: value }
-            : { textShadow: '2px 2px 4px rgba(0,0,0,0.5)' };
-        _wrapRange(range, 'span', { style, clearStyle: prop });
+        if (type === 'gradient') {
+            _wrapRange(range, 'span', { style: {}, clearStyle: null }).setAttribute('style', value);
+        } else {
+            const style = type === 'color'
+                ? { color: value }
+                : { textShadow: '2px 2px 4px rgba(0,0,0,0.5)' };
+            _wrapRange(range, 'span', { style, clearStyle: prop });
+        }
         _syncRichEditable(editable);
         handleTextSelection();
         return;
     }
 
     if (type === 'effect') {
-        const existingSpan = _closestWithin(activeNode, `span.${value}`, editable);
+        const existingSpan = _closestWithin(activeNode, 'span[class*="effect-"]', editable);
+        
         if (existingSpan && existingSpan.contains(range.endContainer)) {
-            _unwrapElement(existingSpan);
+            if (existingSpan.classList.contains(value)) {
+                existingSpan.classList.remove(value);
+                if (value === 'effect-glitch') existingSpan.removeAttribute('data-text');
+                // If no more effect classes, unwrap
+                const hasEffects = Array.from(existingSpan.classList).some(cls => cls.startsWith('effect-'));
+                if (!hasEffects) _unwrapElement(existingSpan);
+            } else {
+                existingSpan.classList.add(value);
+                if (value === 'effect-glitch') existingSpan.setAttribute('data-text', existingSpan.innerText);
+            }
             _syncRichEditable(editable);
             handleTextSelection();
             return;
@@ -527,8 +665,32 @@ function applyFormat(type, value) {
     const editable = _getEditableFromRange(range);
     const textarea = document.querySelector('#form-fields textarea');
 
+    if (type === 'effect' && value === 'effect-gradient-loop' && editable) {
+        const btn = document.getElementById('btn-gradient');
+        window.NexusColorPicker.open(btn, '#00f3ff', (c1) => {
+            setTimeout(() => {
+                window.NexusColorPicker.open(btn, '#ff00ff', (c2) => {
+                    _applyInlineDomFormat(editable, range, 'effect', value);
+                    // Find the newly created/updated span and set variables
+                    const activeNode = range.startContainer;
+                    const span = _closestWithin(activeNode, '.effect-gradient-loop', editable);
+                    if (span) {
+                        span.style.setProperty('--grad-c1', c1);
+                        span.style.setProperty('--grad-c2', c2);
+                        _syncRichEditable(editable);
+                    }
+                });
+            }, 300);
+        });
+        return;
+    }
+
     if (editable) {
-        _applyInlineDomFormat(editable, range, type, value);
+        if (editable.classList.contains('source-editing')) {
+            _applySourceFormat(editable, range, type, value);
+        } else {
+            _applyInlineDomFormat(editable, range, type, value);
+        }
     } else if (textarea) {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
@@ -554,10 +716,14 @@ function applyFormat(type, value) {
                 }
                 break;
             case 'color': newText = `<span style="color:${value}">${selectedText}</span>`; break;
+            case 'gradient': newText = `<span style="${value}">${selectedText}</span>`; break;
             case 'shadow': newText = `<span style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5)">${selectedText}</span>`; break;
             case 'effect': 
                 const dataAttr = value === 'effect-glitch' ? ` data-text="${selectedText}"` : '';
                 newText = `<span class="${value}"${dataAttr}>${selectedText}</span>`; 
+                break;
+            case 'image':
+                newText = `![image](${value})`;
                 break;
         }
 
@@ -565,6 +731,239 @@ function applyFormat(type, value) {
         textarea.focus();
         textarea.setSelectionRange(start, start + newText.length);
     }
+}
+
+const PREMIUM_GRADIENTS = [
+    { name: 'Cyberpunk', c1: '#00f3ff', c2: '#ff00ff', angle: 90 },
+    { name: 'Sunset', c1: '#ff5f6d', c2: '#ffc371', angle: 45 },
+    { name: 'Emerald', c1: '#11998e', c2: '#38ef7d', angle: 135 },
+    { name: 'Royal', c1: '#141e30', c2: '#243b55', angle: 180 },
+    { name: 'Golden', c1: '#f2994a', c2: '#f2c94c', angle: 90 },
+    { name: 'Frost', c1: '#00c6ff', c2: '#0072ff', angle: 45 },
+    { name: 'Midnight', c1: '#232526', c2: '#414345', angle: 90 },
+    { name: 'Lush', c1: '#56ab2f', c2: '#a8e063', angle: 45 },
+    { name: 'Plasma', c1: '#eb3349', c2: '#f45c43', angle: 135 },
+    { name: 'Aura', c1: '#614385', c2: '#516395', angle: 90 }
+];
+
+let activeGradEditable = null;
+let activeGradRange = null;
+
+function openGradientDesigner() {
+    const sel = window.getSelection();
+    let range = null;
+    if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (!range && window.lastSavedSelectionRange) range = window.lastSavedSelectionRange;
+    
+    if (!range || range.collapsed) {
+        showToast('Please select some text first!');
+        return;
+    }
+
+    const editable = _getEditableFromRange(range);
+    if (!editable) return;
+
+    activeGradEditable = editable;
+    activeGradRange = range.cloneRange();
+    
+    // Set preview text to current selection
+    const previewText = document.getElementById('gradient-preview-text');
+    if (previewText) {
+        previewText.innerText = range.toString().trim() || 'PREVIEW TEXT';
+    }
+    
+    editable._toolLock = true;
+    editable._gradientModalOpen = true;
+
+    // Hide toolbar to prevent layering issues
+    const toolbar = document.getElementById('rich-text-toolbar');
+    if (toolbar) toolbar.style.display = 'none';
+
+    // Initialize palettes
+    const paletteGrid = document.getElementById('gradient-palettes');
+    paletteGrid.innerHTML = '';
+    PREMIUM_GRADIENTS.forEach(p => {
+        const sw = document.createElement('div');
+        sw.className = 'palette-swatch';
+        sw.style.background = `linear-gradient(${p.angle}deg, ${p.c1}, ${p.c2})`;
+        sw.title = p.name;
+        sw.onclick = () => {
+            gradState = { ...p };
+            updateGradDesignerUI();
+            updateGradPreview();
+        };
+        paletteGrid.appendChild(sw);
+    });
+
+    document.getElementById('gradient-modal').style.display = 'flex';
+    updateGradDesignerUI();
+    updateGradPreview();
+}
+
+function updateGradDesignerUI() {
+    document.getElementById('grad-stop-1').style.background = gradState.c1;
+    document.getElementById('grad-stop-2').style.background = gradState.c2;
+    document.getElementById('grad-hex-1').value = gradState.c1.toUpperCase();
+    document.getElementById('grad-hex-2').value = gradState.c2.toUpperCase();
+    document.getElementById('grad-angle').value = gradState.angle;
+    document.getElementById('angle-val').innerText = gradState.angle;
+}
+
+function pickGradColor(stop) {
+    const btn = document.getElementById(`grad-stop-${stop}`);
+    const initial = stop === 1 ? gradState.c1 : gradState.c2;
+    window.NexusColorPicker.open(btn, initial, (color) => {
+        if (stop === 1) gradState.c1 = color;
+        else gradState.c2 = color;
+        updateGradDesignerUI();
+        updateGradPreview();
+    });
+}
+
+function updateGradPreview() {
+    gradState.angle = document.getElementById('grad-angle').value;
+    document.getElementById('angle-val').innerText = gradState.angle;
+    
+    const gradStr = `linear-gradient(${gradState.angle}deg, ${gradState.c1}, ${gradState.c2})`;
+    const preview = document.getElementById('gradient-preview-text');
+    preview.style.background = gradStr;
+    preview.style.webkitBackgroundClip = 'text';
+    preview.style.backgroundClip = 'text';
+    preview.style.webkitTextFillColor = 'transparent';
+
+    // Live preview in editor - only if we have a valid selection
+    if (activeGradEditable && activeGradRange) {
+        const style = `background: ${gradStr}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;`;
+        
+        // Temporarily restore range to apply format
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(activeGradRange);
+        
+        applyFormat('gradient', style);
+        
+        // Update stored range after modification
+        const newSel = window.getSelection();
+        if (newSel.rangeCount > 0) activeGradRange = newSel.getRangeAt(0).cloneRange();
+    }
+}
+
+function saveGradient() {
+    closeGradientModal();
+    if (activeGradEditable) {
+        activeGradEditable.focus();
+    }
+    recordHistory();
+    showToast('Gradient applied!');
+}
+
+function closeGradientModal() {
+    const modal = document.getElementById('gradient-modal');
+    modal.style.display = 'none';
+    
+    // Unlock active editable
+    if (activeGradEditable) {
+        activeGradEditable._toolLock = false;
+        activeGradEditable._gradientModalOpen = false;
+        _maybeFinishSourceEdit(activeGradEditable);
+    }
+    activeGradEditable = null;
+    activeGradRange = null;
+}
+
+function applyFont(fontName) {
+    applyFormat('font', fontName);
+    
+    // Update toolbar display
+    const currentFont = document.querySelector('.font-current');
+    if (currentFont) {
+        currentFont.innerHTML = `${fontName} <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>`;
+        currentFont.parentElement.classList.remove('active');
+    }
+}
+
+function insertImage() {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.display = 'flex';
+    
+    const sel = window.getSelection();
+    let range = null;
+    if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (!range && window.lastSavedSelectionRange) range = window.lastSavedSelectionRange;
+    
+    const editable = range ? _getEditableFromRange(range) : null;
+    if (editable) editable._toolLock = true;
+
+    overlay.innerHTML = `
+        <div class="modal-content" style="width: min(100%, 500px);">
+            <div class="modal-header">
+                <h2>INSERT IMAGE</h2>
+                <p>Enter the URL for the image asset.</p>
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" id="insert-image-url" value="https://via.placeholder.com/400x200.png?text=Dialogue+Asset">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="confirm-image-btn" class="btn-success" style="flex: 1;">INSERT</button>
+                <button id="cancel-image-btn" class="btn-outline" style="flex: 1;">CANCEL</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    const input = document.getElementById('insert-image-url');
+    input.focus();
+    input.select();
+    
+    const cleanup = () => {
+        if (editable) {
+            editable._toolLock = false;
+            if (editable.isConnected && editable.classList.contains('source-editing')) {
+                editable.focus();
+            }
+        }
+        overlay.remove();
+    };
+
+    document.getElementById('confirm-image-btn').onclick = () => {
+        const url = input.value.trim();
+        if (url) {
+            applyFormat('image', url);
+        }
+        cleanup();
+    };
+
+    document.getElementById('cancel-image-btn').onclick = cleanup;
+}
+
+function clearFormatting() {
+    const sel = window.getSelection();
+    let range = null;
+    if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (!range && window.lastSavedSelectionRange) range = window.lastSavedSelectionRange;
+    if (!range || range.collapsed) return;
+
+    const editable = _getEditableFromRange(range);
+    if (!editable) return;
+
+    if (editable.classList.contains('source-editing')) {
+        const sourceRange = _getSourceRange(editable, range);
+        if (!sourceRange.text) return;
+        
+        // Strip all HTML tags from the source text
+        const cleaned = sourceRange.text.replace(/<[^>]*>/g, '');
+        _replaceSourceRange(editable, range, cleaned);
+        showToast('Formatting cleared!');
+    } else {
+        document.execCommand('removeFormat');
+        _syncRichEditable(editable);
+    }
+}
+
+function applyGradient() {
+    openGradientDesigner();
 }
 
 function openToolbarColorPicker(button) {
@@ -665,6 +1064,7 @@ function parseMarkdown(text) {
 
         // Inline transformations
         let content = line
+            .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<div class="vn-image-wrapper"><img src="$2" alt="$1"></div>')
             .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -677,7 +1077,7 @@ function parseMarkdown(text) {
     html = "";
     for (let i = 0; i < processedLines.length; i++) {
         const line = processedLines[i];
-        const isBlock = line.startsWith('<h') || line.startsWith('<hr') || line.startsWith('<li') || line.startsWith('<blockquote');
+        const isBlock = line.startsWith('<h') || line.startsWith('<hr') || line.startsWith('<li') || line.startsWith('<blockquote') || line.startsWith('<div');
         html += line;
         if (!isBlock && i < processedLines.length - 1) {
             html += '<br>';
@@ -940,6 +1340,11 @@ function _serializeRichContent(el) {
 
         if (tag === 'STRONG' || tag === 'B') return `**${inner}**`;
         if (tag === 'EM' || tag === 'I') return `*${inner}*`;
+        if (tag === 'IMG') {
+            const src = node.getAttribute('src') || '';
+            const alt = node.getAttribute('alt') || '';
+            return `![${alt}](${src})`;
+        }
         if (tag === 'A') {
             const href = node.getAttribute('href') || '';
             return href ? `[${inner}](${href})` : inner;
@@ -950,15 +1355,12 @@ function _serializeRichContent(el) {
         if (tag === 'HR') return '---\n';
 
         if (tag === 'SPAN') {
-            const styles = [];
-            if (node.style.color) styles.push(`color:${node.style.color}`);
-            if (node.style.textShadow) styles.push(`text-shadow:${node.style.textShadow}`);
-            
-            const classes = Array.from(node.classList).filter(c => c.startsWith('effect-')).join(' ');
+            const style = node.getAttribute('style');
+            const classes = Array.from(node.classList).join(' ');
             const dataText = node.getAttribute('data-text') ? ` data-text="${_escapeAttr(node.getAttribute('data-text'))}"` : '';
             
             let attrs = '';
-            if (styles.length) attrs += ` style="${_escapeAttr(styles.join(';'))}"`;
+            if (style) attrs += ` style="${_escapeAttr(style)}"`;
             if (classes) attrs += ` class="${classes}"`;
             if (dataText) attrs += dataText;
             
@@ -989,31 +1391,43 @@ function _finishSourceEdit(el) {
     el._pendingPickerBlur = false;
     saveToCache();
     updateCodeView();
+    recordHistory();
 }
 
 function _maybeFinishSourceEdit(el) {
-    if (el._toolLock || el._colorPickerOpen) {
+    if (el._toolLock || el._colorPickerOpen || el._gradientModalOpen) {
         el._pendingPickerBlur = true;
         return;
     }
-    requestAnimationFrame(() => {
+    // Use a small timeout to allow activeElement to stabilize
+    setTimeout(() => {
         if (!el.isConnected || !el.classList.contains('source-editing')) return;
-        if (el._toolLock || el._colorPickerOpen) {
+        if (el._toolLock || el._colorPickerOpen || el._gradientModalOpen) {
             el._pendingPickerBlur = true;
             return;
         }
+        
         const active = document.activeElement;
         const toolbar = document.getElementById('rich-text-toolbar');
         const picker = document.getElementById('nexus-color-picker');
+        const gradModal = document.getElementById('gradient-modal');
+        
+        // Robust check for focus targets
+        const isFocusOnToolbar = toolbar && (toolbar === active || toolbar.contains(active));
+        const isFocusOnPicker = picker && (picker === active || picker.contains(active) || active.closest('.nexus-color-picker'));
+        const isFocusOnGradModal = gradModal && (gradModal === active || gradModal.contains(active));
+        const isFocusOnSwatch = active && active.classList.contains('nexus-color-swatch');
+
         if (active === el) return;
-        if (toolbar && toolbar.contains(active)) return;
-        if (picker && picker.contains(active)) return;
+        if (isFocusOnToolbar || isFocusOnPicker || isFocusOnGradModal || isFocusOnSwatch || (active && active.closest('.modal-overlay'))) return;
+        
+        // If we reach here, we are truly blurring away from editing
         if (toolbar && toolbar.parentElement !== document.body) {
             toolbar.style.display = 'none';
             document.body.appendChild(toolbar);
         }
         _finishSourceEdit(el);
-    });
+    }, 100);
 }
 
 function closeModal() {
@@ -1059,6 +1473,7 @@ function saveComponent() {
     renderCanvas();
     updateCodeView();
     saveToCache();
+    recordHistory();
     closeModal();
 }
 
@@ -1106,6 +1521,9 @@ function renderCanvas() {
                     const itemEl = e.target.closest('.canvas-item');
                     itemEl.insertBefore(toolbar, itemEl.firstChild);
                     toolbar.style.display = 'flex';
+
+                    // Record history before edit
+                    recordHistory();
 
                     e.target._sourceValue = item['dialogue-text'] || '';
                     e.target.innerText = e.target._sourceValue;
@@ -1312,6 +1730,7 @@ function removeItem(index) {
     renderCanvas();
     updateCodeView();
     saveToCache();
+    recordHistory();
 }
 
 function moveItem(index, direction) {
@@ -1323,6 +1742,7 @@ function moveItem(index, direction) {
         renderCanvas();
         updateCodeView();
         saveToCache();
+        recordHistory();
     }
 }
 
@@ -1398,12 +1818,13 @@ function generateFullHTML(minified) {
                 break;
             case 'dialogue':
                 const dialogueText = (item['dialogue-text'] || '').replace(/\r\n/g, '\n');
+                const parsedContent = parseMarkdown(dialogueText);
                 if (minified) {
-                    html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n\n${dialogueText}\n</div></div>${newline}`;
+                    html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n\n${parsedContent}\n</div></div>${newline}`;
                 } else {
                     html += `<div class="vn-dialogue-box">${newline}`;
                     html += `${indent}<div class="vn-dialogue-content">${newline}${newline}`;
-                    html += `${dialogueText}${newline}`;
+                    html += `${parsedContent}${newline}`;
                     html += `${indent}</div>${newline}`;
                     html += `</div>${newline}`;
                 }

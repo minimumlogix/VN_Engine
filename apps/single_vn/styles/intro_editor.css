@@ -579,7 +579,30 @@ body {
     font-family: 'JetBrains Mono', monospace !important;
     font-size: var(--text-sm) !important;
     line-height: 1.65;
+    position: relative;
 }
+
+/* Premium Syntax Highlighting */
+.nexus-ghost-syntax {
+    opacity: 0.45;
+    color: var(--accent);
+    font-weight: 700;
+    font-style: normal;
+}
+
+.nexus-color-decorator {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    padding: 0 4px;
+    border-radius: 4px;
+    margin: 0 2px;
+    border: 1px solid rgba(255,255,255,0.1);
+    vertical-align: middle;
+}
+
+/* Rendered Markdown Styling */
+
 
 /* Rendered Markdown Styling */
 .vn-dialogue-content hr {

@@ -1,5 +1,5 @@
 const COLOR_REGEX = /#([A-Fa-f0-9]{3}){1,2}\b|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[0-9.]+\s*)?\)|hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[0-9.]+\s*)?\)/gi;
-const SYNTAX_REGEX = /(<[^>]+>|(?:\*\*|\*|#+|---|^>))/gm;
+const SYNTAX_REGEX = /(<[^>]+>|(?:\*\*\*|\*\*|\*|#+|---|^>))/gm;
 let canvasItems = [];
 let currentType = null;
 
@@ -1415,6 +1415,7 @@ function _finishSourceEdit(el) {
     el._toolLock = false;
     el._colorPickerOpen = false;
     el._pendingPickerBlur = false;
+    
     saveToCache();
     updateCodeView();
     recordHistory();
@@ -1559,7 +1560,9 @@ function renderCanvas() {
                     e.target._colorPickerOpen = false;
                     e.target._pendingPickerBlur = false;
                     e.target._isComposing = false;
-                    requestAnimationFrame(() => _scanAndDecorateColors(e.target, { force: true }));
+                    requestAnimationFrame(() => {
+                        _scanAndDecorateColors(e.target, { force: true });
+                    });
                 });
 
                 content.addEventListener('blur', (e) => {
@@ -1844,13 +1847,13 @@ function generateFullHTML(minified) {
                 break;
             case 'dialogue':
                 const dialogueText = (item['dialogue-text'] || '').replace(/\r\n/g, '\n');
-                const parsedContent = parseMarkdown(dialogueText);
+                // Export RAW markdown instead of parsed HTML
                 if (minified) {
-                    html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n\n${parsedContent}\n</div></div>${newline}`;
+                    html += `<div class="vn-dialogue-box"><div class="vn-dialogue-content">\n\n${dialogueText}\n</div></div>${newline}`;
                 } else {
                     html += `<div class="vn-dialogue-box">${newline}`;
                     html += `${indent}<div class="vn-dialogue-content">${newline}${newline}`;
-                    html += `${parsedContent}${newline}`;
+                    html += `${dialogueText}${newline}`;
                     html += `${indent}</div>${newline}`;
                     html += `</div>${newline}`;
                 }

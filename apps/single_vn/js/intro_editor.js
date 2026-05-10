@@ -132,6 +132,21 @@ window.onload = () => {
             historyManager.redo();
         }
     });
+
+    const toolbar = document.getElementById('rich-text-toolbar');
+    if (toolbar) {
+        toolbar.addEventListener('mousedown', (e) => {
+            // Instantly capture selection before focus shifts to the toolbar button
+            _saveLastSelection();
+            
+            // If it's a simple format button, prevent default to keep focus in editor if possible
+            const btn = e.target.closest('.toolbar-btn');
+            if (btn && !btn.id.includes('color') && !btn.id.includes('image') && !btn.id.includes('gradient')) {
+                // For bold/italic etc, we can often keep focus
+                // but let the click handler deal with it
+            }
+        });
+    }
 };
 
 function updateTheme(skipHistory = false) {
@@ -390,32 +405,31 @@ function _getActiveStyle(range, editable) {
 
 function handleTextSelection(e) {
     const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
 
-    if (selection.toString().trim().length > 0 && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const editable = _getEditableFromRange(range);
-        const textarea = document.querySelector('#form-fields textarea');
-        const isTextareaRange = textarea && document.activeElement === textarea;
-        if (!editable && !isTextareaRange) return;
+    const range = selection.getRangeAt(0);
+    const editable = _getEditableFromRange(range);
+    const textarea = document.querySelector('#form-fields textarea');
+    const isTextareaRange = textarea && document.activeElement === textarea;
+    if (!editable && !isTextareaRange) return;
 
-        window.lastSavedSelectionRange = range.cloneRange();
-        const active = editable ? _getActiveStyle(range, editable) : {};
+    window.lastSavedSelectionRange = range.cloneRange();
+    const active = editable ? _getActiveStyle(range, editable) : {};
 
-        document.getElementById('btn-bold').classList.toggle('active', !!active.bold);
-        document.getElementById('btn-italic').classList.toggle('active', !!active.italic);
-        document.getElementById('btn-shadow').classList.toggle('active', !!active.shadow);
-        
-        const colorBar = document.querySelector('#btn-color .color-bar');
-        if (colorBar) {
-            colorBar.style.background = active.color || '#ffffff';
-        }
-        const fontCurrent = document.querySelector('.font-current');
-        if (fontCurrent) {
-            const fontName = active.fontFamily || 'Inter';
-            fontCurrent.innerHTML = `${fontName} <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>`;
-        }
-        document.getElementById('btn-color').classList.toggle('active', !!active.color);
+    document.getElementById('btn-bold').classList.toggle('active', !!active.bold);
+    document.getElementById('btn-italic').classList.toggle('active', !!active.italic);
+    document.getElementById('btn-shadow').classList.toggle('active', !!active.shadow);
+    
+    const colorBar = document.querySelector('#btn-color .color-bar');
+    if (colorBar) {
+        colorBar.style.background = active.color || '#ffffff';
     }
+    const fontCurrent = document.querySelector('.font-current');
+    if (fontCurrent) {
+        const fontName = active.fontFamily || 'Inter';
+        fontCurrent.innerHTML = `${fontName} <i class="bi bi-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>`;
+    }
+    document.getElementById('btn-color').classList.toggle('active', !!active.color);
 }
 
 function _unwrapElement(el) {
@@ -437,6 +451,16 @@ function _selectNodeContents(node) {
     range.selectNodeContents(node);
     sel.removeAllRanges();
     sel.addRange(range);
+    window.lastSavedSelectionRange = range.cloneRange();
+}
+
+function _saveLastSelection() {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    const editable = _getEditableFromRange(range);
+    const textarea = document.querySelector('#form-fields textarea');
+    if (!editable && !textarea) return;
     window.lastSavedSelectionRange = range.cloneRange();
 }
 
@@ -642,11 +666,11 @@ function _applyInlineDomFormat(editable, range, type, value) {
     }
 }
 
-function applyFormat(type, value) {
+function applyFormat(type, value, customRange = null) {
     let sel = window.getSelection();
-    let range;
+    let range = customRange;
 
-    if (sel.rangeCount > 0) {
+    if (!range && sel.rangeCount > 0) {
         const container = sel.getRangeAt(0).commonAncestorContainer;
         const isEditable = (container.nodeType === 3 ? container.parentNode : container).closest('[contenteditable="true"], textarea');
         if (isEditable) {
@@ -763,6 +787,7 @@ function openGradientDesigner() {
     const editable = _getEditableFromRange(range);
     if (!editable) return;
 
+    window.lastSavedSelectionRange = range.cloneRange();
     activeGradEditable = editable;
     activeGradRange = range.cloneRange();
     
@@ -835,16 +860,11 @@ function updateGradPreview() {
     if (activeGradEditable && activeGradRange) {
         const style = `background: ${gradStr}; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;`;
         
-        // Temporarily restore range to apply format
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(activeGradRange);
+        // Use direct range application to avoid selection jitter
+        applyFormat('gradient', style, activeGradRange);
         
-        applyFormat('gradient', style);
-        
-        // Update stored range after modification
-        const newSel = window.getSelection();
-        if (newSel.rangeCount > 0) activeGradRange = newSel.getRangeAt(0).cloneRange();
+        // Synchronize state
+        _syncRichEditable(activeGradEditable);
     }
 }
 
@@ -890,6 +910,7 @@ function insertImage() {
     const sel = window.getSelection();
     let range = null;
     if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (range) window.lastSavedSelectionRange = range.cloneRange();
     if (!range && window.lastSavedSelectionRange) range = window.lastSavedSelectionRange;
     
     const editable = range ? _getEditableFromRange(range) : null;
@@ -930,7 +951,11 @@ function insertImage() {
     document.getElementById('confirm-image-btn').onclick = () => {
         const url = input.value.trim();
         if (url) {
-            applyFormat('image', url);
+            if (window.lastSavedSelectionRange) {
+                applyFormat('image', url, window.lastSavedSelectionRange);
+            } else {
+                applyFormat('image', url);
+            }
         }
         cleanup();
     };
@@ -970,6 +995,7 @@ function openToolbarColorPicker(button) {
     const sel = window.getSelection();
     let range = null;
     if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (range) window.lastSavedSelectionRange = range.cloneRange();
     if (!range && window.lastSavedSelectionRange) range = window.lastSavedSelectionRange;
     if (!range || range.collapsed) return;
 
@@ -1601,7 +1627,7 @@ function getPreviewHTML(item) {
         case 'vn-iframe':
             return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine?story=${item['story-id']}" style="width:100%;height:${item['iframe-height']}px;border:none"></iframe>`;
         case 'dialogue':
-            return `<div class="vn-dialogue-box"><div class="vn-dialogue-content" style="color: #fff !important;">${parseMarkdown(item['dialogue-text'])}</div></div>`;
+            return `<div class="vn-dialogue-box"><div class="vn-dialogue-content">${parseMarkdown(item['dialogue-text'])}</div></div>`;
         case 'lore':
             return `
                 <details class="vn-lore-details" open>

@@ -241,6 +241,8 @@ body {
     padding: 0;
     transition: all 0.3s ease;
     container-type: inline-size;
+    z-index: 1; /* Stacking context */
+    margin-top: clamp(20px, 4cqi, 40px); /* Space for the label */
 }
 
 .canvas-item:hover {
@@ -304,17 +306,19 @@ body {
 
 .item-label {
     position: absolute;
-    top: clamp(-15px, -2cqi, -10px);
+    top: clamp(-20px, -3cqi, -15px);
     left: clamp(10px, 3cqi, 30px);
     background: var(--bg);
-    padding: 2px clamp(8px, 2cqi, 16px);
+    padding: 2px clamp(10px, 2.5cqi, 20px);
     font-size: var(--text-xs);
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     color: var(--accent);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
+    z-index: 100; /* Ensure it stays above everything */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 /* --- TABS --- */
@@ -554,10 +558,13 @@ body {
 }
 
 .vn-dialogue-content {
-    color: #fff !important;
+    color: inherit;
     min-height: clamp(50px, 10vw, 100px);
     cursor: text;
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
     font-size: var(--text-base);
 }
 

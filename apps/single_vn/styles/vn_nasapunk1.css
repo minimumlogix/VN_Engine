@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Roboto+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Nasapunk / Starfield Theme (NASA Blue, Clean White, Deep Space Black) */
+  --primary-color: #0032a0;             /* NASA Blue */
+  --text-color: #f0f0f0;                /* Launch Pad White */
+  --background-color: rgba(5, 10, 20, 0.98); /* Deep Space Black */
+
+  /* Accent colors */
+  --glow-color: rgba(0, 50, 160, 0.3);       /* Blue subtle glow */
+  --gradient-color: rgba(255, 255, 255, 0.05); /* Technical light gradient */
+
+  /* Markdown text styles */
+  --heading-color: #ffffff;              /* Pure White Headings */
+  --strong-color: #ff412d;               /* NASA Red for bold */
+  --emphasis-color: #00b5ff;              /* Sky Blue for italics */
+  --code-bg-color: #121826;              /* Technical grey for code */
+  --quote-color: #a0a0a0;                /* Steel grey quote */
+
+  /* Configurable heading background texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling */
+.vn-heading {
+  text-align: center;
+  font-size: 4em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  letter-spacing: 10px;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  border-bottom: 4px solid var(--primary-color);
+  padding-bottom: 10px;
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid var(--primary-color);
+  padding: 30px;
+  background-color: var(--background-color);
+  font-family: 'Roboto Mono', monospace;
+  color: var(--text-color);
+  border-radius: 4px;
+  margin: 1rem auto;
+  max-width: 800px;
+}
+
+/* Character name */
+.vn-character-name {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.4rem 1.5rem;
+  border-radius: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0px #002166;
+}
+
+/* Character sprite */
+.vn-character {
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+}
+
+/* Dialogue box */
+.vn-dialogue-box {
+  background-color: var(--background-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 4px solid var(--primary-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.vn-dialogue-content {
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.3px;
+}
+
+.vn-dialogue-content strong { color: #ff412d; font-weight: 700; }
+.vn-dialogue-content em { color: #00b5ff; font-style: italic; }
+
+/* Lore Dropdown */
+.vn-lore-summary {
+  background: #ffffff;
+  color: #0032a0;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: 900;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  border: none;
+}
+
+.vn-lore-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 0 0 4px 4px;
+  color: #fff;
+}
+
+/* Image wrapper */
+.vn-image-wrapper {
+  border: 4px solid #fff;
+  outline: 1px solid var(--primary-color);
+  margin: 3rem 0;
+}

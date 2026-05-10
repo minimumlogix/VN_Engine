@@ -1,21 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=MedievalSharp&family=Berkshire+Swash&display=swap');
 
 :root {
-  /* Fantasy / Celestial Theme color scheme (Ancient Gold, Royal Velvet Purple) */
-  --primary-color: #d4af37;             /* Ancient gold / Metallic gold */
-  --text-color: #fdfbf7;                /* Parchment white */
-  --background-color: rgba(26, 15, 36, 0.96); /* Deep velvety mystical purple */
+  /* Divine Obsidian Fantasy Theme (Burnished Gold, Warm Charcoal, Celestial Blue) */
+  --primary-color: #c5a059;             /* Burnished Gold */
+  --text-color: #f4efe6;                /* Aged Ivory/Parchment */
+  --background-color: rgba(15, 12, 10, 0.98); /* Obsidian Charcoal - deep & warm */
 
   /* Accent colors */
-  --glow-color: rgba(212, 175, 55, 0.35);      /* Enchanted gold glow */
-  --gradient-color: rgba(50, 25, 75, 0.45);    /* Deep magical purple/indigo gradient */
+  --glow-color: rgba(197, 160, 89, 0.3);      /* Subtle gold aura */
+  --gradient-color: rgba(40, 30, 20, 0.6);    /* Warm wood/shadow gradient */
 
   /* Markdown text styles */
-  --heading-color: #ffd700;              /* Glorious gold headings */
-  --strong-color: #ffea7f;               /* Warm golden highlight */
-  --emphasis-color: #c498ff;              /* Ethereal light lavender for <em> */
-  --code-bg-color: #311b47;              /* Mystic purple for code */
-  --quote-color: #ecd6ff;                /* Pale amethyst quote */
+  --heading-color: #d4af37;              /* Rich metallic gold */
+  --strong-color: #eedd82;               /* Soft glowing gold for bold */
+  --emphasis-color: #a7c7e7;              /* Celestial blue for italics */
+  --code-bg-color: #241e18;              /* Dark leather for code */
+  --quote-color: #d8d0c0;                /* Dusty scroll quote */
 
   /* Configurable heading background texture */
   --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
@@ -96,25 +96,28 @@
 }
 
 /* Character name styling - Explicitly tailored for fantasy */
+/* Character name styling - Explicitly tailored for fantasy */
 .vn-character-name {
-  background: linear-gradient(135deg, #1f112e 0%, #4c2c69 50%, #b8860b 100%);
-  border: 2px solid var(--primary-color);
+  background: linear-gradient(135deg, #1a1510 0%, #2c251e 50%, var(--primary-color) 100%);
+  border: 1px solid var(--primary-color);
   color: white;
-  padding: 0.4rem 1.2rem;
-  border-radius: 4px; /* Chiseled / angular fantasy style */
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px; 
   margin-bottom: 0.5rem;
-  font-weight: bold;
+  font-weight: 700;
   z-index: 10;
   text-align: center;
-  width: 85%;
-  max-width: 160px;
+  width: auto;
+  min-width: 120px;
+  max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: 'MedievalSharp', cursive; /* Distinctive fantasy font */
-  letter-spacing: 1px;
-  box-shadow: 0 0 12px var(--glow-color);
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 10px var(--glow-color);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* Character sprite styling */
@@ -149,15 +152,16 @@
 }
 
 /* Dialogue box styling */
+/* Dialogue box styling */
 .vn-dialogue-box {
   height: auto;
-  min-height: 20vh;
+  min-height: 18vh;
   background-color: var(--background-color);
-  background-image: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
-  border-top: 3px solid var(--primary-color); /* Gold border */
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 0 22px var(--glow-color); /* Gold glow */
+  background-image: radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.1) 0%, transparent 80%);
+  border-top: 2px solid var(--primary-color);
+  padding: 1.8rem;
+  border-radius: 4px;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--glow-color);
   position: relative;
   overflow: hidden;
 }
@@ -267,24 +271,24 @@
 }
 
 .vn-lore-summary {
-  background: linear-gradient(90deg, var(--primary-color) 0%, #1a0f24 100%);
-  color: #1a0f24;
-  padding: 12px 25px;
+  background: linear-gradient(90deg, #1a1510 0%, #2c251e 100%);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 14px 28px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 6px;
-  font-weight: bold;
-  letter-spacing: 3px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  box-shadow: 0 4px 15px var(--glow-color), inset 0 0 10px rgba(0,0,0,0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
   z-index: 10;
-  list-style: none; /* Hide default arrow */
-  animation: vn-pulse 3.5s infinite ease-in-out;
+  list-style: none;
+  animation: vn-pulse 4s infinite ease-in-out;
 }
 
 @keyframes vn-pulse {

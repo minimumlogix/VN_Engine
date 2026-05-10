@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Cyberpunk 2077 Theme (Neon Pink, Cyan, Deep Night Purple) */
+  --primary-color: #ff00ff;             /* Neon Pink */
+  --text-color: #00ffff;                /* Cyan / Matrix Blue */
+  --background-color: rgba(11, 11, 26, 0.98); /* Deep Night Purple */
+
+  /* Accent colors */
+  --glow-color: rgba(255, 0, 255, 0.4);      /* Pink Neon Glow */
+  --gradient-color: rgba(0, 255, 255, 0.2);    /* Cyan subtle gradient */
+
+  /* Markdown text styles */
+  --heading-color: #00ffff;              /* Cyan Headings */
+  --strong-color: #ffffff;               /* White for bold */
+  --emphasis-color: #ffff00;              /* Yellow for italics */
+  --code-bg-color: #1a1a2e;              /* Tech Blue for code */
+  --quote-color: #ff00ff;                /* Pink quote */
+
+  /* Configurable heading background texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling */
+.vn-heading {
+  text-align: center;
+  font-size: 4.5em;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  letter-spacing: 5px;
+  background-image: var(--heading-bg-image);
+  background-size: cover;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px var(--primary-color);
+  margin: 1rem 0;
+  text-shadow: 0 0 20px var(--glow-color), 3px 3px 0px #00ffff;
+  text-transform: uppercase;
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 2px solid var(--primary-color);
+  padding: 20px;
+  background-color: var(--background-color);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-color);
+  box-shadow: 0 0 15px var(--glow-color), inset 0 0 20px rgba(255, 0, 255, 0.1);
+  border-radius: 0; 
+  margin: 1rem auto;
+  max-width: 800px;
+  position: relative;
+}
+
+.vn-story-intro::before {
+  content: "SYSTEM_ACCESS";
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  background: var(--primary-color);
+  color: #000;
+  font-size: 10px;
+  padding: 2px 5px;
+}
+
+/* Character container */
+.vn-character-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: auto;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 10px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--gradient-color) 25%, var(--background-color) 100%);
+  background-size: cover;
+}
+
+/* Character group */
+.vn-character-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  background: linear-gradient(to bottom, transparent 60%, rgba(255, 0, 255, 0.1) 100%);
+}
+
+/* Character name */
+.vn-character-name {
+  background: #000;
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  padding: 0.5rem 1.5rem;
+  border-radius: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 900;
+  z-index: 10;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0px var(--primary-color);
+}
+
+/* Character sprite */
+.vn-character {
+  height: auto;
+  max-height: 40vh;
+  width: 100%;
+  max-width: 50vw;
+  object-fit: contain;
+  transition: all 0.5s ease;
+  animation: vn-breathe 3.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 15px var(--glow-color)) contrast(1.1) brightness(1.1);
+}
+
+@keyframes vn-breathe {
+  0% { transform: translateY(0) skewX(0deg); }
+  50% { transform: translateY(-4px) skewX(0.5deg); }
+  100% { transform: translateY(0) skewX(0deg); }
+}
+
+/* Dialogue box */
+.vn-dialogue-box {
+  min-height: 18vh;
+  background-color: var(--background-color);
+  background-image: repeating-linear-gradient(0deg, rgba(255, 0, 255, 0.03) 0px, rgba(255, 0, 255, 0.03) 1px, transparent 1px, transparent 2px);
+  border-left: 5px solid var(--primary-color);
+  padding: 1.8rem;
+  border-radius: 0;
+  box-shadow: 10px 0 30px rgba(255, 0, 255, 0.1);
+  position: relative;
+}
+
+.vn-dialogue-content {
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.vn-dialogue-content strong { color: var(--primary-color); }
+.vn-dialogue-content em { color: var(--text-color); font-style: normal; text-decoration: underline; }
+
+/* Lore Dropdown */
+.vn-lore-summary {
+  background: #000;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 14px 28px;
+  border-radius: 0;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 4px;
+  box-shadow: 5px 5px 0px var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.vn-lore-summary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px var(--text-color);
+}
+
+.vn-lore-content {
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--text-color);
+  border-top: none;
+  padding: 15px;
+  color: var(--text-color);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Image wrapper */
+.vn-image-wrapper {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 30px var(--glow-color);
+  background: #000;
+}
+
+.vn-image-wrapper img {
+  filter: sepia(0.3) hue-rotate(280deg) brightness(1.2);
+}

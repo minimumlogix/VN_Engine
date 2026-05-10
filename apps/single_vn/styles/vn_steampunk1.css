@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Playfair+Display:wght@400;700;900&display=swap');
+
+:root {
+  /* Steampunk Theme (Burnished Brass, Aged Copper, Industrial Brown) */
+  --primary-color: #b5a642;             /* Burnished Brass */
+  --text-color: #d2b48c;                /* Tan / Aged Parchment */
+  --background-color: rgba(26, 16, 10, 0.98); /* Industrial Brown */
+
+  /* Accent colors */
+  --glow-color: rgba(181, 166, 66, 0.25);    /* Brass subtle glow */
+  --gradient-color: rgba(184, 115, 51, 0.3);   /* Copper gradient */
+
+  /* Markdown text styles */
+  --heading-color: #b87333;              /* Aged Copper Headings */
+  --strong-color: #ffd700;               /* Bright Gold for bold */
+  --emphasis-color: #8b4513;              /* Saddle Brown for italics */
+  --code-bg-color: #1a0f08;              /* Deep coal for code */
+  --quote-color: #c4a484;                /* Leather brown quote */
+
+  /* Configurable heading background texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling */
+.vn-heading {
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  filter: drop-shadow(2px 2px 0px #1a100a);
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 4px double var(--primary-color);
+  padding: 25px;
+  background-color: var(--background-color);
+  font-family: 'Special Elite', cursive;
+  color: var(--text-color);
+  border-radius: 15px;
+  margin: 1rem auto;
+  max-width: 800px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 40px rgba(181, 166, 66, 0.1);
+}
+
+/* Character name */
+.vn-character-name {
+  background: linear-gradient(to bottom, #b87333, #8b4513);
+  border: 2px solid #b5a642;
+  color: #fff;
+  padding: 0.5rem 2rem;
+  border-radius: 5px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+/* Character sprite */
+.vn-character {
+  filter: sepia(0.2) contrast(1.1) drop-shadow(0 0 15px rgba(184, 115, 51, 0.3));
+}
+
+/* Dialogue box */
+.vn-dialogue-box {
+  background-color: var(--background-color);
+  background-image: radial-gradient(circle at 50% 50%, rgba(181, 166, 66, 0.05) 0%, transparent 80%);
+  border: 3px solid #b87333;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5);
+}
+
+.vn-dialogue-content {
+  color: var(--text-color);
+  font-family: 'Special Elite', cursive;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.vn-dialogue-content strong { color: #ffd700; }
+.vn-dialogue-content em { color: #b87333; font-style: italic; }
+
+/* Lore Dropdown */
+.vn-lore-summary {
+  background: #3d2b1f;
+  color: #b5a642;
+  padding: 15px 30px;
+  border-radius: 50px;
+  border: 2px solid #b5a642;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.vn-lore-content {
+  background: rgba(61, 43, 31, 0.9);
+  border: 2px solid #b5a642;
+  border-top: none;
+  padding: 20px;
+  border-radius: 0 0 20px 20px;
+  color: #d2b48c;
+}
+
+/* Image wrapper */
+.vn-image-wrapper {
+  border: 10px solid #1a100a;
+  outline: 2px solid var(--primary-color);
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+}

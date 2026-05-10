@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+:root {
+  /* Victorian Gothic Theme (Blood Red, Obsidian Black, Moonlight Silver) */
+  --primary-color: #8b0000;             /* Blood Red */
+  --text-color: #c0c0c0;                /* Moonlight Silver */
+  --background-color: rgba(0, 0, 0, 0.99); /* Obsidian Black */
+
+  /* Accent colors */
+  --glow-color: rgba(139, 0, 0, 0.4);        /* Blood Red glow */
+  --gradient-color: rgba(30, 30, 30, 0.8);     /* Deep shadow gradient */
+
+  /* Markdown text styles */
+  --heading-color: #8b0000;              /* Crimson Headings */
+  --strong-color: #ffffff;               /* Pure White for bold */
+  --emphasis-color: #708090;              /* Slate Grey for italics */
+  --code-bg-color: #1a0000;              /* Dark blood for code */
+  --quote-color: #a9a9a9;                /* Dark grey quote */
+
+  /* Configurable heading background texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling */
+.vn-heading {
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  letter-spacing: 5px;
+  background-color: var(--primary-color);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  filter: drop-shadow(0 0 10px rgba(139,0,0,0.6));
+}
+
+/* Story intro box */
+.vn-story-intro {
+  border: 2px solid var(--primary-color);
+  padding: 30px;
+  background-color: var(--background-color);
+  font-family: 'Lora', serif;
+  color: var(--text-color);
+  border-radius: 0;
+  margin: 1rem auto;
+  max-width: 800px;
+  box-shadow: 0 0 40px rgba(139,0,0,0.2);
+  position: relative;
+}
+
+.vn-story-intro::after {
+  content: "";
+  position: absolute;
+  top: 5px; left: 5px; right: 5px; bottom: 5px;
+  border: 1px solid rgba(139,0,0,0.3);
+  pointer-events: none;
+}
+
+/* Character name */
+.vn-character-name {
+  background: #000;
+  border-bottom: 3px solid var(--primary-color);
+  color: #fff;
+  padding: 0.6rem 2rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+/* Character sprite */
+.vn-character {
+  filter: grayscale(0.2) contrast(1.2) drop-shadow(0 0 20px rgba(139,0,0,0.4));
+}
+
+/* Dialogue box */
+.vn-dialogue-box {
+  background-color: var(--background-color);
+  border-top: 1px solid var(--primary-color);
+  border-bottom: 1px solid var(--primary-color);
+  padding: 2.5rem;
+  box-shadow: 0 0 60px rgba(0,0,0,0.9);
+}
+
+.vn-dialogue-content {
+  color: #d3d3d3;
+  font-family: 'Lora', serif;
+  font-size: 1.2rem;
+  line-height: 1.9;
+  letter-spacing: 0.5px;
+}
+
+.vn-dialogue-content strong { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+.vn-dialogue-content em { color: var(--primary-color); font-style: italic; font-family: 'Cinzel', serif; }
+
+/* Lore Dropdown */
+.vn-lore-summary {
+  background: #000;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 15px 30px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  font-weight: 900;
+  transition: all 0.5s ease;
+}
+
+.vn-lore-summary:hover {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.vn-lore-content {
+  background: #050505;
+  border: 1px solid var(--primary-color);
+  border-top: none;
+  padding: 25px;
+  color: #a9a9a9;
+  font-family: 'Lora', serif;
+  font-style: italic;
+}
+
+/* Image wrapper */
+.vn-image-wrapper {
+  border: 2px solid var(--primary-color);
+  background: #000;
+}
+
+.vn-image-wrapper img {
+  filter: grayscale(0.5) contrast(1.3) brightness(0.8);
+}

@@ -379,7 +379,7 @@ body {
 
 .code-gutter {
     background: rgba(255, 255, 255, 0.03);
-    padding: var(--space-md) var(--space-sm);
+    padding: 50px var(--space-sm) var(--space-md);
     text-align: right;
     min-width: clamp(30px, 5vw, 60px);
     color: rgba(255, 255, 255, 0.2);
@@ -388,7 +388,7 @@ body {
 }
 
 .code-content {
-    padding: var(--space-md);
+    padding: 50px var(--space-md) var(--space-md);
     color: #c9d1d9;
     white-space: pre;
     flex: 1;

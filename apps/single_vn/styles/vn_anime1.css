@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Dancing+Script:wght@700&display=swap');
+
+:root {
+  /* Cinematic Anime Theme (Sakura Pink, Sky Blue, Midnight Navy) */
+  --primary-color: #ff69b4;             /* Sakura Pink */
+  --text-color: #ffffff;                /* Pure White */
+  --background-color: rgba(12, 20, 40, 0.95); /* Midnight Navy */
+
+  /* Accent colors */
+  --glow-color: rgba(255, 105, 180, 0.4);    /* Pink soft glow */
+  --gradient-color: rgba(135, 206, 235, 0.3);  /* Sky Blue gradient */
+
+  /* Markdown text styles */
+  --heading-color: #87ceeb;              /* Sky Blue Headings */
+  --strong-color: #ffffff;               /* White for bold */
+  --emphasis-color: #ffb6c1;              /* Light Pink for italics */
+  --code-bg-color: #1a2a4a;              /* Deep Navy for code */
+  --quote-color: #e0f0ff;                /* Pale Blue quote */
+
+  /* Configurable heading background texture */
+  --heading-bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); 
+}
+
+/* Heading styling */
+.vn-heading {
+  text-align: center;
+  font-size: 5em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  background: linear-gradient(to bottom, #fff 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 1rem 0;
+  filter: drop-shadow(0 0 15px var(--glow-color));
+}
+
+/* Story intro box */
+.vn-story-intro {
+  background: linear-gradient(135deg, rgba(12, 20, 40, 0.9) 0%, rgba(255, 105, 180, 0.1) 100%);
+  border: 3px solid #fff;
+  padding: 25px;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text-color);
+  border-radius: 30px 0 30px 0;
+  margin: 1rem auto;
+  max-width: 800px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Character name */
+.vn-character-name {
+  background: #fff;
+  color: var(--background-color);
+  padding: 0.5rem 2.5rem;
+  border-radius: 50px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+  transform: rotate(-2deg);
+}
+
+/* Character sprite */
+.vn-character {
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)) saturate(1.2);
+}
+
+/* Dialogue box */
+.vn-dialogue-box {
+  background-color: var(--background-color);
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, transparent 100%);
+  border: 4px solid #fff;
+  padding: 2rem;
+  border-radius: 40px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.vn-dialogue-content {
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+.vn-dialogue-content strong { color: var(--primary-color); font-weight: 900; }
+.vn-dialogue-content em { color: #87ceeb; font-family: 'Dancing Script', cursive; font-size: 1.4rem; }
+
+/* Lore Dropdown */
+.vn-lore-summary {
+  background: var(--primary-color);
+  color: #fff;
+  padding: 15px 35px;
+  border-radius: 0 25px 0 25px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+  border: none;
+}
+
+.vn-lore-content {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 25px;
+  border-radius: 0 0 25px 25px;
+  color: #0c1428;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Image wrapper */
+.vn-image-wrapper {
+  border: 8px solid #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}

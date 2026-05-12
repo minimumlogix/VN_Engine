@@ -63,9 +63,107 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 
-/* Character sprite */
+/* Character container and background */
+.vn-character-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: auto;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 10px;
+
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--gradient-color) 25%, var(--background-color) 100%), 
+              url('https://joylandimages.neocities.org/JOYLAND/GREETING/VN_v2.0/AkiraYumi/classBG.png'); 
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
+.vn-character-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(rgba(184, 115, 51, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+  background-size: 100% 4px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Character group (name + sprite) */
+.vn-character-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  width: auto;
+  padding: 0 5px;
+  background: linear-gradient(to bottom, transparent 60%, var(--gradient-color) 100%);
+}
+
+/* Character sprite styling */
 .vn-character {
+  height: auto;
+  max-height: 40vh;
+  width: 100%;
+  max-width: 50vw;
+  object-fit: contain;
+  transition: all 0.5s ease;
+  animation: vn-breathe 3.5s infinite ease-in-out;
   filter: sepia(0.2) contrast(1.1) drop-shadow(0 0 15px rgba(184, 115, 51, 0.3));
+}
+
+/* Breathing animation for all sprites */
+@keyframes vn-breathe {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Speaking character styling */
+.vn-character.speaking {
+  animation: vn-speaking 3.5s infinite ease-in-out;
+}
+
+/* Slightly different animation for the speaking character */
+@keyframes vn-speaking {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vn-character-name {
+    font-size: 1rem;
+    padding: 0.4rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vn-character-name {
+    font-size: 0.9rem;
+    padding: 0.3rem 1.2rem;
+    width: 90%;
+  }
+  
+  .vn-character-group {
+    padding: 0 2px;
+  }
+}
+
+@media (max-height: 500px) {
+  .vn-character-container {
+    min-height: 40vh;
+  }
+  
+  .vn-character {
+    object-fit: cover;
+    object-position: top center;
+  }
 }
 
 /* Dialogue box */

@@ -687,6 +687,7 @@
         let nativeAudio = null;
         let isAdMuted = false;
         let originalVolumeBeforeAd = 100;
+        let initialMuteActive = false;
 
         // Parse Uplink Parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -1037,9 +1038,15 @@
                     document.getElementById('volume-slider').value = v;
                 }
             }
-            if (urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
+
+            // Start muted if autoplay is active to guarantee silence during potential pre-roll ads
+            if (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
+                initialMuteActive = true;
+                player.mute();
+            } else if (urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
                 player.mute();
             }
+
             if (urlParams.has('repeat')) {
                 const r = parseInt(urlParams.get('repeat'));
                 if (!isNaN(r) && r >= 0 && r <= 2) {
@@ -1111,7 +1118,9 @@
                 if (!isAdMuted) {
                     console.log("Ad detected! Muting and accelerating playback...");
                     isAdMuted = true;
-                    originalVolumeBeforeAd = player.getVolume();
+                    if (!initialMuteActive) {
+                        originalVolumeBeforeAd = player.getVolume();
+                    }
                     player.mute();
                     
                     if (typeof player.setPlaybackRate === 'function') {
@@ -1120,11 +1129,25 @@
                     setStatus("BLOCKING AD", "#ffcc00", "0.2s");
                 }
             } else {
+                if (initialMuteActive) {
+                    console.log("Initial track started. Releasing initial mute...");
+                    initialMuteActive = false;
+                    const savedVol = localStorage.getItem('nexus-volume');
+                    const targetVol = (savedVol !== null) ? parseInt(savedVol) : 100;
+                    if (urlParams.get('mute') !== '1' && urlParams.get('mute') !== 'true') {
+                        player.unMute();
+                        player.setVolume(targetVol);
+                    }
+                    syncVolumeUI();
+                }
+
                 if (isAdMuted) {
                     console.log("Ad ended. Restoring volume and playback speed...");
                     isAdMuted = false;
-                    player.unMute();
-                    player.setVolume(originalVolumeBeforeAd);
+                    if (urlParams.get('mute') !== '1' && urlParams.get('mute') !== 'true') {
+                        player.unMute();
+                        player.setVolume(originalVolumeBeforeAd);
+                    }
                     
                     if (typeof player.setPlaybackRate === 'function') {
                         player.setPlaybackRate(1);

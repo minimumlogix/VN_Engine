@@ -128,12 +128,14 @@
             align-items: center;
             justify-content: center;
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-            pointer-events: none;
+            pointer-events: auto;
+            cursor: pointer;
         }
 
         #uplink-overlay.ready {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
         }
 
         .loading-text {
@@ -573,8 +575,8 @@
 
     <div id="youtube-frame"></div>
 
-    <div id="uplink-overlay">
-        <div class="loading-text">Establishing Secure Uplink</div>
+    <div id="uplink-overlay" onclick="startPlaybackUplink()">
+        <div class="loading-text" id="overlay-text">Establishing Secure Uplink</div>
     </div>
 
     <div id="nexus-player-bar" onclick="handleBarClick(event)">
@@ -668,28 +670,21 @@
 
     <script>
         let player;
-        const FALLBACK_ID = 'dQw4w9WgXcQ'; // Rickroll Failsafe
+        const FALLBACK_ID = 'dQw4w9WgXcQ';
         let videoId = FALLBACK_ID;
-        let repeatState = 0; // 0: Off, 1: Loop, 2: Loop 1
+        let repeatState = 0;
         let animationFrameId;
         let isDraggingProgress = false;
         let isErrorMode = false;
         let preMuteVolume = 100;
         let listId = null;
         let listType = 'playlist';
-        let preFlightTimer = null;
-        let playAttempted = false;
         let initialMetadataSet = false;
+        let hasSoughtToStart = false;
+        let lastSyncedVolume = -1;
+        let lastSyncedMute = null;
+        let volumeSetTime = 0;
 
-        // Ad Blocking & Dual Player Engine variables
-        let useDirectStream = true; 
-        let activeEngine = 'youtube'; // 'youtube' or 'native'
-        let nativeAudio = null;
-        let isAdMuted = false;
-        let originalVolumeBeforeAd = 100;
-        let initialMuteActive = false;
-
-        // Parse Uplink Parameters
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('v')) videoId = urlParams.get('v');
         if (urlParams.has('list')) {
@@ -701,226 +696,15 @@
             if (!color.startsWith('#')) color = '#' + color;
             document.documentElement.style.setProperty('--accent', color);
         }
-        if (urlParams.get('adfree') === 'false') {
-            useDirectStream = false;
-        }
 
-        // Unified player interface to abstract YT Player vs Native Audio API
-        const nexusPlayer = {
-            playVideo: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.play().catch(err => console.warn("Native playback failed:", err));
-                } else if (player && player.playVideo) {
-                    player.playVideo();
-                }
-            },
-            pauseVideo: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.pause();
-                } else if (player && player.pauseVideo) {
-                    player.pauseVideo();
-                }
-            },
-            getPlayerState: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    if (nativeAudio.paused) return 2; // YT.PlayerState.PAUSED = 2
-                    if (nativeAudio.ended) return 0; // YT.PlayerState.ENDED = 0
-                    return 1; // YT.PlayerState.PLAYING = 1
-                } else if (player && player.getPlayerState) {
-                    return player.getPlayerState();
-                }
-                return -1;
-            },
-            getCurrentTime: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    return nativeAudio.currentTime;
-                } else if (player && player.getCurrentTime) {
-                    return player.getCurrentTime();
-                }
-                return 0;
-            },
-            getDuration: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    return nativeAudio.duration || 0;
-                } else if (player && player.getDuration) {
-                    return player.getDuration();
-                }
-                return 0;
-            },
-            seekTo: function(seconds, allowSeekAhead) {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.currentTime = seconds;
-                } else if (player && player.seekTo) {
-                    player.seekTo(seconds, allowSeekAhead);
-                }
-            },
-            setVolume: function(volume) {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.volume = volume / 100;
-                } else if (player && player.setVolume) {
-                    player.setVolume(volume);
-                }
-            },
-            getVolume: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    return Math.round(nativeAudio.volume * 100);
-                } else if (player && player.getVolume) {
-                    return player.getVolume();
-                }
-                return 100;
-            },
-            mute: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.muted = true;
-                } else if (player && player.mute) {
-                    player.mute();
-                }
-            },
-            unMute: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.muted = false;
-                } else if (player && player.unMute) {
-                    player.unMute();
-                }
-            },
-            isMuted: function() {
-                if (activeEngine === 'native' && nativeAudio) {
-                    return nativeAudio.muted;
-                } else if (player && player.isMuted) {
-                    return player.isMuted();
-                }
-                return false;
-            },
-            getVideoData: function() {
-                if (activeEngine === 'native') {
-                    return {
-                        title: urlParams.get('title') || "DIRECT STREAM TRACK",
-                        author: urlParams.get('author') || "NEXUS WIDGET",
-                        video_id: videoId
-                    };
-                } else if (player && player.getVideoData) {
-                    return player.getVideoData();
-                }
-                return null;
-            },
-            setLoop: function(shouldLoop) {
-                if (activeEngine === 'native' && nativeAudio) {
-                    nativeAudio.loop = shouldLoop;
-                } else if (player && player.setLoop) {
-                    player.setLoop(shouldLoop);
-                }
-            }
-        };
-
-        // Invidious API resolver to get direct audio streams (Option A)
-        async function getDirectAudioUrl(vidId) {
-            const instances = [
-                "https://yewtu.be",
-                "https://invidious.nerd.net",
-                "https://invidious.private.coffee",
-                "https://iv.melmac.space",
-                "https://invidious.flokinet.to"
-            ];
-            
-            for (const instance of instances) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 second timeout per instance
-                    
-                    const res = await fetch(`${instance}/api/v1/videos/${vidId}`, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    if (!res.ok) continue;
-                    
-                    const data = await res.json();
-                    let streams = [];
-                    if (data && data.adaptiveFormats) streams = streams.concat(data.adaptiveFormats);
-                    if (data && data.formatStreams) streams = streams.concat(data.formatStreams);
-
-                    const audioStreams = streams.filter(f => f.type && (f.type.startsWith('audio/') || f.type.startsWith('video/')));
-                    if (audioStreams.length > 0) {
-                        // Prioritize audio-only stream and sort by descending bitrate
-                        audioStreams.sort((a, b) => {
-                            const isAudioA = a.type.startsWith('audio/') ? 1 : 0;
-                            const isAudioB = b.type.startsWith('audio/') ? 1 : 0;
-                            if (isAudioA !== isAudioB) return isAudioB - isAudioA;
-                            const bitA = parseInt(a.bitrate) || 0;
-                            const bitB = parseInt(b.bitrate) || 0;
-                            return bitB - bitA;
-                        });
-                        let streamUrl = audioStreams[0].url;
-                        if (streamUrl && streamUrl.startsWith('/')) {
-                            streamUrl = instance + streamUrl;
-                        }
-                        return streamUrl;
-                    }
-                } catch (e) {
-                    console.warn(`Invidious instance ${instance} failed:`, e);
-                }
-            }
-            return null;
-        }
-
-        // Initialize playback system on load
-        async function initializePlayback() {
-            nativeAudio = new Audio();
-            nativeAudio.crossOrigin = "anonymous";
-            setupNativeAudioEvents();
-
-            // Try resolving stream if single track, adfree is active, and not fallback rickroll
-            if (useDirectStream && !listId && videoId !== FALLBACK_ID) {
-                setStatus("RESOLVING LINK", "var(--accent)", "0.5s");
-                const audioUrl = await getDirectAudioUrl(videoId);
-                if (audioUrl) {
-                    console.log("Ad-Free stream resolved:", audioUrl);
-                    activeEngine = 'native';
-                    nativeAudio.src = audioUrl;
-
-                    // Initialize volume
-                    let startVol = 100;
-                    const savedVol = localStorage.getItem('nexus-volume');
-                    if (savedVol !== null) startVol = parseInt(savedVol);
-                    nativeAudio.volume = startVol / 100;
-                    document.getElementById('volume-slider').value = startVol;
-
-                    onNativePlayerReady();
-                    return;
-                } else {
-                    console.warn("Direct stream resolution failed. Falling back to YouTube Player.");
-                }
-            }
-
-            // Fallback path: standard YouTube embedded player
-            loadYouTubePlayer();
-        }
-
-        function setupNativeAudioEvents() {
-            nativeAudio.addEventListener('play', () => {
-                onSystemStateChange({ data: 1 }); // PLAYING
-            });
-            nativeAudio.addEventListener('pause', () => {
-                onSystemStateChange({ data: 2 }); // PAUSED
-            });
-            nativeAudio.addEventListener('ended', () => {
-                onSystemStateChange({ data: 0 }); // ENDED
-            });
-            nativeAudio.addEventListener('error', (e) => {
-                console.error("Native audio playback error:", e);
-                if (activeEngine === 'native') {
-                    console.log("Engaging YouTube Player fallback...");
-                    loadYouTubePlayer();
-                }
-            });
-        }
-
-        function loadYouTubePlayer() {
-            activeEngine = 'youtube';
+        function initializePlayback() {
             if (window.YT && window.YT.Player) {
                 createYTPlayerInstance();
             } else {
                 if (!document.getElementById('yt-iframe-api-script')) {
                     const apiScript = document.createElement('script');
                     apiScript.id = 'yt-iframe-api-script';
-                    apiScript.src = "https://www.youtube.com/iframe_api?fingerprint=" + Math.random().toString(36).substring(2, 15);
+                    apiScript.src = "https://www.youtube.com/iframe_api";
                     const firstScript = document.getElementsByTagName('script')[0];
                     firstScript.parentNode.insertBefore(apiScript, firstScript);
                 }
@@ -928,232 +712,123 @@
         }
 
         function createYTPlayerInstance() {
-            const playerConfig = {
-                height: '0',
-                width: '0',
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 0,
-                    'disablekb': 1,
-                    'modestbranding': 1,
-                    'rel': 0,
-                    'enablejsapi': 1,
-                    'widget_referrer': 'https://www.youtube.com',
-                    'origin': location.origin === 'null' ? 'https://www.youtube.com' : location.origin,
-                    'autoplay': (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') ? 1 : 0
-                },
+            const existingFrame = document.getElementById('youtube-frame');
+            if (existingFrame) existingFrame.remove();
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'youtube-frame';
+            iframe.style.position = 'absolute';
+            iframe.style.width = '1px';
+            iframe.style.height = '1px';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            iframe.setAttribute('allow', 'autoplay');
+
+            let src = 'https://www.youtube-nocookie.com/embed/';
+            if (listId) {
+                src += `?listType=${listType}&list=${listId}`;
+                if (urlParams.has('index')) src += `&index=${urlParams.get('index')}`;
+            } else {
+                src += videoId + '?';
+            }
+            
+            src += `&enablejsapi=1&controls=0&playsinline=1&disablekb=1&modestbranding=1&rel=0`;
+            
+            const autoplayRequested = (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true');
+            if (autoplayRequested) {
+                src += `&autoplay=1`;
+            }
+
+            iframe.src = src;
+            document.body.appendChild(iframe);
+
+            player = new YT.Player('youtube-frame', {
                 events: {
                     'onReady': onSystemReady,
                     'onStateChange': onSystemStateChange,
                     'onError': onSystemError
                 }
-            };
-
-            if (listId) {
-                playerConfig.playerVars.listType = listType;
-                playerConfig.playerVars.list = listId;
-                if (urlParams.has('index')) playerConfig.playerVars.index = parseInt(urlParams.get('index'));
-                if (urlParams.get('shuffle') === '1') playerConfig.playerVars.shuffle = 1;
-            } else {
-                playerConfig.videoId = videoId;
-            }
-
-            player = new YT.Player('youtube-frame', playerConfig);
+            });
         }
 
-        // Global callback for YouTube API script load
         window.onYouTubeIframeAPIReady = function() {
-            if (activeEngine === 'youtube') {
-                createYTPlayerInstance();
-            }
+            createYTPlayerInstance();
         };
-
-        function onNativePlayerReady() {
-            updateTelemetry();
-
-            if (urlParams.has('title')) {
-                document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
-            }
-            if (urlParams.has('author')) {
-                document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
-            }
-            if (urlParams.has('vol')) {
-                const v = parseInt(urlParams.get('vol'));
-                if (!isNaN(v)) {
-                    nexusPlayer.setVolume(v);
-                    document.getElementById('volume-slider').value = v;
-                    localStorage.setItem('nexus-volume', v);
-                }
-            } else {
-                const savedVol = localStorage.getItem('nexus-volume');
-                if (savedVol !== null) {
-                    const v = parseInt(savedVol);
-                    nexusPlayer.setVolume(v);
-                    document.getElementById('volume-slider').value = v;
-                }
-            }
-            if (urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
-                nexusPlayer.mute();
-            }
-            if (urlParams.has('repeat')) {
-                const r = parseInt(urlParams.get('repeat'));
-                if (!isNaN(r) && r >= 0 && r <= 2) {
-                    repeatState = r;
-                    updateRepeatUI();
-                }
-            }
-
-            syncVolumeUI();
-            setStatus("SYS.OK", "var(--accent)", "4s");
-            document.getElementById('uplink-overlay').classList.add('ready');
-
-            if (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
-                playAttempted = true;
-                nexusPlayer.playVideo();
-                startPreFlightCheck();
-            }
-        }
 
         function onSystemReady(event) {
             updateTelemetry();
-
-            if (urlParams.has('title')) {
-                document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
-            }
-            if (urlParams.has('author')) {
-                document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
-            }
-            if (urlParams.has('vol')) {
-                const v = parseInt(urlParams.get('vol'));
-                if (!isNaN(v)) {
-                    player.setVolume(v);
-                    document.getElementById('volume-slider').value = v;
-                    localStorage.setItem('nexus-volume', v);
-                }
-            } else {
-                const savedVol = localStorage.getItem('nexus-volume');
+            if (urlParams.has('title')) document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
+            if (urlParams.has('author')) document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
+            
+            const savedVol = localStorage.getItem('nexus-volume');
+            const hasVolParam = urlParams.has('vol');
+            const hasMuteParam = urlParams.get('mute') === '1' || urlParams.get('mute') === 'true';
+            
+            let loadedFromCache = (savedVol !== null || hasVolParam || hasMuteParam);
+            
+            if (loadedFromCache) {
+                let initialVol = 100;
                 if (savedVol !== null) {
-                    const v = parseInt(savedVol);
-                    player.setVolume(v);
-                    document.getElementById('volume-slider').value = v;
+                    initialVol = parseInt(savedVol);
                 }
-            }
-
-            // Start muted if autoplay is active to guarantee silence during potential pre-roll ads
-            if (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
-                initialMuteActive = true;
-                player.mute();
-            } else if (urlParams.get('mute') === '1' || urlParams.get('mute') === 'true') {
-                player.mute();
-            }
-
-            if (urlParams.has('repeat')) {
-                const r = parseInt(urlParams.get('repeat'));
-                if (!isNaN(r) && r >= 0 && r <= 2) {
-                    repeatState = r;
-                    updateRepeatUI();
+                if (hasVolParam) {
+                    initialVol = parseInt(urlParams.get('vol'));
                 }
-            }
-
-            syncVolumeUI();
-            setStatus("SYS.OK", "var(--accent)", "4s");
-
-            if (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true') {
-                playAttempted = true;
-                player.playVideo();
-                startPreFlightCheck();
-            }
-        }
-
-        function startPreFlightCheck() {
-            if (preFlightTimer) clearTimeout(preFlightTimer);
-            preFlightTimer = setTimeout(() => {
-                if (activeEngine === 'native' && nativeAudio) {
-                    if (nativeAudio.paused) {
-                        console.warn("Pre-flight Timeout: Native audio not playing. Retrying...");
-                        nexusPlayer.playVideo();
-                    }
-                } else if (player && typeof player.getPlayerState === 'function') {
-                    const state = player.getPlayerState();
-                    if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-                        console.warn("Pre-flight Timeout: Video not playing. Retrying...");
-                        player.playVideo();
-                        setTimeout(() => {
-                            if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
-                                setStatus("BLOCKED", "#ffff00", "0.5s");
-                                document.getElementById('track-name').innerText = "TAP TO INITIALIZE UPLINK";
-                                document.getElementById('uplink-overlay').classList.add('ready');
-                            }
-                        }, 5000);
-                    }
-                } else {
-                    console.log("Player API still initializing. Releasing overlay.");
-                    document.getElementById('uplink-overlay').classList.add('ready');
-                }
-            }, 3000);
-        }
-
-        // Option B: Real-time ad detection, muting, and speed-up monitor
-        function checkAndHandleAds() {
-            if (activeEngine !== 'youtube' || !player || typeof player.getVideoData !== 'function') return;
-
-            const data = player.getVideoData();
-            if (!data) return;
-
-            const currentId = data.video_id;
-            const title = (data.title || "").toLowerCase();
-            const playlist = player.getPlaylist();
-
-            let isAd = false;
-
-            if (!currentId || title === "ad" || title === "advertisement") {
-                isAd = true;
-            } else if (playlist && playlist.length > 0) {
-                isAd = !playlist.includes(currentId);
-            } else if (videoId && videoId !== FALLBACK_ID) {
-                isAd = (currentId !== videoId);
-            }
-
-            if (isAd) {
-                if (!isAdMuted) {
-                    console.log("Ad detected! Muting and accelerating playback...");
-                    isAdMuted = true;
-                    if (!initialMuteActive) {
-                        originalVolumeBeforeAd = player.getVolume();
-                    }
+                
+                player.setVolume(initialVol);
+                if (hasMuteParam) {
                     player.mute();
-                    
-                    if (typeof player.setPlaybackRate === 'function') {
-                        player.setPlaybackRate(2);
-                    }
-                    setStatus("BLOCKING AD", "#ffcc00", "0.2s");
+                } else if (initialVol === 0) {
+                    player.mute();
+                } else {
+                    player.unMute();
                 }
+                
+                // Directly set the UI values
+                const slider = document.getElementById('volume-slider');
+                slider.value = hasMuteParam ? 0 : initialVol;
+                toggleMuteIcon(hasMuteParam || initialVol === 0);
+                
+                // Set cache variables to prevent snapping
+                lastSyncedVolume = hasMuteParam ? 0 : initialVol;
+                lastSyncedMute = hasMuteParam || (initialVol === 0);
+                volumeSetTime = Date.now();
             } else {
-                if (initialMuteActive) {
-                    console.log("Initial track started. Releasing initial mute...");
-                    initialMuteActive = false;
-                    const savedVol = localStorage.getItem('nexus-volume');
-                    const targetVol = (savedVol !== null) ? parseInt(savedVol) : 100;
-                    if (urlParams.get('mute') !== '1' && urlParams.get('mute') !== 'true') {
-                        player.unMute();
-                        player.setVolume(targetVol);
-                    }
-                    syncVolumeUI();
-                }
+                // Not loaded from cache, do normal sync
+                syncVolumeUI();
+            }
+            
+            setStatus("SYS.OK", "var(--accent)", "4s");
+            
+            const autoplayRequested = (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true');
+            if (autoplayRequested) {
+                setOverlayState('loading', '[ CLICK HERE TO PLAY MUSIC ]');
+            } else {
+                setOverlayState('ready');
+            }
+        }
 
-                if (isAdMuted) {
-                    console.log("Ad ended. Restoring volume and playback speed...");
-                    isAdMuted = false;
-                    if (urlParams.get('mute') !== '1' && urlParams.get('mute') !== 'true') {
-                        player.unMute();
-                        player.setVolume(originalVolumeBeforeAd);
+        function startPlaybackUplink() {
+            if (player && player.playVideo) {
+                player.playVideo();
+                setTimeout(() => {
+                    if (player && player.seekTo) {
+                        player.seekTo(0, true);
                     }
-                    
-                    if (typeof player.setPlaybackRate === 'function') {
-                        player.setPlaybackRate(1);
-                    }
-                    setStatus("ACTIVE", "var(--accent)", "1s");
-                }
+                }, 10);
+            }
+            setOverlayState('ready');
+        }
+
+        function setOverlayState(state, text = '') {
+            const overlay = document.getElementById('uplink-overlay');
+            const loadingText = overlay.querySelector('.loading-text');
+            
+            if (state === 'loading') {
+                overlay.classList.remove('ready');
+                loadingText.innerText = text;
+            } else if (state === 'ready') {
+                overlay.classList.add('ready');
             }
         }
 
@@ -1161,44 +836,44 @@
             const playIcon = document.getElementById('play-icon');
             const pauseIcon = document.getElementById('pause-icon');
 
-            const stateVal = event.data;
-
-            if (stateVal === 1) { // PLAYING
-                if (preFlightTimer) clearTimeout(preFlightTimer);
-                document.getElementById('uplink-overlay').classList.add('ready');
-                
+            if (event.data === YT.PlayerState.PLAYING) {
+                setOverlayState('ready');
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
-
-                if (!isErrorMode && !isAdMuted) setStatus("ACTIVE", "var(--accent)", "1s");
+                if (!isErrorMode) setStatus("ACTIVE", "var(--accent)", "1s");
+                
+                if (!hasSoughtToStart) {
+                    setTimeout(() => {
+                        if (player && player.seekTo) {
+                            player.seekTo(0, true);
+                        }
+                    }, 1);
+                    hasSoughtToStart = true;
+                }
                 
                 setTimeout(applyMarqueeLogic, 500);
-
                 updateTelemetry();
                 startCinematicLoop();
-            } else if (stateVal === 3) { // BUFFERING
+            } else if (event.data === YT.PlayerState.BUFFERING) {
                 if (!isErrorMode) setStatus("BUFFERING", "var(--accent)", "0.5s");
+                syncVolumeUI();
             } else {
                 playIcon.style.display = 'block';
                 pauseIcon.style.display = 'none';
                 if (!isErrorMode) setStatus("STANDBY", "var(--accent)", "4s");
                 stopCinematicLoop();
+                syncVolumeUI();
             }
 
-            if (stateVal === 0) { // ENDED
+            if (event.data === YT.PlayerState.ENDED) {
                 if (repeatState === 2) {
-                    nexusPlayer.seekTo(0);
-                    nexusPlayer.playVideo();
-                } else if (repeatState === 1) {
-                    if (activeEngine === 'youtube') {
-                        const playlist = player.getPlaylist();
-                        if (!playlist || playlist.length === 0) {
-                            player.seekTo(0);
-                            player.playVideo();
-                        }
-                    } else {
-                        nexusPlayer.seekTo(0);
-                        nexusPlayer.playVideo();
+                    player.seekTo(0);
+                    player.playVideo();
+                } else if (repeatState === 1) { 
+                    const playlist = player.getPlaylist();
+                    if (!playlist || playlist.length === 0) {
+                        player.seekTo(0);
+                        player.playVideo();
                     }
                 } else {
                     document.getElementById('progress-bar').style.width = '100%';
@@ -1207,28 +882,18 @@
         }
 
         function onSystemError(event) {
-            console.warn("Nexus Error Caught. Code:", event.data);
-            document.getElementById('uplink-overlay').classList.add('ready');
-
+            setOverlayState('ready');
             const playlist = player.getPlaylist();
             if (playlist && playlist.length > 0) {
-                console.log("Error in playlist. Skipping to next...");
                 player.nextVideo();
                 return;
             }
-
             isErrorMode = true;
-            document.getElementById('nexus-player-bar').classList.add('error-active');
             setStatus("ERR: FALLBACK", "#ff3333", "0.5s");
-            document.getElementById('track-name').innerText = "FATAL ERROR. ENGAGING FAILSAFE.";
-            document.getElementById('track-name').style.color = "#ff3333";
-
             if (videoId !== FALLBACK_ID) {
                 setTimeout(() => {
                     videoId = FALLBACK_ID;
-                    player.loadVideoById(videoId);
-                    document.getElementById('track-name').style.color = "var(--text-main)";
-                    document.getElementById('nexus-player-bar').classList.remove('error-active');
+                    createYTPlayerInstance();
                     isErrorMode = false;
                 }, 2000);
             }
@@ -1237,88 +902,81 @@
         function setStatus(text, color, pulseSpeed) {
             const ind = document.getElementById('status-indicator');
             const lbl = document.getElementById('status-label');
-            if (ind && lbl) {
-                ind.style.background = color;
-                ind.style.boxShadow = `0 0 10px ${color}`;
-                ind.style.animationDuration = pulseSpeed;
-                lbl.innerText = text;
-                lbl.style.color = color;
-            }
+            ind.style.background = color;
+            ind.style.boxShadow = `0 0 10px ${color}`;
+            ind.style.animationDuration = pulseSpeed;
+            lbl.innerText = text;
+            lbl.style.color = color;
         }
 
         function togglePlay() {
-            if (!nexusPlayer || !nexusPlayer.getPlayerState) return;
-            const state = nexusPlayer.getPlayerState();
-            if (state === 1) { // PLAYING
-                nexusPlayer.pauseVideo();
-            } else {
-                nexusPlayer.playVideo();
-            }
+            if (!player || !player.getPlayerState) return;
+            player.getPlayerState() === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
         }
 
         function triggerPrev() {
-            if (activeEngine === 'youtube' && player) {
-                const playlist = player.getPlaylist();
-                if (playlist && playlist.length > 0) {
-                    player.previousVideo();
-                    flashVisualFeedback();
-                    return;
-                }
-            }
-            nexusPlayer.seekTo(0);
+            const playlist = player.getPlaylist();
+            playlist && playlist.length > 0 ? player.previousVideo() : player.seekTo(0);
             flashVisualFeedback();
         }
 
         function triggerNext() {
-            if (activeEngine === 'youtube' && player) {
-                const playlist = player.getPlaylist();
-                if (playlist && playlist.length > 0) {
-                    player.nextVideo();
-                    flashVisualFeedback();
-                    return;
-                }
-            }
-            nexusPlayer.seekTo(nexusPlayer.getDuration() - 1);
+            const playlist = player.getPlaylist();
+            playlist && playlist.length > 0 ? player.nextVideo() : player.seekTo(player.getDuration() - 1);
             flashVisualFeedback();
         }
 
         function updateVolume(val) {
-            if (nexusPlayer) {
-                nexusPlayer.setVolume(val);
-                localStorage.setItem('nexus-volume', val);
-                if (val == 0) {
-                    nexusPlayer.mute();
-                    toggleMuteIcon(true);
-                } else {
-                    nexusPlayer.unMute();
-                    toggleMuteIcon(false);
-                }
-            }
+            player.setVolume(val);
+            localStorage.setItem('nexus-volume', val);
+            val == 0 ? (player.mute(), toggleMuteIcon(true)) : (player.unMute(), toggleMuteIcon(false));
+            lastSyncedVolume = val;
+            lastSyncedMute = (val == 0);
+            volumeSetTime = Date.now();
         }
 
         function syncVolumeUI() {
-            if (nexusPlayer) {
-                let vol = nexusPlayer.getVolume();
-                if (nexusPlayer.isMuted()) vol = 0;
-                document.getElementById('volume-slider').value = vol;
-                toggleMuteIcon(vol == 0);
+            if (Date.now() - volumeSetTime < 1000) {
+                return;
+            }
+            if (!player || !player.getVolume || !player.isMuted) return;
+            
+            let vol = player.getVolume();
+            let muted = player.isMuted();
+            
+            // Only update DOM if there's an actual change from last synced values
+            if (vol !== lastSyncedVolume || muted !== lastSyncedMute) {
+                lastSyncedVolume = vol;
+                lastSyncedMute = muted;
+                
+                const slider = document.getElementById('volume-slider');
+                slider.value = muted ? 0 : vol;
+                toggleMuteIcon(muted || vol === 0);
             }
         }
 
         function toggleMute() {
-            if (!nexusPlayer) return;
             const slider = document.getElementById('volume-slider');
-            if (nexusPlayer.isMuted() || slider.value == 0) {
-                nexusPlayer.unMute();
-                nexusPlayer.setVolume(preMuteVolume || 100);
-                slider.value = preMuteVolume || 100;
+            let newVol;
+            let newMute;
+            if (player.isMuted() || slider.value == 0) {
+                player.unMute();
+                newVol = preMuteVolume || 100;
+                player.setVolume(newVol);
+                slider.value = newVol;
                 toggleMuteIcon(false);
+                newMute = false;
             } else {
-                preMuteVolume = slider.value;
-                nexusPlayer.mute();
+                preMuteVolume = parseInt(slider.value);
+                player.mute();
                 slider.value = 0;
                 toggleMuteIcon(true);
+                newVol = 0;
+                newMute = true;
             }
+            lastSyncedVolume = newVol;
+            lastSyncedMute = newMute;
+            volumeSetTime = Date.now();
         }
 
         function toggleMuteIcon(isMuted) {
@@ -1330,143 +988,77 @@
             if (e.target.tagName === 'INPUT' || e.target.closest('#volume-mute-btn')) return;
             const wrapper = document.getElementById('volume-wrapper');
             wrapper.classList.add('active');
-
-            if (!wrapper.classList.contains('is-dragging')) {
-                setTimeout(() => {
-                    if (!wrapper.classList.contains('is-dragging')) {
-                        wrapper.classList.remove('active');
-                    }
-                }, 3000);
-            }
+            setTimeout(() => { if (!wrapper.classList.contains('is-dragging')) wrapper.classList.remove('active'); }, 3000);
         }
 
         const volSlider = document.getElementById('volume-slider');
         const volWrapper = document.getElementById('volume-wrapper');
-
         function setVolumeDraggingState(state) {
-            if (state) {
-                volWrapper.classList.add('is-dragging');
-            } else {
-                volWrapper.classList.remove('is-dragging');
-                volWrapper.classList.remove('active');
-            }
+            state ? volWrapper.classList.add('is-dragging') : (volWrapper.classList.remove('is-dragging'), volWrapper.classList.remove('active'));
         }
-
         volSlider.addEventListener('mousedown', () => setVolumeDraggingState(true));
         volSlider.addEventListener('touchstart', () => setVolumeDraggingState(true), { passive: true });
-
-        document.addEventListener('mouseup', () => {
-            if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
-        });
-        document.addEventListener('touchend', () => {
-            if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false);
-        });
+        document.addEventListener('mouseup', () => { if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false); });
+        document.addEventListener('touchend', () => { if (volWrapper.classList.contains('is-dragging')) setVolumeDraggingState(false); });
 
         function updateRepeatUI() {
             const btn = document.getElementById('repeat-btn');
             const badge = document.getElementById('repeat-badge');
-
             btn.classList.remove('btn-state-active');
             badge.style.display = 'none';
-
-            if (repeatState === 1) {
-                btn.classList.add('btn-state-active');
-                nexusPlayer.setLoop(true);
-            } else if (repeatState === 2) {
-                btn.classList.add('btn-state-active');
-                badge.style.display = 'block';
-                badge.innerText = '1';
-                nexusPlayer.setLoop(false);
-            } else {
-                nexusPlayer.setLoop(false);
-            }
+            if (repeatState === 1) btn.classList.add('btn-state-active');
+            else if (repeatState === 2) { btn.classList.add('btn-state-active'); badge.style.display = 'block'; badge.innerText = '1'; }
         }
 
-        function toggleRepeat() {
-            repeatState = (repeatState + 1) % 3;
-            updateRepeatUI();
-        }
-
-        function openYouTube() {
-            if (!nexusPlayer) return;
-            const id = nexusPlayer.getVideoData()?.video_id || videoId;
-            window.open(`https://www.youtube.com/watch?v=${id}`, '_blank', 'noopener,noreferrer');
-        }
+        function toggleRepeat() { repeatState = (repeatState + 1) % 3; updateRepeatUI(); }
+        function openYouTube() { window.open(`https://www.youtube.com/watch?v=${player.getVideoData().video_id || videoId}`, '_blank'); }
 
         function startCinematicLoop() {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             function update() {
-                if (activeEngine === 'youtube') {
-                    checkAndHandleAds();
-                }
-
-                if (!isDraggingProgress) {
-                    const curr = nexusPlayer.getCurrentTime();
-                    const dur = nexusPlayer.getDuration();
+                if (!isDraggingProgress && player.getDuration && player.getCurrentTime) {
+                    const curr = player.getCurrentTime(), dur = player.getDuration();
                     if (dur > 0) {
-                        const perc = (curr / dur) * 100;
-                        document.getElementById('progress-bar').style.width = perc + '%';
+                        document.getElementById('progress-bar').style.width = (curr / dur) * 100 + '%';
                         document.getElementById('current-time').innerText = formatTime(curr);
-
-                        const durEl = document.getElementById('duration');
-                        if (durEl.innerText === '00:00' || Math.random() < 0.05) {
-                            durEl.innerText = formatTime(dur);
-                        }
+                        document.getElementById('duration').innerText = formatTime(dur);
                     }
+                }
+                if (!volWrapper.classList.contains('is-dragging')) {
+                    syncVolumeUI();
                 }
                 animationFrameId = requestAnimationFrame(update);
             }
             animationFrameId = requestAnimationFrame(update);
         }
-
-        function stopCinematicLoop() {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-        }
+        function stopCinematicLoop() { if (animationFrameId) cancelAnimationFrame(animationFrameId); }
 
         function updateTelemetry() {
             if (isErrorMode) return;
-            const data = nexusPlayer.getVideoData();
-            if (data && data.title && data.title !== "YouTube Video") {
+            const data = player.getVideoData();
+            if (data && data.title) {
                 const trackEl = document.getElementById('track-name');
-                if (urlParams.has('title') && !initialMetadataSet) {
-                    trackEl.innerText = urlParams.get('title').toUpperCase();
-                } else {
-                    trackEl.innerText = data.title.toUpperCase();
+                if (!initialMetadataSet) {
+                    trackEl.innerText = (urlParams.get('title') || data.title).toUpperCase();
+                    document.getElementById('credit-label').innerText = (urlParams.get('author') || data.author || "").toUpperCase();
+                    initialMetadataSet = true;
                 }
-
-                if (urlParams.has('author') && !initialMetadataSet) {
-                    document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
-                } else if (data.author) {
-                    document.getElementById('credit-label').innerText = data.author.toUpperCase();
-                }
-                
-                initialMetadataSet = true;
-                setTimeout(applyMarqueeLogic, 100);
-
                 const id = data.video_id || videoId;
-                const bg = document.getElementById('dynamic-bg');
                 if (id) {
-                    bg.style.backgroundImage = `url('https://img.youtube.com/vi/${id}/hqdefault.jpg')`;
+                    document.getElementById('dynamic-bg').style.backgroundImage = `url('https://img.youtube.com/vi/${id}/hqdefault.jpg')`;
                 }
             }
         }
 
         function applyMarqueeLogic() {
-            const trackEl = document.getElementById('track-name');
-            const container = document.getElementById('title-container');
-            
+            const trackEl = document.getElementById('track-name'), container = document.getElementById('title-container');
             trackEl.classList.remove('marquee');
             trackEl.style.width = 'auto';
             trackEl.style.transform = '';
             
-            const isTooLong = trackEl.scrollWidth > container.clientWidth;
-            
-            if (isTooLong) {
-                const originalText = trackEl.innerText;
-                trackEl.innerHTML = `<span>${originalText}</span><span style="padding-left:100px">${originalText}</span>`;
+            if (trackEl.scrollWidth > container.clientWidth) {
+                const text = trackEl.innerText;
+                trackEl.innerHTML = `<span>${text}</span><span style="padding-left:100px">${text}</span>`;
                 trackEl.classList.add('marquee');
                 const speed = 40; 
                 const duration = (trackEl.scrollWidth / speed);
@@ -1474,83 +1066,36 @@
             }
         }
 
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "00:00";
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-        }
-
+        function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${Math.floor(s%60).toString().padStart(2,'0')}`; }
         function flashVisualFeedback() {
             const bar = document.getElementById('nexus-player-bar');
             bar.style.borderColor = 'var(--accent)';
-            setTimeout(() => { bar.style.borderColor = 'var(--border-glass)'; }, 300);
+            setTimeout(() => bar.style.borderColor = 'var(--border-glass)', 300);
         }
 
         const progressContainer = document.getElementById('progress-container');
-
         function handleScrub(e) {
-            if (!nexusPlayer || !nexusPlayer.getDuration) return;
             const rect = progressContainer.getBoundingClientRect();
-            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
-
-            let x = clientX - rect.left;
-            x = Math.max(0, Math.min(x, rect.width));
-
+            const x = Math.max(0, Math.min((e.touches ? e.touches[0].clientX : e.clientX) - rect.left, rect.width));
             const perc = x / rect.width;
-            const duration = nexusPlayer.getDuration();
-
             document.getElementById('progress-bar').style.width = (perc * 100) + '%';
-
-            if (e.type === 'mouseup' || e.type === 'touchend') {
-                nexusPlayer.seekTo(duration * perc, true);
-                isDraggingProgress = false;
-                startCinematicLoop();
-            }
+            if (e.type === 'mouseup' || e.type === 'touchend') { player.seekTo(player.getDuration() * perc, true); isDraggingProgress = false; startCinematicLoop(); }
         }
 
-        progressContainer.addEventListener('mousedown', (e) => {
-            isDraggingProgress = true;
-            stopCinematicLoop();
-            handleScrub(e);
-        });
-
-        progressContainer.addEventListener('touchstart', (e) => {
-            isDraggingProgress = true;
-            stopCinematicLoop();
-            handleScrub(e);
-        }, { passive: false });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDraggingProgress) handleScrub(e);
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (isDraggingProgress) handleScrub(e);
-        }, { passive: false });
-
-        document.addEventListener('mouseup', (e) => {
-            if (isDraggingProgress) handleScrub(e);
-        });
-
-        document.addEventListener('touchend', (e) => {
-            if (isDraggingProgress) handleScrub(e);
-        });
+        progressContainer.addEventListener('mousedown', (e) => { isDraggingProgress = true; stopCinematicLoop(); handleScrub(e); });
+        progressContainer.addEventListener('touchstart', (e) => { isDraggingProgress = true; stopCinematicLoop(); handleScrub(e); }, { passive: false });
+        document.addEventListener('mousemove', (e) => { if (isDraggingProgress) handleScrub(e); });
+        document.addEventListener('touchmove', (e) => { if (isDraggingProgress) handleScrub(e); }, { passive: false });
+        document.addEventListener('mouseup', (e) => { if (isDraggingProgress) handleScrub(e); });
+        document.addEventListener('touchend', (e) => { if (isDraggingProgress) handleScrub(e); });
 
         function handleBarClick(e) {
-            if (e.target.closest('button') || e.target.closest('.progress-container') || e.target.closest('input')) return;
-            
-            const state = nexusPlayer.getPlayerState();
-            if (state !== 1) { // 1 = PLAYING
-                nexusPlayer.playVideo();
-                document.getElementById('uplink-overlay').classList.add('ready');
+            if (!e.target.closest('button, .progress-container, input')) {
+                if (player.getPlayerState() !== YT.PlayerState.PLAYING) { player.playVideo(); setOverlayState('ready'); }
             }
         }
 
-        // Run playback initializer
         window.addEventListener('DOMContentLoaded', initializePlayback);
-
-
     </script>
 </body>
 

@@ -685,6 +685,21 @@
         let lastSyncedMute = null;
         let volumeSetTime = 0;
 
+        function safeGetStorage(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn("[nexus-system] Storage access blocked by browser privacy policy.");
+                return null;
+            }
+        }
+
+        function safeSetStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {}
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('v')) videoId = urlParams.get('v');
         if (urlParams.has('list')) {
@@ -760,7 +775,7 @@
             if (urlParams.has('title')) document.getElementById('track-name').innerText = urlParams.get('title').toUpperCase();
             if (urlParams.has('author')) document.getElementById('credit-label').innerText = urlParams.get('author').toUpperCase();
             
-            const savedVol = localStorage.getItem('nexus-volume');
+            const savedVol = safeGetStorage('nexus-volume');
             const hasVolParam = urlParams.has('vol');
             const hasMuteParam = urlParams.get('mute') === '1' || urlParams.get('mute') === 'true';
             
@@ -928,7 +943,7 @@
 
         function updateVolume(val) {
             player.setVolume(val);
-            localStorage.setItem('nexus-volume', val);
+            safeSetStorage('nexus-volume', val);
             val == 0 ? (player.mute(), toggleMuteIcon(true)) : (player.unMute(), toggleMuteIcon(false));
             lastSyncedVolume = val;
             lastSyncedMute = (val == 0);

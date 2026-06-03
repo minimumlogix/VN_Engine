@@ -732,7 +732,7 @@
                 src += videoId + '?';
             }
             
-            src += `&enablejsapi=1&controls=0&playsinline=1&disablekb=1&modestbranding=1&rel=0`;
+            src += `&enablejsapi=1&controls=0&playsinline=1&disablekb=1&modestbranding=1&rel=0&iv_load_policy=3`;
             
             const autoplayRequested = (urlParams.get('autoplay') === '1' || urlParams.get('autoplay') === 'true');
             if (autoplayRequested) {
@@ -1011,7 +1011,7 @@
         }
 
         function toggleRepeat() { repeatState = (repeatState + 1) % 3; updateRepeatUI(); }
-        function openYouTube() { window.open(`https://www.youtube.com/watch?v=${player.getVideoData().video_id || videoId}`, '_blank'); }
+        function openYouTube() { window.open(`https://www.yout-ube.com/watch?v=${player.getVideoData().video_id || videoId}`, '_blank'); }
 
         function startCinematicLoop() {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);

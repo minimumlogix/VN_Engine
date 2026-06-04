@@ -2,6 +2,7 @@ const COLOR_REGEX = /#([A-Fa-f0-9]{3}){1,2}\b|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\
 const SYNTAX_REGEX = /(<[^>]+>|(?:\*\*\*|\*\*|\*|#+|---|^>))/gm;
 let canvasItems = [];
 let currentType = null;
+let editingIndex = -1;
 
 const CACHE_KEY = 'nexus_intro_architect_state';
 
@@ -258,24 +259,54 @@ const FORM_TEMPLATES = {
 };
 
 function openComponentModal(type) {
+    editingIndex = -1;
+    setupConfigModal(type);
+}
+
+function editComponent(index) {
+    editingIndex = index;
+    const item = canvasItems[index];
+    setupConfigModal(item.type, item);
+}
+
+function setupConfigModal(type, existingItem = null) {
     currentType = type;
     const fields = FORM_TEMPLATES[type];
     const container = document.getElementById('form-fields');
     const title = document.getElementById('modal-title');
     const addBtn = document.getElementById('add-char-btn');
+    const submitBtn = document.querySelector('#config-modal .btn-primary');
 
-    title.innerText = `CONFIGURE ${type.replace('-', ' ').toUpperCase()}`;
+    if (existingItem) {
+        title.innerText = `EDIT ${type.replace('-', ' ').toUpperCase()}`;
+        if (submitBtn) submitBtn.innerText = 'SAVE CHANGES';
+    } else {
+        title.innerText = `CONFIGURE ${type.replace('-', ' ').toUpperCase()}`;
+        if (submitBtn) submitBtn.innerText = 'ADD TO CANVAS';
+    }
     container.innerHTML = '';
 
     if (type === 'character') {
         addBtn.style.display = 'block';
-        const bgGroup = createFieldGroup({ label: 'Background Image URL', id: 'bg-url', type: 'text', placeholder: 'https://.../bg.png' });
+        const bgUrl = existingItem ? (existingItem['bg-url'] || '') : '';
+        const bgGroup = createFieldGroup({ label: 'Background Image URL', id: 'bg-url', type: 'text', placeholder: 'https://.../bg.png', value: bgUrl });
         container.appendChild(bgGroup);
-        addCharacterRow();
+        
+        if (existingItem && existingItem.characters && existingItem.characters.length > 0) {
+            existingItem.characters.forEach(char => {
+                addCharacterRow(char.name, char.sprite);
+            });
+        } else {
+            addCharacterRow();
+        }
     } else {
         addBtn.style.display = 'none';
         fields.forEach(field => {
-            const group = createFieldGroup(field);
+            const fieldConfig = { ...field };
+            if (existingItem && existingItem[field.id] !== undefined) {
+                fieldConfig.value = existingItem[field.id];
+            }
+            const group = createFieldGroup(fieldConfig);
             container.appendChild(group);
 
             // Add listeners for rich text
@@ -301,10 +332,15 @@ function createFieldGroup(field) {
     if (field.type === 'textarea') {
         input = document.createElement('textarea');
         input.rows = 4;
+        if (field.value !== undefined && field.value !== null) {
+            input.value = field.value;
+        }
     } else {
         input = document.createElement('input');
         input.type = field.type;
-        if (field.value) input.value = field.value;
+        if (field.value !== undefined && field.value !== null) {
+            input.value = field.value;
+        }
     }
 
     input.id = field.id;
@@ -323,13 +359,15 @@ function addCharacterRow(name = '', sprite = '') {
         <button type="button" class="remove-char" onclick="this.parentElement.remove()">×</button>
         <div class="form-group">
             <label>Character Name</label>
-            <input type="text" class="char-name" value="${name}" placeholder="e.g. Jax">
+            <input type="text" class="char-name" placeholder="e.g. Jax">
         </div>
         <div class="form-group">
             <label>Sprite Image URL</label>
-            <input type="text" class="char-sprite" value="${sprite}" placeholder="https://.../sprite.png">
+            <input type="text" class="char-sprite" placeholder="https://.../sprite.png">
         </div>
     `;
+    row.querySelector('.char-name').value = name;
+    row.querySelector('.char-sprite').value = sprite;
     container.appendChild(row);
 }
 
@@ -1459,6 +1497,7 @@ function _maybeFinishSourceEdit(el) {
 
 function closeModal() {
     document.getElementById('config-modal').style.display = 'none';
+    editingIndex = -1;
 }
 
 function extractYoutubeId(url) {
@@ -1468,7 +1507,10 @@ function extractYoutubeId(url) {
 }
 
 function saveComponent() {
-    const itemData = { type: currentType, id: Date.now() };
+    const itemData = { 
+        type: currentType, 
+        id: (editingIndex !== -1 && canvasItems[editingIndex].id) ? canvasItems[editingIndex].id : Date.now() 
+    };
 
     if (currentType === 'character') {
         itemData['bg-url'] = document.getElementById('bg-url').value;
@@ -1496,7 +1538,12 @@ function saveComponent() {
         itemData.ytId = ytId;
     }
 
-    canvasItems.push(itemData);
+    if (editingIndex !== -1) {
+        canvasItems[editingIndex] = itemData;
+        editingIndex = -1;
+    } else {
+        canvasItems.push(itemData);
+    }
     renderCanvas();
     updateCodeView();
     saveToCache();
@@ -1532,6 +1579,8 @@ function renderCanvas() {
             editBtn = `<button class="control-btn edit" onclick="editMusicLink(${index})"><i class="bi bi-pencil"></i></button>`;
         } else if (item.type === 'image') {
             editBtn = `<button class="control-btn edit" onclick="editImageLink(${index})"><i class="bi bi-pencil"></i></button>`;
+        } else if (item.type === 'character' || item.type === 'vn-iframe' || item.type === 'lore') {
+            editBtn = `<button class="control-btn edit" onclick="editComponent(${index})"><i class="bi bi-pencil"></i></button>`;
         }
 
         el.innerHTML = `<div class="item-label">${item.type.replace('-', ' ')}</div><div class="item-controls">${editBtn}<button class="control-btn" onclick="moveItem(${index}, -1)"><i class="bi bi-chevron-up"></i></button><button class="control-btn" onclick="moveItem(${index}, 1)"><i class="bi bi-chevron-down"></i></button><button class="control-btn delete" onclick="removeItem(${index})"><i class="bi bi-trash"></i></button></div><div class="item-preview">${getPreviewHTML(item)}</div>`;
@@ -1615,7 +1664,7 @@ function getPreviewHTML(item) {
         case 'image':
             return `<div class="vn-image-wrapper"><img src="${item['image-url']}"></div>`;
         case 'music':
-            return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>`;
+            return `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&ap=1" style="width:100%;height:75px;border:none"></iframe>`;
         case 'character':
             let charHtml = `<div class="vn-character-container" style="background-image:url(${item['bg-url']})">`;
             (item.characters || []).forEach(char => {
@@ -1830,7 +1879,7 @@ function generateFullHTML(minified) {
                 html += `</div>${newline}`;
                 break;
             case 'music':
-                html += `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&vol=100&autoplay=1" style="width:100%;height:75px;border:none"></iframe>${newline}`;
+                html += `<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/music/mw?v=${item.ytId}&c=${themeColor}&ap=1" style="width:100%;height:75px;border:none"></iframe>${newline}`;
                 break;
             case 'character':
                 html += `<div class="vn-character-container" style="background-image:url(${item['bg-url']})">${newline}`;

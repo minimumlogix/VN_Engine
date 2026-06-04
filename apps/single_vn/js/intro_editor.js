@@ -1681,6 +1681,9 @@ function getPreviewHTML(item) {
         case 'dialogue':
             return `<div class="vn-dialogue-box"><div class="vn-dialogue-content">${parseMarkdown(item['dialogue-text'])}</div></div>`;
         case 'lore':
+            const loreLink = item['lore-link'] || '';
+            const isUrl = /^(https?:\/\/|\/|\.\/|\.\.\/)/i.test(loreLink);
+            const src = isUrl ? loreLink : `https://minimumlogix.github.io/VN_Engine/apps/lore?world=${loreLink}`;
             return `
                 <details class="vn-lore-details" open>
                     <summary class="vn-lore-summary">
@@ -1688,7 +1691,7 @@ function getPreviewHTML(item) {
                         <svg class="vn-lore-icon" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" /></svg>
                     </summary>
                     <div class="vn-lore-content">
-                        <iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/lore?world=${item['lore-link']}" style="width:100%;height:${item['lore-height']}px;border:none;border-radius: 5px;"></iframe>
+                        <iframe allow="autoplay; encrypted-media" src="${src}" style="width:100%;height:${item['lore-height']}px;border:none;border-radius: 5px;"></iframe>
                     </div>
                 </details>`;
         default:
@@ -1908,13 +1911,16 @@ function generateFullHTML(minified) {
                 }
                 break;
             case 'lore':
+                const loreLinkOut = item['lore-link'] || '';
+                const isUrlOut = /^(https?:\/\/|\/|\.\/|\.\.\/)/i.test(loreLinkOut);
+                const srcOut = isUrlOut ? loreLinkOut : `https://minimumlogix.github.io/VN_Engine/apps/lore?world=${loreLinkOut}`;
                 html += `<details class="vn-lore-details">${newline}`;
                 html += `${indent}<summary class="vn-lore-summary">${newline}`;
                 html += `${indent}${indent}<span>Lore Database</span>${newline}`;
                 html += `${indent}${indent}<svg class="vn-lore-icon" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" /></svg>${newline}`;
                 html += `${indent}</summary>${newline}`;
                 html += `${indent}<div class="vn-lore-content">${newline}`;
-                html += `${indent}${indent}<iframe allow="autoplay; encrypted-media" src="https://minimumlogix.github.io/VN_Engine/apps/lore?world=${item['lore-link']}" style="width:100%;height:${item['lore-height']}px;border:none;border-radius: 5px;"></iframe>${newline}`;
+                html += `${indent}${indent}<iframe allow="autoplay; encrypted-media" src="${srcOut}" style="width:100%;height:${item['lore-height']}px;border:none;border-radius: 5px;"></iframe>${newline}`;
                 html += `${indent}</div>${newline}`;
                 html += `</details>${newline}`;
                 break;

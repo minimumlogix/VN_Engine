@@ -68,7 +68,10 @@
         #nexus-player-bar::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-image:
                 linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
@@ -79,8 +82,10 @@
 
         #dynamic-bg {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
             opacity: 0.25;
@@ -177,8 +182,13 @@
         }
 
         @keyframes marquee-scroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .credit {
@@ -223,7 +233,9 @@
             transform: scale(1.1);
         }
 
-        .btn:active { transform: scale(0.9); }
+        .btn:active {
+            transform: scale(0.9);
+        }
 
         .btn-main {
             width: 44px;
@@ -255,7 +267,9 @@
         }
 
         .progress-container:hover,
-        .progress-container:active { height: 12px; }
+        .progress-container:active {
+            height: 12px;
+        }
 
         .progress-track {
             width: 100%;
@@ -266,7 +280,8 @@
 
         .progress-bar {
             position: absolute;
-            top: 0; left: 0;
+            top: 0;
+            left: 0;
             height: 100%;
             background: var(--accent);
             width: 0%;
@@ -338,7 +353,9 @@
 
         .volume-wrapper:hover .volume-icon-btn,
         .volume-wrapper.active .volume-icon-btn,
-        .volume-wrapper.is-dragging .volume-icon-btn { color: var(--accent); }
+        .volume-wrapper.is-dragging .volume-icon-btn {
+            color: var(--accent);
+        }
 
         .volume-slider-container {
             width: 76px;
@@ -352,7 +369,9 @@
 
         .volume-wrapper:hover .volume-slider-container,
         .volume-wrapper.active .volume-slider-container,
-        .volume-wrapper.is-dragging .volume-slider-container { opacity: 1; }
+        .volume-wrapper.is-dragging .volume-slider-container {
+            opacity: 1;
+        }
 
         input[type=range] {
             -webkit-appearance: none;
@@ -363,7 +382,9 @@
             cursor: pointer;
         }
 
-        input[type=range]:focus { outline: none; }
+        input[type=range]:focus {
+            outline: none;
+        }
 
         input[type=range]::-webkit-slider-runnable-track {
             height: 2px;
@@ -403,29 +424,132 @@
             margin-left: 2px;
         }
 
-        #pause-icon { margin-left: 0; }
+        #pause-icon {
+            margin-left: 0;
+        }
 
         /* --- ANIMATIONS --- */
         @keyframes pulse {
-            0%   { opacity: 0.3; transform: scale(0.9); }
-            50%  { opacity: 1;   transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
-            100% { opacity: 0.3; transform: scale(0.9); }
+            0% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+                box-shadow: 0 0 15px var(--accent);
+            }
+
+            100% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
         }
 
         /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .section-right  { flex: 0.5; }
-            .section-center { flex: 2; gap: 10px; }
-            .time-display   { display: none; }
-            .track-title    { max-width: 160px; font-size: 13px; }
-            .status-block   { display: none; }
+            .section-right {
+                flex: 0.5;
+            }
+
+            .section-center {
+                flex: 2;
+                gap: 10px;
+            }
+
+            .time-display {
+                display: none;
+            }
+
+            .track-title {
+                max-width: 160px;
+                font-size: 13px;
+            }
+
+            .status-block {
+                display: none;
+            }
         }
 
         @media (max-width: 480px) {
-            .track-title    { max-width: 110px; }
-            #nexus-player-bar { padding: 0 10px; padding-bottom: 5px; }
-            .volume-wrapper { display: none; }
-            .btn-nav svg    { width: 18px; height: 18px; }
+            .track-title {
+                max-width: 110px;
+            }
+
+            #nexus-player-bar {
+                padding: 0 10px;
+                padding-bottom: 5px;
+            }
+
+            .volume-wrapper {
+                display: none;
+            }
+
+            .btn-nav svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* --- AD OVERLAY STYLES --- */
+        #ad-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(12, 10, 10, 0.95);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            border-bottom: 2px solid #ff4444;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        .ad-overlay-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .ad-overlay-text {
+            color: #ff4444;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+            animation: ad-glitch 1.5s infinite;
+        }
+
+        .ad-overlay-scanner {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 68, 68, 0.15), transparent);
+            animation: ad-scan 2.5s linear infinite;
+        }
+
+        @keyframes ad-scan {
+            0% { left: -100%; }
+            100% { left: 150%; }
+        }
+
+        @keyframes ad-glitch {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(255, 68, 68, 0.8); }
+            98% { transform: scale(1); }
+            99% { transform: skew(-5deg) scale(0.98); }
         }
     </style>
 </head>
@@ -433,13 +557,19 @@
 <body>
 
     <!-- Full-screen video — behind the bar -->
-    <iframe id="video-frame"
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowfullscreen></iframe>
+    <iframe id="video-frame" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- NEXUS PLAYER BAR -->
     <div id="nexus-player-bar" onclick="handleBarClick(event)">
         <div id="dynamic-bg"></div>
+
+        <!-- AD OVERLAY -->
+        <div id="ad-overlay">
+            <div class="ad-overlay-content">
+                <span class="ad-overlay-scanner"></span>
+                <span class="ad-overlay-text">AD DETECTED // STREAM SUSPENDED</span>
+            </div>
+        </div>
 
         <!-- LEFT: Telemetry -->
         <div class="section-left">
@@ -460,18 +590,24 @@
             <div class="time-display" id="current-time">00:00</div>
 
             <button class="btn btn-nav" onclick="triggerPrev()" title="Restart">
-                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+                </svg>
             </button>
 
             <button class="btn btn-main" id="play-pause-btn" onclick="togglePlay()">
-                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="play-icon" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
                 <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                 </svg>
             </button>
 
             <button class="btn btn-nav" onclick="triggerNext()" title="Skip">
-                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                <svg viewBox="0 0 24 24">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                </svg>
             </button>
 
             <div class="time-display" id="duration">00:00</div>
@@ -479,8 +615,11 @@
 
         <!-- RIGHT: Aux Systems -->
         <div class="section-right">
-            <button class="btn" id="repeat-btn" onclick="toggleRepeat()" title="Cycle Loop Mode" style="position:relative;">
-                <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+            <button class="btn" id="repeat-btn" onclick="toggleRepeat()" title="Cycle Loop Mode"
+                style="position:relative;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+                </svg>
                 <div class="repeat-badge" id="repeat-badge">1</div>
             </button>
 
@@ -488,21 +627,24 @@
             <div class="volume-wrapper" id="volume-wrapper" onclick="toggleVolumeTouch(event)">
                 <button class="volume-icon-btn" id="volume-mute-btn" onclick="toggleMute()">
                     <svg id="vol-icon-high" viewBox="0 0 24 24">
-                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        <path
+                            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                     </svg>
                     <svg id="vol-icon-muted" viewBox="0 0 24 24" style="display:none;">
-                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/>
+                        <path
+                            d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z" />
                     </svg>
                 </button>
                 <div class="volume-slider-container">
                     <input type="range" id="volume-slider" min="0" max="100" value="100"
-                           oninput="updateVolume(this.value)">
+                        oninput="updateVolume(this.value)">
                 </div>
             </div>
 
             <button class="btn" onclick="openYouTube()" title="Open on YouTube">
                 <svg viewBox="0 0 24 24">
-                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                    <path
+                        d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
                 </svg>
             </button>
         </div>
@@ -531,19 +673,92 @@
 
         // ── State ─────────────────────────────────────────────────────────────
         let player;
-        const videoId        = urlParams.get('v') || 'dQw4w9WgXcQ';
-        const autoplay       = urlParams.get('ap') !== '0' ? 1 : 0;
-        let repeatState      = 0;
+        const videoId = urlParams.get('v') || 'dQw4w9WgXcQ';
+        const autoplay = urlParams.get('ap') !== '0' ? 1 : 0;
+        let repeatState = 0;
         let animationFrameId;
         let isDraggingProgress = false;
-        let preMuteVolume    = 100;
+        let preMuteVolume = 100;
         let lastSyncedVolume = -1;
-        let lastSyncedMute   = null;
-        let volumeSetTime    = 0;
+        let lastSyncedMute = null;
+        let volumeSetTime = 0;
         let initialMetadataSet = false;
+        let isAdActive = false;
+
+        // ── Ad Detection Infrastructure ────────────────────────────────────────
+        // Intercept cross-origin postMessages from YouTube player
+        window.addEventListener('message', function(event) {
+            try {
+                const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                if (data && data.event === 'infoDelivery' && data.info) {
+                    if (data.info.adState !== undefined) {
+                        setAdState(data.info.adState > 0);
+                    } else if (data.info.adShowing !== undefined) {
+                        setAdState(!!data.info.adShowing);
+                    } else if (data.info.isAd !== undefined) {
+                        setAdState(!!data.info.isAd);
+                    }
+                }
+            } catch (e) {
+                // Ignore parsing errors
+            }
+        });
+
+        function checkAdStatus() {
+            if (!player || typeof player.getVideoData !== 'function') return;
+            
+            const data = player.getVideoData();
+            let isAd = false;
+            
+            if (data && data.video_id) {
+                if (data.video_id !== videoId) {
+                    if (typeof player.getPlaylist === 'function') {
+                        const playlist = player.getPlaylist();
+                        if (!playlist || !playlist.includes(data.video_id)) {
+                            isAd = true;
+                        }
+                    } else {
+                        isAd = true;
+                    }
+                }
+            }
+            
+            setAdState(isAd);
+        }
+
+        function setAdState(isAd) {
+            const overlay = document.getElementById('ad-overlay');
+            if (isAd) {
+                if (!isAdActive) {
+                    isAdActive = true;
+                    overlay.style.display = 'flex';
+                    setStatus('AD.PLAY', '#ff4444', '0.5s');
+                    syncMuteWithUI();
+                }
+            } else {
+                if (isAdActive) {
+                    isAdActive = false;
+                    overlay.style.display = 'none';
+                    resetStatusAfterAd();
+                    syncMuteWithUI();
+                }
+            }
+        }
+
+        function resetStatusAfterAd() {
+            if (!player || typeof player.getPlayerState !== 'function') return;
+            const state = player.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                setStatus('ACTIVE', 'var(--accent)', '1s');
+            } else if (state === YT.PlayerState.BUFFERING) {
+                setStatus('BUFFERING', 'var(--accent)', '0.5s');
+            } else {
+                setStatus('STANDBY', 'var(--accent)', '4s');
+            }
+        }
 
         function safeGetStorage(k) { try { return localStorage.getItem(k); } catch { return null; } }
-        function safeSetStorage(k, v) { try { localStorage.setItem(k, v); } catch {} }
+        function safeSetStorage(k, v) { try { localStorage.setItem(k, v); } catch { } }
 
         // ── YT IFrame API bootstrap ───────────────────────────────────────────
         function initializePlayback() {
@@ -552,7 +767,7 @@
             } else {
                 if (!document.getElementById('yt-iframe-api-script')) {
                     const s = document.createElement('script');
-                    s.id  = 'yt-iframe-api-script';
+                    s.id = 'yt-iframe-api-script';
                     s.src = 'https://www.youtube.com/iframe_api';
                     document.head.appendChild(s);
                 }
@@ -577,9 +792,9 @@
 
             player = new YT.Player('video-frame', {
                 events: {
-                    onReady:       onSystemReady,
+                    onReady: onSystemReady,
                     onStateChange: onSystemStateChange,
-                    onError:       onSystemError,
+                    onError: onSystemError,
                 }
             });
         }
@@ -591,7 +806,7 @@
         // ── Player events ─────────────────────────────────────────────────────
         function onSystemReady() {
             // Restore volume + mute from localStorage (params override if present)
-            const savedVol  = safeGetStorage('nexus-volume');
+            const savedVol = safeGetStorage('nexus-volume');
             const savedMute = safeGetStorage('nexus-muted');
             const hasMuteParam = urlParams.get('mute') === '1' || urlParams.get('mute') === 'true';
 
@@ -602,37 +817,68 @@
             const isMuted = hasMuteParam || savedMute === '1';
 
             player.setVolume(vol);
-            isMuted ? player.mute() : player.unMute();
+            player.mute(); // Mute initially because play icon is showing by default
 
             const slider = document.getElementById('volume-slider');
             slider.value = isMuted ? 0 : vol;
             toggleMuteIcon(isMuted || vol === 0);
             lastSyncedVolume = isMuted ? 0 : vol;
-            lastSyncedMute   = isMuted;
-            volumeSetTime    = Date.now();
+            lastSyncedMute = isMuted;
+            volumeSetTime = Date.now();
 
             setStatus('SYS.OK', 'var(--accent)', '4s');
             updateTelemetry();
+
+            // Register ad state listener if supported by the player runtime
+            try {
+                player.addEventListener('onAdStateChange', function(state) {
+                    setAdState(state === 1 || state === true);
+                });
+            } catch (e) {
+                // Ignore errors if unsupported
+            }
+
+            // Fallback periodic check for ad state changes
+            setInterval(checkAdStatus, 200);
+
+            // Block overlay click propagation to prevent triggering control actions
+            const adOverlay = document.getElementById('ad-overlay');
+            if (adOverlay) {
+                adOverlay.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
         }
 
         function onSystemStateChange(event) {
-            const playIcon  = document.getElementById('play-icon');
+            const playIcon = document.getElementById('play-icon');
             const pauseIcon = document.getElementById('pause-icon');
 
+            // Instantly check ad status when state changes
+            checkAdStatus();
+
             if (event.data === YT.PlayerState.PLAYING) {
-                playIcon.style.display  = 'none';
+                playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
-                setStatus('ACTIVE', 'var(--accent)', '1s');
+                syncMuteWithUI();
+                if (!isAdActive) {
+                    setStatus('ACTIVE', 'var(--accent)', '1s');
+                }
                 updateTelemetry();
                 setTimeout(applyMarqueeLogic, 500);
                 startCinematicLoop();
             } else if (event.data === YT.PlayerState.BUFFERING) {
-                setStatus('BUFFERING', 'var(--accent)', '0.5s');
+                if (!isAdActive) {
+                    setStatus('BUFFERING', 'var(--accent)', '0.5s');
+                }
                 syncVolumeUI();
             } else {
-                playIcon.style.display  = 'block';
+                playIcon.style.display = 'block';
                 pauseIcon.style.display = 'none';
-                setStatus('STANDBY', 'var(--accent)', '4s');
+                syncMuteWithUI();
+                if (!isAdActive) {
+                    setStatus('STANDBY', 'var(--accent)', '4s');
+                }
                 stopCinematicLoop();
                 syncVolumeUI();
             }
@@ -685,65 +931,117 @@
         function updateVolume(val) {
             if (!player) return;
             val = parseInt(val);
-            player.setVolume(val);
             safeSetStorage('nexus-volume', val);
+            
+            const playIcon = document.getElementById('play-icon');
+            const isPaused = playIcon.style.display !== 'none';
+            
             if (val === 0) {
-                player.mute();
                 toggleMuteIcon(true);
                 safeSetStorage('nexus-muted', '1');
+                player.mute();
             } else {
-                player.unMute();
                 toggleMuteIcon(false);
                 safeSetStorage('nexus-muted', '0');
+                if (!isPaused && !isAdActive) {
+                    player.unMute();
+                    player.setVolume(val);
+                } else {
+                    player.setVolume(val);
+                }
             }
             lastSyncedVolume = val;
-            lastSyncedMute   = (val === 0);
-            volumeSetTime    = Date.now();
+            lastSyncedMute = (val === 0);
+            volumeSetTime = Date.now();
         }
 
         function syncVolumeUI() {
             if (Date.now() - volumeSetTime < 1000) return;
             if (!player || !player.getVolume || !player.isMuted) return;
-            const vol   = player.getVolume();
+            
+            // Skip sync if muted due to pause or active ad
+            const playIcon = document.getElementById('play-icon');
+            const isPaused = playIcon.style.display !== 'none';
+            if (isAdActive || isPaused) return;
+
+            const vol = player.getVolume();
             const muted = player.isMuted();
             if (vol !== lastSyncedVolume || muted !== lastSyncedMute) {
                 lastSyncedVolume = vol;
-                lastSyncedMute   = muted;
+                lastSyncedMute = muted;
                 document.getElementById('volume-slider').value = muted ? 0 : vol;
                 toggleMuteIcon(muted || vol === 0);
                 // Persist — catches changes made via the player's own controls
                 safeSetStorage('nexus-volume', vol);
-                safeSetStorage('nexus-muted',  muted ? '1' : '0');
+                safeSetStorage('nexus-muted', muted ? '1' : '0');
+            }
+        }
+
+        function syncMuteWithUI() {
+            if (!player) return;
+            const playIcon = document.getElementById('play-icon');
+            const isPaused = playIcon.style.display !== 'none';
+            
+            if (isAdActive) {
+                if (typeof player.mute === 'function') {
+                    player.mute();
+                }
+            } else {
+                if (isPaused) {
+                    if (typeof player.mute === 'function') {
+                        player.mute();
+                    }
+                } else {
+                    const savedMute = safeGetStorage('nexus-muted');
+                    const slider = document.getElementById('volume-slider');
+                    const isUserMuted = (savedMute === '1' || slider.value == 0);
+                    if (isUserMuted) {
+                        if (typeof player.mute === 'function') {
+                            player.mute();
+                        }
+                    } else {
+                        if (typeof player.unMute === 'function') {
+                            player.unMute();
+                        }
+                    }
+                }
             }
         }
 
         function toggleMute() {
             if (!player) return;
             const slider = document.getElementById('volume-slider');
-            if (player.isMuted() || slider.value == 0) {
-                player.unMute();
+            const playIcon = document.getElementById('play-icon');
+            const isPaused = playIcon.style.display !== 'none';
+            const userMuted = safeGetStorage('nexus-muted') === '1' || slider.value == 0;
+
+            if (userMuted) {
                 const v = preMuteVolume || 100;
-                player.setVolume(v);
                 slider.value = v;
-                toggleMuteIcon(false);
-                lastSyncedVolume = v;
-                lastSyncedMute   = false;
                 safeSetStorage('nexus-volume', v);
-                safeSetStorage('nexus-muted',  '0');
+                safeSetStorage('nexus-muted', '0');
+                lastSyncedVolume = v;
+                lastSyncedMute = false;
+                toggleMuteIcon(false);
+                
+                if (!isPaused && !isAdActive) {
+                    player.unMute();
+                    player.setVolume(v);
+                }
             } else {
-                preMuteVolume = parseInt(slider.value);
-                player.mute();
+                preMuteVolume = parseInt(slider.value) || 100;
                 slider.value = 0;
-                toggleMuteIcon(true);
-                lastSyncedVolume = 0;
-                lastSyncedMute   = true;
                 safeSetStorage('nexus-muted', '1');
+                lastSyncedVolume = 0;
+                lastSyncedMute = true;
+                toggleMuteIcon(true);
+                player.mute();
             }
             volumeSetTime = Date.now();
         }
 
         function toggleMuteIcon(isMuted) {
-            document.getElementById('vol-icon-high').style.display  = isMuted ? 'none'  : 'block';
+            document.getElementById('vol-icon-high').style.display = isMuted ? 'none' : 'block';
             document.getElementById('vol-icon-muted').style.display = isMuted ? 'block' : 'none';
         }
 
@@ -754,15 +1052,15 @@
             setTimeout(() => { if (!w.classList.contains('is-dragging')) w.classList.remove('active'); }, 3000);
         }
 
-        const volSlider  = document.getElementById('volume-slider');
+        const volSlider = document.getElementById('volume-slider');
         const volWrapper = document.getElementById('volume-wrapper');
         function setVolDragging(on) {
             on ? volWrapper.classList.add('is-dragging')
-               : (volWrapper.classList.remove('is-dragging'), volWrapper.classList.remove('active'));
+                : (volWrapper.classList.remove('is-dragging'), volWrapper.classList.remove('active'));
         }
-        volSlider.addEventListener('mousedown',  () => setVolDragging(true));
+        volSlider.addEventListener('mousedown', () => setVolDragging(true));
         volSlider.addEventListener('touchstart', () => setVolDragging(true), { passive: true });
-        document.addEventListener('mouseup',  () => { if (volWrapper.classList.contains('is-dragging')) setVolDragging(false); });
+        document.addEventListener('mouseup', () => { if (volWrapper.classList.contains('is-dragging')) setVolDragging(false); });
         document.addEventListener('touchend', () => { if (volWrapper.classList.contains('is-dragging')) setVolDragging(false); });
 
         // ── Repeat ────────────────────────────────────────────────────────────
@@ -789,10 +1087,14 @@
                     if (dur > 0) {
                         document.getElementById('progress-bar').style.width = (curr / dur) * 100 + '%';
                         document.getElementById('current-time').innerText = formatTime(curr);
-                        document.getElementById('duration').innerText     = formatTime(dur);
+                        document.getElementById('duration').innerText = formatTime(dur);
                     }
                 }
                 if (!volWrapper.classList.contains('is-dragging')) syncVolumeUI();
+
+                // Track ad status changes during playback
+                checkAdStatus();
+
                 animationFrameId = requestAnimationFrame(update);
             }
             animationFrameId = requestAnimationFrame(update);
@@ -802,11 +1104,12 @@
 
         // ── Telemetry ─────────────────────────────────────────────────────────
         function updateTelemetry() {
+            if (isAdActive) return;
             if (!player || !player.getVideoData) return;
             const data = player.getVideoData();
             if (data && data.title) {
                 if (!initialMetadataSet) {
-                    document.getElementById('track-name').innerText  = data.title.toUpperCase();
+                    document.getElementById('track-name').innerText = data.title.toUpperCase();
                     document.getElementById('credit-label').innerText = (data.author || '').toUpperCase();
                     document.title = data.title + ' — VP';
                     initialMetadataSet = true;
@@ -836,10 +1139,10 @@
         function setStatus(text, color, pulseSpeed) {
             const ind = document.getElementById('status-indicator');
             const lbl = document.getElementById('status-label');
-            ind.style.background       = color;
-            ind.style.boxShadow        = `0 0 10px ${color}`;
+            ind.style.background = color;
+            ind.style.boxShadow = `0 0 10px ${color}`;
             ind.style.animationDuration = pulseSpeed;
-            lbl.innerText  = text;
+            lbl.innerText = text;
             lbl.style.color = color;
         }
 
@@ -858,12 +1161,12 @@
             }
         }
 
-        progressContainer.addEventListener('mousedown',  e => { isDraggingProgress = true; stopCinematicLoop(); handleScrub(e); });
+        progressContainer.addEventListener('mousedown', e => { isDraggingProgress = true; stopCinematicLoop(); handleScrub(e); });
         progressContainer.addEventListener('touchstart', e => { isDraggingProgress = true; stopCinematicLoop(); handleScrub(e); }, { passive: false });
         document.addEventListener('mousemove', e => { if (isDraggingProgress) handleScrub(e); });
         document.addEventListener('touchmove', e => { if (isDraggingProgress) handleScrub(e); }, { passive: false });
-        document.addEventListener('mouseup',   e => { if (isDraggingProgress) handleScrub(e); });
-        document.addEventListener('touchend',  e => { if (isDraggingProgress) handleScrub(e); });
+        document.addEventListener('mouseup', e => { if (isDraggingProgress) handleScrub(e); });
+        document.addEventListener('touchend', e => { if (isDraggingProgress) handleScrub(e); });
 
         function formatTime(s) {
             return `${Math.floor(s / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
